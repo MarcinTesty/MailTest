@@ -1,4 +1,4 @@
-package com.shootingplace.shootingplace.domain.Entities;
+package com.shootingplace.shootingplace.domain.entities;
 
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package com.shootingplace.shootingplace.controllers;
 
-import com.shootingplace.shootingplace.Repositories.MemberRepository;
-import com.shootingplace.shootingplace.domain.Entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.Models.Member;
+import com.shootingplace.shootingplace.repositories.MemberRepository;
+import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.models.Member;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

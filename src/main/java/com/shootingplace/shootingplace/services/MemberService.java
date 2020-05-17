@@ -1,8 +1,8 @@
-package com.shootingplace.shootingplace.Services;
+package com.shootingplace.shootingplace.services;
 
-import com.shootingplace.shootingplace.Repositories.MemberRepository;
-import com.shootingplace.shootingplace.domain.Entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.Models.Member;
+import com.shootingplace.shootingplace.repositories.MemberRepository;
+import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.models.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,7 @@ public class MemberService {
 
 
     public UUID addMember(Member member) {
+        System.out.println("Dodano nowego członka Klubu");
         return memberRepository.saveAndFlush(map(member)).getUuid();
     }
 
@@ -47,24 +48,34 @@ public class MemberService {
 
             if (member.getFirstName() != null) {
                 memberEntity.setFirstName(member.getFirstName());
+                System.out.println(goodMessage() + "Imię");
             }
             if (member.getSecondName() != null) {
                 memberEntity.setSecondName(member.getSecondName());
+                System.out.println(goodMessage() + "Nazwisko");
+
             }
             if (member.getLicenseNumber() != null) {
                 memberEntity.setLicenseNumber(member.getLicenseNumber());
+                System.out.println(goodMessage() + "Numer Licencji");
+
             }
             if (member.getEmail() != null) {
                 memberEntity.setEmail(member.getEmail());
+                System.out.println(goodMessage() + "Email");
+
             }
             if (member.getPesel() != null) {
                 memberEntity.setPesel(member.getPesel());
+                System.out.println(goodMessage() + "Numer PESEL");
+
             }
             if (member.getAddress() != null) {
                 memberEntity.setAddress(member.getAddress());
+                System.out.println(goodMessage() + "Adres");
+
             }
             memberRepository.saveAndFlush(memberEntity);
-            goodMessage();
             return true;
         } catch (
                 EntityNotFoundException ex) {
@@ -73,12 +84,12 @@ public class MemberService {
         }
     }
 
-    private void goodMessage() {
-        System.out.println("Zaktualizowano pomyślnie");
+    private String goodMessage() {
+        return "Zaktualizowano pomyślnie : ";
     }
 
     private void badMessage() {
-        System.out.println("Nie udało się zaktualizować bo Klubowicz nieistnieje");
+        System.out.println("Nie udało się zaktualizować bo Klubowicz nie istnieje");
     }
 
     //--------------------------------------------------------------------------
