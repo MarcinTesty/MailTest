@@ -1,16 +1,16 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.sun.istack.NotNull;
+import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.validation.constraints.NotEmpty;
 import java.util.UUID;
 
 @Entity
@@ -25,18 +25,12 @@ public class MemberEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    @NotNull
-    @NotEmpty
     private String firstName;
-    @NotNull
-    @NotEmpty
     private String secondName;
     private String licenseNumber;
-    @NotNull
-    @NotEmpty
+    @Email
     private String email;
-    @NotNull
-    @NotEmpty
+    @ValidPESEL
     private String pesel;
     private String address;
 }

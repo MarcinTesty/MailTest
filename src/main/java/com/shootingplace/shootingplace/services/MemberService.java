@@ -21,6 +21,7 @@ public class MemberService {
     public Map<UUID, Member> getMembers() {
         Map<UUID, Member> map = new HashMap<>();
         memberRepository.findAll().forEach(e -> map.put(e.getUuid(), map(e)));
+        System.out.println("Wyświetlono listę członków klubu");
         return map;
     }
 
@@ -35,8 +36,10 @@ public class MemberService {
 
         if (memberRepository.existsById(uuid)) {
             memberRepository.deleteById(uuid);
+            System.out.println("Usunięto członka klubu");
             return true;
         } else
+            System.out.println("Taki klubowicz nie istnieje więc nie może być usunięty");
             return false;
     }
 

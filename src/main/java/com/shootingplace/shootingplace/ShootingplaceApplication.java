@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace;
 
+import com.shootingplace.shootingplace.validators.PeselValidator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
