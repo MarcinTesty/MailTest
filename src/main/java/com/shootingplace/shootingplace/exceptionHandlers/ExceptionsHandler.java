@@ -14,5 +14,10 @@ public class ExceptionsHandler {
     public String handleMissingPathVariableException(Exception ex) {
         return ex.getMessage();
     }
+    @ExceptionHandler(value = NumberFormatException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleNumberFormatException(Exception ex) {
+        System.out.println("źle podano numer PESEL");
+        return "podałeś złe dane";}
 
 }
