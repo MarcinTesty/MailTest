@@ -55,7 +55,7 @@ public class MemberControllerTest {
                 .firstName("Janusz")
                 .secondName("Piekutowski")
                 .email("cośta@mail.com")
-                .pesel("22222222222")
+                .pesel("90120510813")
                 .build();
         ResponseEntity<String> re = testRestTemplate.postForEntity("/member/", member, String.class);
         assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -97,6 +97,14 @@ public class MemberControllerTest {
         System.out.println(uuid);
         memberEntity = memberRepository.findById(uuid).orElseGet(MemberEntity::new);
         assertEquals(updatedMember2.getSecondName(), memberEntity.getSecondName());
+
+    }
+
+    @Test
+    public void failUpdateMemberTest(){
+        Member updatedMember = Member.builder()
+                .firstName("Jasko")
+                .build();
 
     }
 

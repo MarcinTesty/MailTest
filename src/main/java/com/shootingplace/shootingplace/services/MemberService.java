@@ -28,23 +28,37 @@ public class MemberService {
 
     //--------------------------------------------------------------------------
     public void addMember(Member member) {
-
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
-            System.out.println("Już istnieje klubowicz z takim numerem PESEL");
+            System.out.println("Ktoś już na taki numer PESEL");
         } else if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
-            System.out.println("Już istnieje klubowicz z takim e-mailem");
+            System.out.println("Ktoś już ma taki adres e-mail");
         } else if (memberRepository.findByLicenseNumber(member.getLicenseNumber()).isPresent()) {
             System.out.println("Ktoś już ma taki numer licencji");
-        } else if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
+        } else if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber
+                ()).isPresent()) {
             System.out.println("Ktoś już ma taki numer patentu");
         } else if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             System.out.println("Ktoś już ma taki numer legitymacji");
         } else {
             if (member.getJoinDate() == null) {
+                System.out.println("ustawiono domyślną datę zapisu");
                 member.setJoinDate(LocalDate.now());
             }
             if (member.getLegitimationNumber() == null) {
+                System.out.println("ustawiono domyślny numer legitymacji");
                 member.setLegitimationNumber(memberRepository.findAll().size() + 1);
+            }
+            if (member.getLicenseNumber() == null) {
+                System.out.println("Nie ma numeru licencji");
+                member.setLicenseNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada licencji");
+            }
+            if (member.getShootingPatentNumber() == null) {
+                System.out.println("Nie ma numeru patentu");
+                member.setShootingPatentNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada patentu");
+            }
+            if (member.getAddress() == null) {
+                System.out.println("Adres nie został wskazany");
+                member.setAddress("nie wskazano adresu");
             }
             System.out.println("Dodano nowego członka Klubu");
             memberRepository.saveAndFlush(map(member));
@@ -78,6 +92,10 @@ public class MemberService {
                 System.out.println(goodMessage() + "Nazwisko");
 
             }
+            if (member.getJoinDate() != null) {
+                memberEntity.setJoinDate(member.getJoinDate());
+                System.out.println(goodMessage() + "Data przystąpienia do klubu");
+            }
             if (member.getLegitimationNumber() != null) {
                 if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
                     System.out.println("Już ktoś ma taki numer legitymacji");
@@ -98,6 +116,7 @@ public class MemberService {
             if (member.getShootingPatentNumber() != null) {
                 if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
                     System.out.println("Już ktoś ma ten numer patentu");
+                    return false;
                 } else {
                     memberEntity.setShootingPatentNumber(member.getShootingPatentNumber());
                     System.out.println(goodMessage() + "Numer Patentu");
@@ -105,8 +124,8 @@ public class MemberService {
             }
             if (member.getEmail() != null) {
                 if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
-                    System.out.println("Już ktoś ma taki sam e-mail"
-                    );
+                    System.out.println("Już ktoś ma taki sam e-mail");
+                    return false;
                 } else {
                     memberEntity.setEmail(member.getEmail());
                     System.out.println(goodMessage() + "Email");
@@ -115,6 +134,7 @@ public class MemberService {
             if (member.getPesel() != null) {
                 if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
                     System.out.println("Już ktoś ma taki sam numer PESEL");
+                    return false;
                 } else {
                     memberEntity.setPesel(member.getPesel());
                     System.out.println(goodMessage() + "Numer PESEL");
