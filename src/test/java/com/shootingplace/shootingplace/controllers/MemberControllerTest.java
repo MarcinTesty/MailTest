@@ -37,8 +37,8 @@ public class MemberControllerTest {
         MemberEntity memberEntity = MemberEntity.builder()
                 .firstName("Janusz")
                 .secondName("Piekutowski")
-                .email("cośta@mail.com")
-                .pesel("22050612398")
+                .email("cośtam@mail.com")
+                .pesel("22222222222")
                 .build();
         memberEntity = memberRepository.saveAndFlush(memberEntity);
         uuid = memberEntity.getUuid();
@@ -55,7 +55,7 @@ public class MemberControllerTest {
                 .firstName("Janusz")
                 .secondName("Piekutowski")
                 .email("cośta@mail.com")
-                .pesel("22050612398")
+                .pesel("22222222222")
                 .build();
         ResponseEntity<String> re = testRestTemplate.postForEntity("/member/", member, String.class);
         assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -68,7 +68,7 @@ public class MemberControllerTest {
                 .firstName("Januszex")
                 .secondName("Piekutowski")
                 .email("cośtam@mail.com")
-                .pesel("255555555")
+                .pesel("22222222222")
                 .build();
         memberRepository.saveAndFlush(memberEntity);
         ResponseEntity<Map<UUID, Member>> re = testRestTemplate
@@ -106,7 +106,7 @@ public class MemberControllerTest {
                 .firstName("Janusz")
                 .secondName("Piekutowski")
                 .email("cośta@mail.com")
-                .pesel("22050612398")
+                .pesel("22222222222")
                 .build();
         memberEntity2 = memberRepository.saveAndFlush(memberEntity2);
         UUID uuid2 = memberEntity2.getUuid();

@@ -6,6 +6,7 @@ import com.shootingplace.shootingplace.domain.models.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public class MemberController {
     public Map<UUID, Member> getMembers(){return memberService.getMembers();}
 
     @PostMapping("/")
-    public UUID addMember(@RequestBody Member member){
+    public UUID addMember(@RequestBody @Valid Member member){
         return memberService.addMember(member);
     }
 
