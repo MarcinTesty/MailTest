@@ -17,7 +17,7 @@ public class ExceptionsHandler {
     @ExceptionHandler(value = NumberFormatException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleNumberFormatException(Exception ex) {
-        System.out.println("źle podano numer PESEL");
+        System.out.println(ex.getMessage() +"źle podano numer PESEL");
         return "podałeś złe dane";}
 
 }
