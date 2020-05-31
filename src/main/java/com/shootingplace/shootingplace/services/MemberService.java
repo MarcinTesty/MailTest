@@ -208,9 +208,17 @@ public class MemberService {
                     memberEntity.setAddress(member.getAddress());
                     System.out.println(goodMessage() + "Adres");
                 }
+                if (member.getPhoneNumber().replaceAll("\\s", "").length() != 9) {
+                    System.out.println("Żle podany numer");
+                    return false;
+                }
                 if (member.getPhoneNumber() != null) {
                     String s = "+48";
                     memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
+                    if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
+                        System.out.println("Ktoś już ma taki numer telefonu");
+                        return false;
+                    }
                     System.out.println(goodMessage() + "Numer Telefonu");
                 }
             }
