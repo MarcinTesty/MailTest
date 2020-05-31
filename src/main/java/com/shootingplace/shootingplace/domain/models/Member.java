@@ -1,25 +1,13 @@
 package com.shootingplace.shootingplace.domain.models;
 
-import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.UniqueElements;
-import org.hibernate.validator.constraints.pl.PESEL;
-import org.springframework.lang.Nullable;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.Date;
-
-import static javax.persistence.GenerationType.SEQUENCE;
 
 
 @Data
@@ -39,8 +27,9 @@ public class Member {
     @NotBlank
     @Email(message = "e-mail nie może być pusty ani zawierać spacji")
     private String email;
-    @ValidPESEL
-    @Pattern(regexp = "[0-9]*")
     private String pesel;
+    private String phoneNumber;
+    private Boolean weaponPermission;
     private String address;
+    private Boolean active = false;
 }

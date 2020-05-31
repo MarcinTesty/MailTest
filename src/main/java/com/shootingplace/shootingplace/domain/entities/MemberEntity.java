@@ -43,4 +43,9 @@ public class MemberEntity {
     @Pattern(regexp = "[0-9]*")
     private String pesel;
     private String address;
+    @NotBlank
+    @Pattern(regexp = "^\\+[0-9]{11}$")
+    private String phoneNumber;
+    private Boolean weaponPermission;
+    private Boolean active = false;
 }
