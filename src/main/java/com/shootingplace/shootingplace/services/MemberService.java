@@ -204,10 +204,10 @@ public class MemberService {
                         System.out.println(goodMessage() + "Numer PESEL");
                     }
                 }
-                if (member.getAddress() != null) {
-                    memberEntity.setAddress(member.getAddress());
-                    System.out.println(goodMessage() + "Adres");
-                }
+//                if (member.getAddress() != null) {
+//                    memberEntity.setAddress(member.getAddress());
+//                    System.out.println(goodMessage() + "Adres");
+//                }
                 if (member.getPhoneNumber().replaceAll("\\s", "").length() != 9) {
                     System.out.println("Żle podany numer");
                     return false;
@@ -252,7 +252,8 @@ public class MemberService {
                 .shootingPatentNumber(e.getShootingPatentNumber())
                 .email(e.getEmail())
                 .pesel(e.getPesel())
-                .address(e.getAddress())
+                //                .address(Address.builder().build())
+//                .address(e.getAddress())
                 .phoneNumber(e.getPhoneNumber())
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
@@ -269,7 +270,6 @@ public class MemberService {
                 .shootingPatentNumber(e.getShootingPatentNumber())
                 .email(e.getEmail())
                 .pesel(e.getPesel())
-                .address(e.getAddress())
                 .phoneNumber(e.getPhoneNumber())
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
