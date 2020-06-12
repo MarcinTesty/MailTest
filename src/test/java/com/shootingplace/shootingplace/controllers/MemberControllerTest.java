@@ -38,7 +38,7 @@ public class MemberControllerTest {
                 .firstName("Janusz")
                 .secondName("Piekutowski")
                 .email("cośtam@mail.com")
-                .pesel("22222222222")
+                .pesel("22222222222").phoneNumber("+48987654321").active(true)
                 .build();
         memberEntity = memberRepository.saveAndFlush(memberEntity);
         uuid = memberEntity.getUuid();
@@ -55,7 +55,7 @@ public class MemberControllerTest {
                 .firstName("Janusz")
                 .secondName("Piekutowski")
                 .email("cośta@mail.com")
-                .pesel("90120510813")
+                .pesel("90120510813").phoneNumber("+48987654321").active(true)
                 .build();
         ResponseEntity<String> re = testRestTemplate.postForEntity("/member/", member, String.class);
         assertEquals(HttpStatus.OK, re.getStatusCode());

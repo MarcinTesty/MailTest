@@ -1,7 +1,9 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.models.Address;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.repositories.AddressRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +17,23 @@ import java.util.UUID;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final AddressRepository addressRepository;
+    private final AddressService addressService;
 
-    public MemberService(MemberRepository memberRepository) {
+
+    public MemberService(MemberRepository memberRepository,
+                         AddressRepository addressRepository,
+                         AddressService addressService) {
         this.memberRepository = memberRepository;
+        this.addressRepository = addressRepository;
+        this.addressService = addressService;
     }
 
 
     //--------------------------------------------------------------------------
     public Map<UUID, Member> getMembers() {
         Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAll().forEach(e -> map.put(e.getUuid(), map(e)));
+        memberRepository.findAll().forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
         System.out.println("Wyświetlono listę członków klubu");
         System.out.println("Ilość klubowiczów aktywnych : " + memberRepository.findAllByActive(true).size());
         System.out.println("Ilość klubowiczów nieaktywnych : " + memberRepository.findAllByActive(false).size());
@@ -34,7 +43,7 @@ public class MemberService {
 
     public Map<UUID, Member> getActiveMembers() {
         Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAllByActive(true).forEach(e -> map.put(e.getUuid(), map(e)));
+        memberRepository.findAllByActive(true).forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
         System.out.println("Ilość klubowiczów aktywnych : " + map.size());
 
         return map;
@@ -42,7 +51,7 @@ public class MemberService {
 
     public Map<UUID, Member> getNonActiveMembers() {
         Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAllByActive(false).forEach(e -> map.put(e.getUuid(), map(e)));
+        memberRepository.findAllByActive(false).forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
         System.out.println("Ilość klubowiczów aktywnych : " + map.size());
 
         return map;
@@ -79,10 +88,6 @@ public class MemberService {
                 System.out.println("Nie ma numeru patentu");
                 member.setShootingPatentNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada patentu");
             }
-            if (member.getAddress() == null) {
-                System.out.println("Adres nie został wskazany");
-                member.setAddress("nie wskazano adresu");
-            }
             if (member.getActive().equals(false) || member.getActive() == null || member.getActive().equals(true)) {
                 System.out.println("Klubowicz nie jest jeszcze aktywny");
                 member.setActive(false);
@@ -100,7 +105,18 @@ public class MemberService {
                 member.setPhoneNumber(s + member.getPhoneNumber().replaceAll("\\s", ""));
             }
             System.out.println("Dodano nowego członka Klubu");
-            memberRepository.saveAndFlush(map(member));
+            MemberEntity memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
+            if (memberEntity.getAddress() == null) {
+                Address address = Address.builder()
+                        .zipCode("00-000")
+                        .postOfficeCity("Brak")
+                        .street("Brak")
+                        .streetNumber("0")
+                        .flatNumber("0")
+                        .build();
+                addressService.addAddress(memberEntity.getUuid(), address);
+                addressRepository.saveAndFlush(Mapping.map(address));
+            }
         }
     }
 
@@ -124,7 +140,7 @@ public class MemberService {
         if (memberRepository.existsById(uuid)) {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
             if (!memberEntity.getActive()) {
-                System.out.println(memberEntity.getFirstName() + "jest już aktywny");
+                System.out.println(memberEntity.getFirstName() + " jest już aktywny");
                 memberEntity.setActive(true);
             } else {
                 System.out.println(memberEntity.getFirstName() + " Jest nieaktywny");
@@ -204,10 +220,6 @@ public class MemberService {
                         System.out.println(goodMessage() + "Numer PESEL");
                     }
                 }
-                if (member.getAddress() != null) {
-                    memberEntity.setAddress(member.getAddress());
-                    System.out.println(goodMessage() + "Adres");
-                }
                 if (member.getPhoneNumber().replaceAll("\\s", "").length() != 9) {
                     System.out.println("Żle podany numer");
                     return false;
@@ -237,43 +249,6 @@ public class MemberService {
 
     private void badMessage() {
         System.out.println("Nie znaleziono klubowicza");
-    }
-
-    //--------------------------------------------------------------------------
-
-    // Mapping
-    private Member map(MemberEntity e) {
-        return Member.builder()
-                .joinDate(e.getJoinDate())
-                .legitimationNumber(e.getLegitimationNumber())
-                .firstName(e.getFirstName())
-                .secondName(e.getSecondName())
-                .licenseNumber(e.getLicenseNumber())
-                .shootingPatentNumber(e.getShootingPatentNumber())
-                .email(e.getEmail())
-                .pesel(e.getPesel())
-                .address(e.getAddress())
-                .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
-                .active(e.getActive())
-                .build();
-    }
-
-    private MemberEntity map(Member e) {
-        return MemberEntity.builder()
-                .joinDate(e.getJoinDate())
-                .legitimationNumber(e.getLegitimationNumber())
-                .firstName(e.getFirstName())
-                .secondName(e.getSecondName())
-                .licenseNumber(e.getLicenseNumber())
-                .shootingPatentNumber(e.getShootingPatentNumber())
-                .email(e.getEmail())
-                .pesel(e.getPesel())
-                .address(e.getAddress())
-                .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
-                .active(e.getActive())
-                .build();
     }
 
 }
