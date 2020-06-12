@@ -8,7 +8,6 @@ import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
 import java.util.UUID;
 
 @Service
@@ -21,58 +20,57 @@ public class AddressService {
         this.memberRepository = memberRepository;
     }
 
-    public boolean addAddress(UUID memberuuid, @Valid Address address) {
-        MemberEntity memberEntity = memberRepository.findById(memberuuid).orElseThrow(EntityNotFoundException::new);
-        AddressEntity addressEntity = map(address);
+
+    public void addAddress(UUID memberUUID, Address address) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
+        AddressEntity addressEntity = Mapping.map(address);
         addressRepository.saveAndFlush(addressEntity);
-        memberEntity.setAddress(map(address));
+        memberEntity.setAddress(addressEntity);
         memberRepository.saveAndFlush(memberEntity);
-
-        return false;
+        System.out.println("Address został zapisany");
     }
-
-    public boolean updateAddress(UUID uuid, Address address) {
-        try{
-
-        }catch (Exception ex){return false;}
-        return true;
-    }
-
-//    public boolean updateCarMileage(UUID carUUID, Car car) {
-//        try {
-//            CarEntity updateCarEntity = carRepository
-//                    .findById(carUUID)
-//                    .orElseThrow(EntityNotFoundException::new);
-//            if (car.getMileage() != null) {
-//                car.setMileage(car.getMileage());
-//            }
-//            carRepository.save(updateCarEntity);
-//            return true;
-//        } catch (EntityNotFoundException ex) {
-//            return false;
-//        }
-//    }
 
     //--------------------------------------------------------------------------
-    //Mapping
-    private Address map(AddressEntity a) {
-        return Address.builder()
-                .zipCode(a.getZipCode())
-                .postOfficeCity(a.getPostOfficeCity())
-                .street(a.getStreet())
-                .streetNumber(a.getStreetNumber())
-                .flatNumber(a.getFlatNumber())
-                .build();
-    }
 
-    private AddressEntity map(Address a) {
-        return AddressEntity.builder()
-                .zipCode(a.getZipCode())
-                .postOfficeCity(a.getPostOfficeCity())
-                .street(a.getStreet())
-                .streetNumber(a.getStreetNumber())
-                .flatNumber(a.getFlatNumber())
-                .build();
+    public void updateAddress(UUID memberUUID, Address address) {
+        try {
+            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+            AddressEntity addressEntity = addressRepository.findById(memberEntity.getAddress().getUuid()).orElseThrow(EntityNotFoundException::new);
+            if (addressEntity == Mapping.map(address)) {
+                addressRepository.saveAndFlush(addressEntity);
+                memberEntity.setAddress(addressEntity);
+                memberRepository.saveAndFlush(memberEntity);
+            } else {
+                if (address.getZipCode() != null) {
+                    addressEntity.setZipCode(address.getZipCode());
+                    System.out.println("Kod pocztowy");
+                }
+                if (address.getPostOfficeCity() != null) {
+                    addressEntity.setPostOfficeCity(address.getPostOfficeCity());
+                    System.out.println("Miasto");
+                }
+                if (address.getStreet() != null) {
+                    addressEntity.setStreet(address.getStreet());
+                    System.out.println("Ulica");
+                }
+                if (address.getStreetNumber() != null) {
+                    addressEntity.setStreetNumber(address.getStreetNumber());
+                    System.out.println("Numer ulicy");
+                }
+                if (address.getFlatNumber() != null) {
+                    addressEntity.setFlatNumber(address.getFlatNumber());
+                    System.out.println("Numer mieszkania");
+                }
+                addressRepository.saveAndFlush(addressEntity);
+                memberEntity.setAddress(addressEntity);
+                memberRepository.saveAndFlush(memberEntity);
+                System.out.println("Zaktualizowano adres");
+            }
+        } catch (Exception ex) {
+            ex.getMessage();
+        }
+
     }
 
 }

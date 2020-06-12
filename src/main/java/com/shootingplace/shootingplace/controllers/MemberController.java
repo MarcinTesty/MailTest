@@ -1,8 +1,8 @@
 package com.shootingplace.shootingplace.controllers;
 
 
-import com.shootingplace.shootingplace.services.MemberService;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

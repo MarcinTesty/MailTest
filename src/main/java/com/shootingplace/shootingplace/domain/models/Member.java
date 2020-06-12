@@ -30,6 +30,6 @@ public class Member {
     private String pesel;
     private String phoneNumber;
     private Boolean weaponPermission;
-    private String address;
+    private Address address;
     private Boolean active = false;
 }

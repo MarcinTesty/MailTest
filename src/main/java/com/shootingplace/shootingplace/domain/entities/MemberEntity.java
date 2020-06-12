@@ -1,15 +1,16 @@
 package com.shootingplace.shootingplace.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shootingplace.shootingplace.validators.ValidPESEL;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -20,7 +21,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "members")
 public class MemberEntity {
 
     @Id
@@ -42,8 +42,9 @@ public class MemberEntity {
     @ValidPESEL
     @Pattern(regexp = "[0-9]*")
     private String pesel;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
+
+    @ManyToOne @EqualsAndHashCode.Exclude
+    @ToString.Exclude @JsonIgnoreProperties("members")
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
