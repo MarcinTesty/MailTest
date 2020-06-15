@@ -18,12 +18,12 @@ public class AddressController {
     }
 
     @PostMapping("/{memberUUID}")
-    public void addMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address) {
-        addressService.addAddress(memberUUID,address);
+    public boolean addMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address) {
+       return addressService.addAddress(memberUUID,address);
 
     }
     @PutMapping("/{memberUUID}")
-    public void updateMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address){
-        addressService.updateAddress(memberUUID,address);
+    public boolean updateMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address){
+        return addressService.updateAddress(memberUUID,address);
     }
 }

@@ -27,7 +27,7 @@ public class AddressEntity {
     @ToString.Exclude @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "address", orphanRemoval = true)
     private Set<MemberEntity> members = new HashSet<>();
-@Pattern(regexp = "\\d{2}-\\d{3}")
+    @Pattern(regexp = "\\d{2}-\\d{3}")
     private String zipCode;
     private String postOfficeCity;
     private String street;

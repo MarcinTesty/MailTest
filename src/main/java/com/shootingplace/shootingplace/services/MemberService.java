@@ -1,32 +1,31 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.enums.Disciplines;
 import com.shootingplace.shootingplace.domain.models.Address;
+import com.shootingplace.shootingplace.domain.models.License;
 import com.shootingplace.shootingplace.domain.models.Member;
-import com.shootingplace.shootingplace.repositories.AddressRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final AddressRepository addressRepository;
     private final AddressService addressService;
+    private final LicenseService licenseService;
 
 
     public MemberService(MemberRepository memberRepository,
-                         AddressRepository addressRepository,
-                         AddressService addressService) {
+                         AddressService addressService,
+                         LicenseService licenseService) {
         this.memberRepository = memberRepository;
-        this.addressRepository = addressRepository;
         this.addressService = addressService;
+        this.licenseService = licenseService;
     }
 
 
@@ -58,13 +57,12 @@ public class MemberService {
     }
 
     //--------------------------------------------------------------------------
-    public void addMember(Member member) {
+    public UUID addMember(Member member) {
+        MemberEntity memberEntity = null;
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             System.out.println("Ktoś już na taki numer PESEL");
         } else if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
             System.out.println("Ktoś już ma taki adres e-mail");
-        } else if (memberRepository.findByLicenseNumber(member.getLicenseNumber()).isPresent()) {
-            System.out.println("Ktoś już ma taki numer licencji");
         } else if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
             System.out.println("Ktoś już ma taki numer patentu");
         } else if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
@@ -80,18 +78,14 @@ public class MemberService {
                 System.out.println("ustawiono domyślny numer legitymacji");
                 member.setLegitimationNumber(memberRepository.findAll().size() + 1);
             }
-            if (member.getLicenseNumber() == null) {
-                System.out.println("Nie ma numeru licencji");
-                member.setLicenseNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada licencji");
-            }
             if (member.getShootingPatentNumber() == null) {
                 System.out.println("Nie ma numeru patentu");
                 member.setShootingPatentNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada patentu");
             }
-            if (member.getActive().equals(false) || member.getActive() == null || member.getActive().equals(true)) {
-                System.out.println("Klubowicz nie jest jeszcze aktywny");
-                member.setActive(false);
-            }
+//            if (member.getActive().equals(false) || member.getActive() == null || member.getActive().equals(true)) {
+//                System.out.println("Klubowicz nie jest jeszcze aktywny");
+//                member.setActive(false);
+//            }
             if (member.getWeaponPermission() == null) {
                 System.out.println("Klubowicz nie posiada pozwolenia na broń");
                 member.setWeaponPermission(false);
@@ -105,22 +99,36 @@ public class MemberService {
                 member.setPhoneNumber(s + member.getPhoneNumber().replaceAll("\\s", ""));
             }
             System.out.println("Dodano nowego członka Klubu");
-            MemberEntity memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
+            memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
             if (memberEntity.getAddress() == null) {
                 Address address = Address.builder()
-                        .zipCode("00-000")
-                        .postOfficeCity("Brak")
-                        .street("Brak")
-                        .streetNumber("0")
-                        .flatNumber("0")
+                        .zipCode(null)
+                        .postOfficeCity(null)
+                        .street(null)
+                        .streetNumber(null)
+                        .flatNumber(null)
                         .build();
                 addressService.addAddress(memberEntity.getUuid(), address);
-                addressRepository.saveAndFlush(Mapping.map(address));
+            }
+            if (memberEntity.getLicense() == null) {
+                License license = License.builder()
+                        .number(null)
+                        .disciplines(Disciplines.NOT_APPLICABLE)
+                        .validThrough(LocalDate.of(2019,12,31))
+                        .club("Klub Strzelecki Dziesiątka LOK Łódź")
+                        .build();
+                licenseService.addLicenseToMember(memberEntity.getUuid(), license);
             }
         }
+        return Objects.requireNonNull(memberEntity).getUuid();
     }
 
     //--------------------------------------------------------------------------
+//      Tutaj trzeba to poprawić by usuwało wszystkie encje powiązane a nie samego membera
+//    Bo w tej chwili po usunięciu membera Licencja i adres zostają.
+
+    //--------------------------------------------------------------------------
+
     public boolean deleteMember(UUID uuid) {
         MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
         if (memberRepository.existsById(uuid) && !memberEntity.getActive()) {
@@ -182,15 +190,6 @@ public class MemberService {
                         return false;
                     } else {
                         memberEntity.setLegitimationNumber(member.getLegitimationNumber());
-                    }
-                }
-                if ((member.getLicenseNumber() != null)) {
-                    if (memberRepository.findByLicenseNumber(member.getLicenseNumber()).isPresent()) {
-                        System.out.println("Już ktoś ma ten numer licencji");
-                        return false;
-                    } else {
-                        memberEntity.setLicenseNumber(member.getLicenseNumber());
-                        System.out.println(goodMessage() + "Numer Licencji");
                     }
                 }
                 if (member.getShootingPatentNumber() != null) {
