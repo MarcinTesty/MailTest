@@ -9,8 +9,6 @@ import java.util.UUID;
 public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
     Optional<MemberEntity> findByPesel(String pesel);
     Optional<MemberEntity> findByEmail(String email);
-    Optional<MemberEntity> findByLicenseNumber(String licenseNumber);
-    Optional<MemberEntity> findByShootingPatentNumber(String shootingPatentNumber);
     Optional<MemberEntity> findByLegitimationNumber(Integer legitimationNumber);
     Set<MemberEntity> findAllByActive(Boolean b);
     Optional<MemberEntity> findByPhoneNumber(String phoneNumber);

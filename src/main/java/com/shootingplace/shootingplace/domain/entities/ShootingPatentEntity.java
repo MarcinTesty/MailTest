@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -16,14 +17,21 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DisciplineEntity {
+public class ShootingPatentEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private Boolean pistol;
-    private Boolean rifle;
-    private Boolean shotgun;
+    private String patentNumber;
+
+    private Boolean pistolPermission;
+
+    private Boolean riflePermission;
+
+    private Boolean shotgunPermission;
+
+    private LocalDate dateOfPosting;
+
 }

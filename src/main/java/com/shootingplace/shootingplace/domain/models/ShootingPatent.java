@@ -11,16 +11,16 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class License {
+public class ShootingPatent {
 
 
-    private String number;
-
-    private LocalDate validThrough;
+    private String patentNumber;
 
     private Boolean pistolPermission;
+
     private Boolean riflePermission;
+
     private Boolean shotgunPermission;
 
-    private String club;
+    private LocalDate dateOfPosting;
 }

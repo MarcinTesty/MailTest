@@ -1,16 +1,19 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.enums.Disciplines;
 import com.shootingplace.shootingplace.domain.models.Address;
 import com.shootingplace.shootingplace.domain.models.License;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.domain.models.ShootingPatent;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class MemberService {
@@ -18,14 +21,16 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AddressService addressService;
     private final LicenseService licenseService;
+    private final ShootingPatentService shootingPatentService;
 
 
     public MemberService(MemberRepository memberRepository,
                          AddressService addressService,
-                         LicenseService licenseService) {
+                         LicenseService licenseService, ShootingPatentService shootingPatentService) {
         this.memberRepository = memberRepository;
         this.addressService = addressService;
         this.licenseService = licenseService;
+        this.shootingPatentService = shootingPatentService;
     }
 
 
@@ -63,8 +68,6 @@ public class MemberService {
             System.out.println("Ktoś już na taki numer PESEL");
         } else if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
             System.out.println("Ktoś już ma taki adres e-mail");
-        } else if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
-            System.out.println("Ktoś już ma taki numer patentu");
         } else if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             System.out.println("Ktoś już ma taki numer legitymacji");
         } else if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
@@ -77,10 +80,6 @@ public class MemberService {
             if (member.getLegitimationNumber() == null) {
                 System.out.println("ustawiono domyślny numer legitymacji");
                 member.setLegitimationNumber(memberRepository.findAll().size() + 1);
-            }
-            if (member.getShootingPatentNumber() == null) {
-                System.out.println("Nie ma numeru patentu");
-                member.setShootingPatentNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada patentu");
             }
 //            if (member.getActive().equals(false) || member.getActive() == null || member.getActive().equals(true)) {
 //                System.out.println("Klubowicz nie jest jeszcze aktywny");
@@ -113,19 +112,27 @@ public class MemberService {
             if (memberEntity.getLicense() == null) {
                 License license = License.builder()
                         .number(null)
-                        .disciplines(Disciplines.NOT_APPLICABLE)
-                        .validThrough(LocalDate.of(2019,12,31))
+                        .validThrough(LocalDate.of(2019, 12, 31))
+                        .pistolPermission(false)
+                        .riflePermission(false)
+                        .shotgunPermission(false)
                         .club("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build();
                 licenseService.addLicenseToMember(memberEntity.getUuid(), license);
             }
+            if (memberEntity.getShootingPatent() == null) {
+                ShootingPatent shootingPatent = ShootingPatent.builder()
+                        .patentNumber(null)
+                        .dateOfPosting(null)
+                        .pistolPermission(false)
+                        .riflePermission(false)
+                        .shotgunPermission(false)
+                        .build();
+                shootingPatentService.addPatent(memberEntity.getUuid(), shootingPatent);
+            }
         }
         return Objects.requireNonNull(memberEntity).getUuid();
     }
-
-    //--------------------------------------------------------------------------
-//      Tutaj trzeba to poprawić by usuwało wszystkie encje powiązane a nie samego membera
-//    Bo w tej chwili po usunięciu membera Licencja i adres zostają.
 
     //--------------------------------------------------------------------------
 
@@ -154,7 +161,6 @@ public class MemberService {
                 System.out.println(memberEntity.getFirstName() + " Jest nieaktywny");
                 memberEntity.setActive(false);
             }
-
             memberRepository.saveAndFlush(memberEntity);
             return true;
         } else
@@ -192,15 +198,6 @@ public class MemberService {
                         memberEntity.setLegitimationNumber(member.getLegitimationNumber());
                     }
                 }
-                if (member.getShootingPatentNumber() != null) {
-                    if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
-                        System.out.println("Już ktoś ma ten numer patentu");
-                        return false;
-                    } else {
-                        memberEntity.setShootingPatentNumber(member.getShootingPatentNumber());
-                        System.out.println(goodMessage() + "Numer Patentu");
-                    }
-                }
                 if (member.getEmail() != null) {
                     if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
                         System.out.println("Już ktoś ma taki sam e-mail");
@@ -219,7 +216,7 @@ public class MemberService {
                         System.out.println(goodMessage() + "Numer PESEL");
                     }
                 }
-                if (member.getPhoneNumber().replaceAll("\\s", "").length() != 9) {
+                if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9) {
                     System.out.println("Żle podany numer");
                     return false;
                 }

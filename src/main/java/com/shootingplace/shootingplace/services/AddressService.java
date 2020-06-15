@@ -40,37 +40,34 @@ public class AddressService {
     public boolean updateAddress(UUID memberUUID, Address address) {
         try {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            AddressEntity addressEntity = addressRepository.findById(memberEntity.getAddress().getUuid()).orElseThrow(EntityNotFoundException::new);
-            if (addressEntity == Mapping.map(address)) {
-                addressRepository.saveAndFlush(addressEntity);
-                memberEntity.setAddress(addressEntity);
-                memberRepository.saveAndFlush(memberEntity);
-            } else {
-                if (address.getZipCode() != null) {
-                    addressEntity.setZipCode(address.getZipCode());
-                    System.out.println("Kod pocztowy");
-                }
-                if (address.getPostOfficeCity() != null) {
-                    addressEntity.setPostOfficeCity(address.getPostOfficeCity());
-                    System.out.println("Miasto");
-                }
-                if (address.getStreet() != null) {
-                    addressEntity.setStreet(address.getStreet());
-                    System.out.println("Ulica");
-                }
-                if (address.getStreetNumber() != null) {
-                    addressEntity.setStreetNumber(address.getStreetNumber());
-                    System.out.println("Numer ulicy");
-                }
-                if (address.getFlatNumber() != null) {
-                    addressEntity.setFlatNumber(address.getFlatNumber());
-                    System.out.println("Numer mieszkania");
-                }
-                addressRepository.saveAndFlush(addressEntity);
-                memberEntity.setAddress(addressEntity);
-                memberRepository.saveAndFlush(memberEntity);
-                System.out.println("Zaktualizowano adres");
+            AddressEntity addressEntity = addressRepository.findById(memberEntity
+                    .getAddress()
+                    .getUuid())
+                    .orElseThrow(EntityNotFoundException::new);
+            if (address.getZipCode() != null) {
+                addressEntity.setZipCode(address.getZipCode());
+                System.out.println("Kod pocztowy");
             }
+            if (address.getPostOfficeCity() != null) {
+                addressEntity.setPostOfficeCity(address.getPostOfficeCity());
+                System.out.println("Miasto");
+            }
+            if (address.getStreet() != null) {
+                addressEntity.setStreet(address.getStreet());
+                System.out.println("Ulica");
+            }
+            if (address.getStreetNumber() != null) {
+                addressEntity.setStreetNumber(address.getStreetNumber());
+                System.out.println("Numer ulicy");
+            }
+            if (address.getFlatNumber() != null) {
+                addressEntity.setFlatNumber(address.getFlatNumber());
+                System.out.println("Numer mieszkania");
+            }
+            addressRepository.saveAndFlush(addressEntity);
+            memberEntity.setAddress(addressEntity);
+            memberRepository.saveAndFlush(memberEntity);
+            System.out.println("Zaktualizowano adres");
             return true;
         } catch (Exception ex) {
             ex.getMessage();
