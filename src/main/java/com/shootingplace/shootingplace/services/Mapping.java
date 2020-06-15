@@ -74,7 +74,9 @@ class Mapping {
         return Optional.ofNullable(l)
                 .map(e -> License.builder()
                         .number(e.getNumber())
-                        .disciplines(e.getDisciplines())
+                        .pistolPermission(e.getPistolPermission())
+                        .riflePermission(e.getRiflePermission())
+                        .shotgunPermission(e.getShotgunPermission())
                         .validThrough(e.getValidThrough())
                         .club(e.getClub())
                         .build()).orElse(null);
@@ -84,7 +86,9 @@ class Mapping {
         return Optional.ofNullable(l)
                 .map(e -> LicenseEntity.builder()
                         .number(e.getNumber())
-                        .disciplines(e.getDisciplines())
+                        .pistolPermission(e.getPistolPermission())
+                        .riflePermission(e.getRiflePermission())
+                        .shotgunPermission(e.getShotgunPermission())
                         .validThrough(e.getValidThrough())
                         .club(e.getClub())
                         .build()).orElse(null);
@@ -104,8 +108,8 @@ class Mapping {
     static ShootingPatent map(ShootingPatentEntity s) {
         return Optional.ofNullable(s)
                 .map(e -> ShootingPatent.builder()
-                        .patentNumber(e.getPatentNumber()
-                        ).dateOfPosting(e.getDateOfPosting())
+                        .patentNumber(e.getPatentNumber())
+                        .dateOfPosting(e.getDateOfPosting())
                         .pistolPermission(e.getPistolPermission())
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())

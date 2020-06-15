@@ -11,4 +11,5 @@ public interface ShootingPatentRepository extends JpaRepository<ShootingPatentEn
     Optional<ShootingPatentEntity> findByPatentNumber(String number);
 
     List<ShootingPatentEntity> findByPatentNumberIsNotNull();
+
 }

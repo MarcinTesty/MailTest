@@ -18,7 +18,8 @@ public class LicenseService {
     private final MemberRepository memberRepository;
     private final LicenseRepository licenseRepository;
 
-    public LicenseService(MemberRepository memberRepository, LicenseRepository licenseRepository) {
+    public LicenseService(MemberRepository memberRepository,
+                          LicenseRepository licenseRepository) {
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
     }
@@ -48,9 +49,22 @@ public class LicenseService {
     public boolean updateLicense(UUID memberUUID, License license) {
         try {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
-            if (license.getNumber() != null) {
-                if (licenseRepository.findByNumber(license.getNumber()).isPresent()) {
+            LicenseEntity licenseEntity = licenseRepository.findById(memberEntity
+                    .getLicense()
+                    .getUuid())
+                    .orElseThrow(EntityNotFoundException::new);
+            if (memberEntity.getActive().equals(false)) {
+                System.out.println("Klubowicz nie aktywny");
+                return false;
+            }
+            if (memberEntity.getShootingPatent().getPatentNumber() == null) {
+                System.out.println("Brak patentu");
+                return false;
+            }
+            if (license.getNumber() != null
+                    && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()&&licenseRepository.findByNumber(license.getNumber()).isPresent()) {
+                if (licenseRepository.findByNumber(license.getNumber()).isPresent()
+                        && !memberEntity.getLicense().getNumber().equals(license.getNumber())) {
                     System.out.println("Ktoś już ma taki numer licencji");
                     return false;
                 } else {
@@ -58,19 +72,42 @@ public class LicenseService {
                     System.out.println("Zaktualizowano numer licencji");
                 }
             }
-            if (license.getDisciplines() != null) {
-                licenseEntity.setDisciplines(license.getDisciplines());
-                System.out.println(("Zaktualizowano dyscypliny"));
+            if (license.getPistolPermission() != null) {
+                if (!memberEntity.getShootingPatent().getPistolPermission()) {
+                    System.out.println("Nie można zaktualizować licencji bo nie ma na to patentu");
+                } else {
+                    licenseEntity.setPistolPermission(license.getPistolPermission());
+                    System.out.println(("Zaktualizowano dyscyplinę : pistolet"));
+                }
+            }
+            if (license.getRiflePermission() != null) {
+                if (!memberEntity.getShootingPatent().getRiflePermission()) {
+                    System.out.println("Nie można zaktualizować licencji bo nie ma na to patentu");
+                } else {
+                    licenseEntity.setRiflePermission(license.getRiflePermission());
+                    System.out.println(("Zaktualizowano dyscyplinę : karabin"));
+                }
+            }
+            if (license.getShotgunPermission() != null) {
+                if (!memberEntity.getShootingPatent().getShotgunPermission()) {
+                    System.out.println("Nie można zaktualizować licencji bo nie ma na to patentu");
+                } else {
+                    licenseEntity.setShotgunPermission(license.getShotgunPermission());
+                    System.out.println(("Zaktualizowano dyscypliny : strzelba"));
+                }
             }
             licenseRepository.saveAndFlush(licenseEntity);
             memberRepository.saveAndFlush(memberEntity);
+            System.out.println("zaktualizowano licencję");
             return true;
         } catch (Exception ex) {
-            ex.getMessage();
+            System.out.println(ex.getMessage());
             return false;
         }
     }
 
+
+    //   tutaj trzeba poprawić warunki bo coś mi się nie zgadza tylko nie wiem jeszcze co.
     public boolean setOrRenewLicenseValid(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);

@@ -29,7 +29,10 @@ public class LicenseEntity {
 
     private LocalDate validThrough;
 
-    private Disciplines disciplines;
+    private Boolean pistolPermission;
+    private Boolean riflePermission;
+    private Boolean shotgunPermission;
+
 
     private String club;
 }
