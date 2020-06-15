@@ -63,8 +63,6 @@ public class MemberService {
             System.out.println("Ktoś już na taki numer PESEL");
         } else if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
             System.out.println("Ktoś już ma taki adres e-mail");
-        } else if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
-            System.out.println("Ktoś już ma taki numer patentu");
         } else if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             System.out.println("Ktoś już ma taki numer legitymacji");
         } else if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
@@ -77,10 +75,6 @@ public class MemberService {
             if (member.getLegitimationNumber() == null) {
                 System.out.println("ustawiono domyślny numer legitymacji");
                 member.setLegitimationNumber(memberRepository.findAll().size() + 1);
-            }
-            if (member.getShootingPatentNumber() == null) {
-                System.out.println("Nie ma numeru patentu");
-                member.setShootingPatentNumber(member.getFirstName() + " " + member.getSecondName() + " nie posiada patentu");
             }
 //            if (member.getActive().equals(false) || member.getActive() == null || member.getActive().equals(true)) {
 //                System.out.println("Klubowicz nie jest jeszcze aktywny");
@@ -114,7 +108,7 @@ public class MemberService {
                 License license = License.builder()
                         .number(null)
                         .disciplines(Disciplines.NOT_APPLICABLE)
-                        .validThrough(LocalDate.of(2019,12,31))
+                        .validThrough(LocalDate.of(2019, 12, 31))
                         .club("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build();
                 licenseService.addLicenseToMember(memberEntity.getUuid(), license);
@@ -190,15 +184,6 @@ public class MemberService {
                         return false;
                     } else {
                         memberEntity.setLegitimationNumber(member.getLegitimationNumber());
-                    }
-                }
-                if (member.getShootingPatentNumber() != null) {
-                    if (memberRepository.findByShootingPatentNumber(member.getShootingPatentNumber()).isPresent()) {
-                        System.out.println("Już ktoś ma ten numer patentu");
-                        return false;
-                    } else {
-                        memberEntity.setShootingPatentNumber(member.getShootingPatentNumber());
-                        System.out.println(goodMessage() + "Numer Patentu");
                     }
                 }
                 if (member.getEmail() != null) {

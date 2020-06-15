@@ -33,7 +33,8 @@ public class MemberEntity {
     private String secondName;
     @OneToOne(orphanRemoval = true)
     private LicenseEntity license;
-    private String shootingPatentNumber;
+    @OneToOne(orphanRemoval = true)
+    private ShootingPatentEntity shootingPatent;
     @NotBlank
     @Email
     private String email;
