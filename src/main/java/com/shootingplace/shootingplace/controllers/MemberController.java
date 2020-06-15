@@ -35,8 +35,8 @@ public class MemberController {
     }
 
     @PostMapping("/")
-    public void addMember(@RequestBody @Valid Member member) {
-        memberService.addMember(member);
+    public UUID addMember(@RequestBody @Valid Member member) {
+        return memberService.addMember(member);
     }
 
     @PutMapping("/{uuid}")

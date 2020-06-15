@@ -22,7 +22,7 @@ public class Member {
     private String firstName;
     @NotBlank
     private String secondName;
-    private String licenseNumber;
+    private License license;
     private String shootingPatentNumber;
     @NotBlank
     @Email(message = "e-mail nie może być pusty ani zawierać spacji")
