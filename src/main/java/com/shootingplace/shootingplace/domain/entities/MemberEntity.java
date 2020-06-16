@@ -49,5 +49,7 @@ public class MemberEntity {
     @Pattern(regexp = "^\\+[0-9]{11}$")
     private String phoneNumber;
     private Boolean weaponPermission;
+    @OneToOne(orphanRemoval = true)
+    private ContributionEntity contribution;
     private Boolean active = false;
 }

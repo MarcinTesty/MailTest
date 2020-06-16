@@ -1,13 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
-import com.shootingplace.shootingplace.domain.entities.AddressEntity;
-import com.shootingplace.shootingplace.domain.entities.LicenseEntity;
-import com.shootingplace.shootingplace.domain.entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.entities.ShootingPatentEntity;
-import com.shootingplace.shootingplace.domain.models.Address;
-import com.shootingplace.shootingplace.domain.models.License;
-import com.shootingplace.shootingplace.domain.models.Member;
-import com.shootingplace.shootingplace.domain.models.ShootingPatent;
+import com.shootingplace.shootingplace.domain.entities.*;
+import com.shootingplace.shootingplace.domain.models.*;
 
 import java.util.Optional;
 
@@ -27,6 +21,7 @@ class Mapping {
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
                 .address(map(e.getAddress()))
+                .contribution(map(e.getContribution()))
                 .build();
     }
 
@@ -44,6 +39,7 @@ class Mapping {
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
                 .address(map(e.getAddress()))
+                .contribution(map(e.getContribution()))
                 .build();
     }
 
@@ -114,5 +110,15 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .build()).orElse(null);
+    }
+    static ContributionEntity map(Contribution c){
+        return Optional.ofNullable(c).map(e->ContributionEntity.builder()
+                .contribution(e.getContribution())
+                .build()).orElse(null);
+    }
+    static Contribution map(ContributionEntity c){
+        return Optional.ofNullable(c).map(e->Contribution.builder()
+                .contribution(e.getContribution())
+                .build()).orElse(null);
     }
 }
