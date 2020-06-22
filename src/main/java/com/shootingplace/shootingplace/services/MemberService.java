@@ -260,5 +260,4 @@ public class MemberService {
     private void badMessage() {
         System.out.println("Nie znaleziono klubowicza");
     }
-
 }
