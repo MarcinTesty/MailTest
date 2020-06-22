@@ -31,5 +31,6 @@ public class Member {
     private String phoneNumber;
     private Boolean weaponPermission;
     private Address address;
+    private Contribution contribution;
     private Boolean active = false;
 }

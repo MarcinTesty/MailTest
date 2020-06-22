@@ -83,8 +83,8 @@ public class PeselValidator implements ConstraintValidator<ValidPESEL, String> {
     public String getSex() {
         if (valid) {
             if (PESEL[9] % 2 == 1) {
-                return "man";
-            } else return "woman";
+                return "Pan";
+            } else return "Pani";
         } else return "---";
     }
 

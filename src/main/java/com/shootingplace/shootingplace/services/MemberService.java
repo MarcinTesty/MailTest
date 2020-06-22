@@ -1,10 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.models.Address;
-import com.shootingplace.shootingplace.domain.models.License;
-import com.shootingplace.shootingplace.domain.models.Member;
-import com.shootingplace.shootingplace.domain.models.ShootingPatent;
+import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +19,15 @@ public class MemberService {
     private final AddressService addressService;
     private final LicenseService licenseService;
     private final ShootingPatentService shootingPatentService;
+    private final ContributionService contributionService;
 
 
     public MemberService(MemberRepository memberRepository,
                          AddressService addressService,
-                         LicenseService licenseService, ShootingPatentService shootingPatentService) {
+                         LicenseService licenseService,
+                         ShootingPatentService shootingPatentService, ContributionService contributionService) {
         this.memberRepository = memberRepository;
+        this.contributionService = contributionService;
         this.addressService = addressService;
         this.licenseService = licenseService;
         this.shootingPatentService = shootingPatentService;
@@ -90,13 +90,10 @@ public class MemberService {
                 member.setWeaponPermission(false);
             }
             String s = "+48";
-            if (member.getPhoneNumber() == null) {
-                System.out.println("Nie podano numeru telefonu");
-                member.setPhoneNumber(s + "000000000");
-            }
             if (member.getPhoneNumber() != null) {
                 member.setPhoneNumber(s + member.getPhoneNumber().replaceAll("\\s", ""));
             }
+
             System.out.println("Dodano nowego członka Klubu");
             memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
             if (memberEntity.getAddress() == null) {
@@ -130,9 +127,26 @@ public class MemberService {
                         .build();
                 shootingPatentService.addPatent(memberEntity.getUuid(), shootingPatent);
             }
+            if (memberEntity.getContribution() == null) {
+                LocalDate localDate = LocalDate.now();
+                int year = LocalDate.now().getYear();
+                if (localDate.isBefore(LocalDate.of(year, 6, 30))) {
+                    localDate = LocalDate.of(year, 6, 30);
+                } else {
+                    localDate = LocalDate.of(year, 12, 31);
+                }
+                Contribution contribution = Contribution.builder()
+                        .contribution(localDate)
+                        .build();
+                contributionService.addContribution(memberEntity.getUuid(), contribution);
+
+            }
         }
         return Objects.requireNonNull(memberEntity).getUuid();
     }
+//  I   Półrocze (mm-dd) od 01-01 do 06-30 max do 09-30
+//  II  Półrocze (mm-dd) od 07-01 do 12-31 max do 03-31
+
 
     //--------------------------------------------------------------------------
 
@@ -246,5 +260,4 @@ public class MemberService {
     private void badMessage() {
         System.out.println("Nie znaleziono klubowicza");
     }
-
 }
