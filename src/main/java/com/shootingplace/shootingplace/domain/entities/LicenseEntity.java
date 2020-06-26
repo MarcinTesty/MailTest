@@ -24,10 +24,9 @@ public class LicenseEntity {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
-
     private String number;
 
-    private LocalDate validThrough;
+    private LocalDate validThru;
 
     private Boolean pistolPermission;
     private Boolean riflePermission;

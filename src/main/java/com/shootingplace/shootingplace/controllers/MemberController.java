@@ -6,6 +6,7 @@ import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,6 +33,18 @@ public class MemberController {
     @GetMapping("/nonactive")
     public Map<UUID, Member> getNonActiveMembers() {
         return memberService.getNonActiveMembers();
+    }
+
+    @GetMapping("/license")
+    public Map<String,String> getMemberWithLicenseNumberEqualsNotNull(){return memberService.getMembersNamesWithLicenseNumberEqualsNotNull();}
+
+    @GetMapping("/licensebefore")
+    public Map<String,String> getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore(){
+        return memberService.getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore();
+    }
+    @GetMapping("/licensenone")
+    public List<String> getMembersNamesWithoutLicense(){
+        return memberService.getMembersNamesWithoutLicense();
     }
 
     @PostMapping("/")

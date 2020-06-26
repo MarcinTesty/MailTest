@@ -62,7 +62,7 @@ public class LicenseService {
                 return false;
             }
             if (license.getNumber() != null
-                    && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()&&licenseRepository.findByNumber(license.getNumber()).isPresent()) {
+                    && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
                 if (licenseRepository.findByNumber(license.getNumber()).isPresent()
                         && !memberEntity.getLicense().getNumber().equals(license.getNumber())) {
                     System.out.println("Ktoś już ma taki numer licencji");
@@ -96,6 +96,10 @@ public class LicenseService {
                     System.out.println(("Zaktualizowano dyscypliny : strzelba"));
                 }
             }
+            if (license.getValidThru() != null) {
+                licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
+                System.out.println("zaktualizowano datę licencji");
+            }
             licenseRepository.saveAndFlush(licenseEntity);
             memberRepository.saveAndFlush(memberEntity);
             System.out.println("zaktualizowano licencję");
@@ -106,20 +110,18 @@ public class LicenseService {
         }
     }
 
-
     //   tutaj trzeba poprawić warunki bo coś mi się nie zgadza tylko nie wiem jeszcze co.
     public boolean setOrRenewLicenseValid(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getActive() && licenseEntity.getNumber() != null) {
-            if (!licenseEntity.getValidThrough().isEqual(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31))
-                    || LocalDate.now().isAfter(LocalDate.of(LocalDate.now().getYear(), 11, 1))) {
+        if (memberEntity.getActive()
+                && licenseEntity.getNumber() != null) {
 
-                licenseEntity.setValidThrough(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
-                licenseRepository.saveAndFlush(licenseEntity);
-                System.out.println("Przedłużono licencję");
-                return true;
-            }
+            licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
+            licenseRepository.saveAndFlush(licenseEntity);
+            System.out.println("Przedłużono licencję");
+            return true;
+
         }
         System.out.println("nie można przedłużyć licencji");
         return false;

@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MemberService {
@@ -25,7 +22,9 @@ public class MemberService {
     public MemberService(MemberRepository memberRepository,
                          AddressService addressService,
                          LicenseService licenseService,
-                         ShootingPatentService shootingPatentService, ContributionService contributionService) {
+                         ShootingPatentService shootingPatentService,
+                         ContributionService contributionService
+    ) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -59,6 +58,43 @@ public class MemberService {
         System.out.println("Ilość klubowiczów aktywnych : " + map.size());
 
         return map;
+    }
+
+    //    kurwa mać ponad tydzień główkowania dla takiej pierdoły
+    public Map<String, String> getMembersNamesWithLicenseNumberEqualsNotNull() {
+        Map<String, String> map = new HashMap<>();
+        memberRepository.findAll()
+                .forEach(e -> {
+                    if (e.getLicense().getNumber() != null) {
+                        map.put(e.getFirstName().concat(" " + e.getSecondName()), e.getLicense().getNumber());
+                    }
+                });
+        System.out.println("Wyświetlono listę osób posiadających licencję z numerem");
+
+        return map;
+    }
+
+    public Map<String, String> getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore() {
+        Map<String, String> map = new HashMap<>();
+        memberRepository.findAll().forEach(e -> {
+            if (e.getLicense().getNumber() != null && e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+                map.put(e.getFirstName().concat(" " + e.getSecondName() + " ważna do : " + e.getLicense().getValidThru()), e.getLicense().getNumber());
+            }
+        });
+        System.out.println("Wyświetlono listę osób które nie mają przedłużonej licencji");
+        return map;
+    }
+
+    public List<String> getMembersNamesWithoutLicense() {
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().forEach(e -> {
+            if (e.getLicense().getNumber() == null) {
+                list.add(e.getFirstName().concat(" " + e.getSecondName()));
+            }
+        });
+        System.out.println("Lista osób które nie posiadają licencji");
+        return list;
+
     }
 
     //--------------------------------------------------------------------------
@@ -109,7 +145,7 @@ public class MemberService {
             if (memberEntity.getLicense() == null) {
                 License license = License.builder()
                         .number(null)
-                        .validThrough(LocalDate.of(2019, 12, 31))
+                        .validThru(null)
                         .pistolPermission(false)
                         .riflePermission(false)
                         .shotgunPermission(false)
@@ -260,4 +296,5 @@ public class MemberService {
     private void badMessage() {
         System.out.println("Nie znaleziono klubowicza");
     }
+
 }

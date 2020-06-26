@@ -73,7 +73,7 @@ class Mapping {
                         .pistolPermission(e.getPistolPermission())
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
-                        .validThrough(e.getValidThrough())
+                        .validThru(e.getValidThru())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -85,7 +85,7 @@ class Mapping {
                         .pistolPermission(e.getPistolPermission())
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
-                        .validThrough(e.getValidThrough())
+                        .validThru(e.getValidThru())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
