@@ -6,6 +6,8 @@ import com.shootingplace.shootingplace.domain.models.Address;
 import com.shootingplace.shootingplace.repositories.AddressRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import java.util.UUID;
 public class AddressService {
     private final AddressRepository addressRepository;
     private final MemberRepository memberRepository;
+    private final Logger LOG = LogManager.getLogger(getClass());
 
     public AddressService(AddressRepository addressRepository, MemberRepository memberRepository) {
         this.addressRepository = addressRepository;
@@ -24,14 +27,14 @@ public class AddressService {
     public boolean addAddress(UUID memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getAddress() != null) {
-            System.out.println("nie można już dodać adresu");
+            LOG.error("nie można już dodać adresu");
             return false;
         }
         AddressEntity addressEntity = Mapping.map(address);
         addressRepository.saveAndFlush(addressEntity);
         memberEntity.setAddress(addressEntity);
         memberRepository.saveAndFlush(memberEntity);
-        System.out.println("Adres został zapisany");
+        LOG.info("Adres został zapisany");
         return true;
     }
 
@@ -46,31 +49,31 @@ public class AddressService {
                     .orElseThrow(EntityNotFoundException::new);
             if (address.getZipCode() != null) {
                 addressEntity.setZipCode(address.getZipCode());
-                System.out.println("Kod pocztowy");
+                LOG.info("Dodano Kod pocztowy");
             }
             if (address.getPostOfficeCity() != null) {
                 addressEntity.setPostOfficeCity(address.getPostOfficeCity());
-                System.out.println("Miasto");
+                LOG.info("Dodano Miasto");
             }
             if (address.getStreet() != null) {
                 addressEntity.setStreet(address.getStreet());
-                System.out.println("Ulica");
+                LOG.info("Dodano Ulica");
             }
             if (address.getStreetNumber() != null) {
                 addressEntity.setStreetNumber(address.getStreetNumber());
-                System.out.println("Numer ulicy");
+                LOG.info("Dodano Numer ulicy");
             }
             if (address.getFlatNumber() != null) {
                 addressEntity.setFlatNumber(address.getFlatNumber());
-                System.out.println("Numer mieszkania");
+                LOG.info("Dodano Numer mieszkania");
             }
             addressRepository.saveAndFlush(addressEntity);
             memberEntity.setAddress(addressEntity);
             memberRepository.saveAndFlush(memberEntity);
-            System.out.println("Zaktualizowano adres");
+            LOG.info("Zaktualizowano adres");
             return true;
         } catch (Exception ex) {
-            ex.getMessage();
+            LOG.error(ex.getMessage());
             return false;
         }
 

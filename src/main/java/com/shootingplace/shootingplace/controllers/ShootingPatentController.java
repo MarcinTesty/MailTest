@@ -15,13 +15,15 @@ public class ShootingPatentController {
     public ShootingPatentController(ShootingPatentService shootingPatentService) {
         this.shootingPatentService = shootingPatentService;
     }
+
     @PostMapping("/{memberUUID}")
-    public boolean addPatent(@PathVariable UUID memberUUID, @RequestBody ShootingPatent shootingPatent){
+    public boolean addPatent(@PathVariable UUID memberUUID, @RequestBody ShootingPatent shootingPatent) {
         return shootingPatentService.addPatent(memberUUID, shootingPatent);
     }
+
     @PutMapping("/{memberUUID}")
-    public boolean updatePatent(@PathVariable UUID memberUUID, @RequestBody ShootingPatent shootingPatent){
-        return shootingPatentService.updatePatent(memberUUID,shootingPatent);
+    public boolean updatePatent(@PathVariable UUID memberUUID, @RequestBody ShootingPatent shootingPatent) {
+        return shootingPatentService.updatePatent(memberUUID, shootingPatent);
     }
 
 

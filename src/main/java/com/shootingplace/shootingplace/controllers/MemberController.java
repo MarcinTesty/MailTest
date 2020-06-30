@@ -35,17 +35,52 @@ public class MemberController {
         return memberService.getNonActiveMembers();
     }
 
+    @GetMapping("/activelist")
+    public List<String> getActiveMembersList(@RequestParam Boolean a) {
+        return memberService.getActiveMembersList(a);
+    }
+
     @GetMapping("/license")
-    public Map<String,String> getMemberWithLicenseNumberEqualsNotNull(){return memberService.getMembersNamesWithLicenseNumberEqualsNotNull();}
+    public Map<String, String> getMemberWithLicenseNumberEqualsNotNull() {
+        return memberService.getMembersNamesWithLicenseNumberEqualsNotNull();
+    }
 
     @GetMapping("/licensebefore")
-    public Map<String,String> getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore(){
+    public Map<String, String> getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore() {
         return memberService.getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore();
     }
+
     @GetMapping("/licensenone")
-    public List<String> getMembersNamesWithoutLicense(){
+    public List<String> getMembersNamesWithoutLicense() {
         return memberService.getMembersNamesWithoutLicense();
     }
+
+    @GetMapping("/contribution")
+    public Map<String, String> getMembersAndTheirsContribution() {
+        return memberService.getMembersAndTheirsContribution();
+    }
+
+    @GetMapping("/contributionafter")
+    public Map<String, String> getMembersAndTheirsContributionIsValid() {
+        return memberService.getMembersAndTheirsContributionIsValid();
+    }
+
+    @GetMapping("/contributionbefore")
+    public Map<String, String> getMembersAndTheirsContributionIsNotValid() {
+        return memberService.getMembersAndTheirsContributionIsNotValid();
+    }
+
+    @GetMapping("licensewithoutcontribution")
+    public Map<String, String> getMembersWhoHaveValidLicenseAndNotValidContribution() {
+        return memberService.getMembersWhoHaveValidLicenseAndNotValidContribution();
+
+    }
+
+    @GetMapping("weaponpermissionwithoutlicense")
+    public Map<String, String> getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense() {
+        return memberService.getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense();
+    }
+
 
     @PostMapping("/")
     public UUID addMember(@RequestBody @Valid Member member) {

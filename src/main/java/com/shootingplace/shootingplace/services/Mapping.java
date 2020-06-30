@@ -111,13 +111,15 @@ class Mapping {
                         .shotgunPermission(e.getShotgunPermission())
                         .build()).orElse(null);
     }
-    static ContributionEntity map(Contribution c){
-        return Optional.ofNullable(c).map(e->ContributionEntity.builder()
+
+    static ContributionEntity map(Contribution c) {
+        return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
                 .build()).orElse(null);
     }
-    static Contribution map(ContributionEntity c){
-        return Optional.ofNullable(c).map(e->Contribution.builder()
+
+    static Contribution map(ContributionEntity c) {
+        return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
                 .build()).orElse(null);
     }

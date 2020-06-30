@@ -15,16 +15,19 @@ public class ContributionController {
     public ContributionController(ContributionService contributionService) {
         this.contributionService = contributionService;
     }
+
     @PostMapping("/{memberUUID}")
-    public boolean addContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution){
-        return contributionService.addContribution(memberUUID,contribution);
+    public boolean addContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
+        return contributionService.addContribution(memberUUID, contribution);
     }
+
     @PutMapping("/{memberUUID}")
-    public boolean updateContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution){
-        return contributionService.updateContribution(memberUUID,contribution);
+    public boolean updateContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
+        return contributionService.updateContribution(memberUUID, contribution);
     }
+
     @PatchMapping("/{memberUUID}")
-    public boolean prolongContribution(@PathVariable UUID memberUUID,@RequestParam("a") Integer contributionAmount){
-        return contributionService.prolongContribution(memberUUID,contributionAmount);
+    public boolean prolongContribution(@PathVariable UUID memberUUID, @RequestParam("a") Integer contributionAmount) {
+        return contributionService.prolongContribution(memberUUID, contributionAmount);
     }
 }
