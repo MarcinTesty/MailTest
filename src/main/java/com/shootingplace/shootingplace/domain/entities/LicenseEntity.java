@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.shootingplace.shootingplace.domain.enums.Disciplines;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +8,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
