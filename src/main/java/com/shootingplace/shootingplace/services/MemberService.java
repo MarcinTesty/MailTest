@@ -55,9 +55,24 @@ public class MemberService {
         return map;
     }
 
-    public List<String> getActiveMembersList(Boolean b) {
-        List<String> list = new ArrayList<>();
-        memberRepository.findAllByActive(b).forEach(e -> list.add(e.getFirstName().concat(" " + e.getSecondName() + " " + e.getActive().toString())));
+    public List<MemberEntity> getActiveMembersList(Boolean b) {
+        memberRepository.findAll().forEach(e -> {
+            if (e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+                    | e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31))
+                    && e.getActive()) {
+                e.setActive(false);
+                memberRepository.save(e);
+                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+            }
+        });
+        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActive(b));
+        String c = "aktywnych";
+        if (!b) {
+            c = "nieaktywnych";
+        }
+        LOG.info("wyświetlono listę osób " + c);
+        LOG.info("ilość osób " + c + " : " + list.size());
+        list.sort(Comparator.comparing(MemberEntity::getSecondName));
         return list;
     }
 
@@ -244,6 +259,7 @@ public class MemberService {
                     }
                     Contribution contribution = Contribution.builder()
                             .contribution(localDate)
+                            .paymentDay(LocalDate.now())
                             .build();
                     contributionService.addContribution(memberEntity.getUuid(), contribution);
 
@@ -373,4 +389,8 @@ public class MemberService {
         LOG.error("Nie znaleziono klubowicza");
     }
 
+    public Optional<MemberEntity> getSingleMember(UUID uuid) {
+        LOG.info("Wywołano membera");
+        return memberRepository.findById(uuid);
+    }
 }

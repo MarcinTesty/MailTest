@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/contribution")
+@CrossOrigin
 public class ContributionController {
 
     private final ContributionService contributionService;
@@ -27,7 +28,7 @@ public class ContributionController {
     }
 
     @PatchMapping("/{memberUUID}")
-    public boolean prolongContribution(@PathVariable UUID memberUUID, @RequestParam("a") Integer contributionAmount) {
-        return contributionService.prolongContribution(memberUUID, contributionAmount);
+    public boolean prolongContribution(@PathVariable UUID memberUUID) {
+        return contributionService.prolongContribution(memberUUID);
     }
 }

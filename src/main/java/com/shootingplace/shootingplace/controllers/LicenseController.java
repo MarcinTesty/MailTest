@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/license")
+@CrossOrigin
 public class LicenseController {
 
     private final LicenseService licenseService;

@@ -55,9 +55,12 @@ public class ContributionService {
                 } else {
                     localDate = LocalDate.of(contribution.getContribution().getYear(), 12, 31);
                 }
+                contributionEntity.setPaymentDay(LocalDate.now());
                 contributionEntity.setContribution(localDate);
                 LOG.info("Składka przedłużona do : " + contributionEntity.getContribution());
+                LOG.info("składka opłacona dnia : " + contributionEntity.getPaymentDay());
             }
+            contributionEntity.setPaymentDay(LocalDate.now());
             contributionRepository.saveAndFlush(contributionEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("zaktualizowano składkę");
@@ -68,30 +71,32 @@ public class ContributionService {
         }
     }
 
-    public boolean prolongContribution(UUID memberUUID, Integer contributionAmount) {
+    public boolean prolongContribution(UUID memberUUID) {
 
         if (memberRepository.existsById(memberUUID)) {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            if (memberEntity.getActive().equals(false)) {
-                LOG.info("Klubowicz nie aktywny");
-                return false;
-            } else {
-                if (contributionAmount > 2) {
-                    LOG.error("nie można przedłużyć o więcej niż 2 składki");
-                    return false;
-                }
-                LocalDate prolong = memberEntity.getContribution().getContribution().plusMonths(6 * contributionAmount);
-                ContributionEntity contributionEntity = contributionRepository.findById(memberEntity
-                        .getContribution()
-                        .getUuid())
-                        .orElseThrow(EntityNotFoundException::new);
-                contributionEntity.setContribution(prolong);
-                contributionRepository.saveAndFlush(contributionEntity);
-                memberEntity.setContribution(contributionEntity);
-                memberRepository.saveAndFlush(memberEntity);
-//                contributionConfirmation(contributionEntity.getContribution(), memberEntity);
-                LOG.info("Składka zostałą przedłużona do : " + contributionEntity.getContribution());
+
+            LocalDate prolong = memberEntity.getContribution().getContribution().plusMonths(6);
+            if (prolong.getMonth().getValue() == 12) {
+                prolong = prolong.plusDays(1);
             }
+            if(memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(),9,30))|
+            memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(),3,31))){
+                LOG.info("klubowicz jest już aktywny");
+                memberEntity.setActive(true);
+            } else {memberEntity.setActive(false);}
+            ContributionEntity contributionEntity = contributionRepository.findById(memberEntity
+                    .getContribution()
+                    .getUuid())
+                    .orElseThrow(EntityNotFoundException::new);
+            contributionEntity.setContribution(prolong);
+            contributionEntity.setPaymentDay(LocalDate.now());
+            contributionRepository.saveAndFlush(contributionEntity);
+            memberEntity.setContribution(contributionEntity);
+            memberRepository.saveAndFlush(memberEntity);
+//                contributionConfirmation(contributionEntity.getContribution(), memberEntity);
+            LOG.info("Składka została przedłużona do : " + contributionEntity.getContribution());
+            LOG.info("Składka została przełużona dnia : " + contributionEntity.getPaymentDay());
             return true;
         } else
             LOG.error("Nie znaleziono takiego klubowicza");

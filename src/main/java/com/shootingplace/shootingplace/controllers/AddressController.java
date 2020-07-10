@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/address")
+@CrossOrigin
 public class AddressController {
 
     private final AddressService addressService;

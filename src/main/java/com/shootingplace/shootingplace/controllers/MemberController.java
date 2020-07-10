@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.controllers;
 
 
+import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.web.bind.annotation.*;
@@ -8,10 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/member")
+@CrossOrigin
 public class MemberController {
 
     private final MemberService memberService;
@@ -19,6 +22,9 @@ public class MemberController {
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
+
+    @GetMapping("/{uuid}")
+    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {return memberService.getSingleMember(uuid);}
 
     @GetMapping("/list")
     public Map<UUID, Member> getMembers() {
@@ -36,7 +42,7 @@ public class MemberController {
     }
 
     @GetMapping("/activelist")
-    public List<String> getActiveMembersList(@RequestParam Boolean a) {
+    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean a) {
         return memberService.getActiveMembersList(a);
     }
 
@@ -70,13 +76,13 @@ public class MemberController {
         return memberService.getMembersAndTheirsContributionIsNotValid();
     }
 
-    @GetMapping("licensewithoutcontribution")
+    @GetMapping("/licensewithoutcontribution")
     public Map<String, String> getMembersWhoHaveValidLicenseAndNotValidContribution() {
         return memberService.getMembersWhoHaveValidLicenseAndNotValidContribution();
 
     }
 
-    @GetMapping("weaponpermissionwithoutlicense")
+    @GetMapping("/weaponpermissionwithoutlicense")
     public Map<String, String> getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense() {
         return memberService.getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense();
     }

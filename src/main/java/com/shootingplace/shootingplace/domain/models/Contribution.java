@@ -14,4 +14,6 @@ import java.time.LocalDate;
 public class Contribution {
 
     private LocalDate contribution;
+    private LocalDate paymentDay;
+
 }

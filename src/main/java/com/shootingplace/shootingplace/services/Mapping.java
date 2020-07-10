@@ -115,12 +115,14 @@ class Mapping {
     static ContributionEntity map(Contribution c) {
         return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
+                .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
 
     static Contribution map(ContributionEntity c) {
         return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
+                .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
 }

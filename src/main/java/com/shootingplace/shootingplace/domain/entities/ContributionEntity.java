@@ -26,4 +26,5 @@ public class ContributionEntity {
     private UUID uuid;
 
     private LocalDate contribution;
+    private LocalDate paymentDay;
 }

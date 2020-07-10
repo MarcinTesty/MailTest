@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/patent")
+@CrossOrigin
 public class ShootingPatentController {
 
     private final ShootingPatentService shootingPatentService;
