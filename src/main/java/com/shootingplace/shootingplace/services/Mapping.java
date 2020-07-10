@@ -73,7 +73,7 @@ class Mapping {
                         .pistolPermission(e.getPistolPermission())
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
-                        .validThrough(e.getValidThrough())
+                        .validThru(e.getValidThru())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -85,7 +85,7 @@ class Mapping {
                         .pistolPermission(e.getPistolPermission())
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
-                        .validThrough(e.getValidThrough())
+                        .validThru(e.getValidThru())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -111,14 +111,18 @@ class Mapping {
                         .shotgunPermission(e.getShotgunPermission())
                         .build()).orElse(null);
     }
-    static ContributionEntity map(Contribution c){
-        return Optional.ofNullable(c).map(e->ContributionEntity.builder()
+
+    static ContributionEntity map(Contribution c) {
+        return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
+                .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
-    static Contribution map(ContributionEntity c){
-        return Optional.ofNullable(c).map(e->Contribution.builder()
+
+    static Contribution map(ContributionEntity c) {
+        return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
+                .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
 }

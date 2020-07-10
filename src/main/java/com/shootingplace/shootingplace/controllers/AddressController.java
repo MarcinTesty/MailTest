@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/address")
+@CrossOrigin
 public class AddressController {
 
     private final AddressService addressService;
@@ -19,11 +20,11 @@ public class AddressController {
 
     @PostMapping("/{memberUUID}")
     public boolean addMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address) {
-       return addressService.addAddress(memberUUID,address);
-
+        return addressService.addAddress(memberUUID, address);
     }
+
     @PutMapping("/{memberUUID}")
-    public boolean updateMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address){
-        return addressService.updateAddress(memberUUID,address);
+    public boolean updateMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address) {
+        return addressService.updateAddress(memberUUID, address);
     }
 }

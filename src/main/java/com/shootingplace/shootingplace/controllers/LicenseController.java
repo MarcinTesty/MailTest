@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/license")
+@CrossOrigin
 public class LicenseController {
 
     private final LicenseService licenseService;
@@ -18,7 +19,14 @@ public class LicenseController {
     }
 
     @GetMapping("/")
-    public Map<UUID,License> getLicense(){return licenseService.getLicense();}
+    public Map<UUID, License> getLicense() {
+        return licenseService.getLicense();
+    }
+
+    @GetMapping("/members")
+    public Map<String, License> getMembersNamesAndLicense() {
+        return licenseService.getMembersNamesAndLicense();
+    }
 
     @PostMapping("/{memberUUID}")
     public boolean addLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
@@ -29,8 +37,9 @@ public class LicenseController {
     public boolean updateLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
         return licenseService.updateLicense(memberUUID, license);
     }
+
     @PatchMapping("/{memberUUID}")
-    public boolean renewLicenseValidDate(@PathVariable UUID memberUUID){
+    public boolean renewLicenseValidDate(@PathVariable UUID memberUUID) {
         return licenseService.setOrRenewLicenseValid(memberUUID);
     }
 

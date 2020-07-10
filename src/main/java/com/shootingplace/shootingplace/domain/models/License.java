@@ -16,7 +16,7 @@ public class License {
 
     private String number;
 
-    private LocalDate validThrough;
+    private LocalDate validThru;
 
     private Boolean pistolPermission;
     private Boolean riflePermission;
