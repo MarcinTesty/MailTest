@@ -127,4 +127,13 @@ class Mapping {
                 .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
+
+    static Record map(RecordEntity r) {
+        return Optional.ofNullable(r).map(e -> Record.builder()
+                .record(e.getRecord()).build()).orElse(null);
+    }
+    static RecordEntity map(Record r) {
+        return Optional.ofNullable(r).map(e -> RecordEntity.builder()
+                .record(e.getRecord()).build()).orElse(null);
+    }
 }
