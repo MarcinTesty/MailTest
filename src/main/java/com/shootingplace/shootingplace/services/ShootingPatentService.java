@@ -54,6 +54,9 @@ public class ShootingPatentService {
                 LOG.warn("Klubowicz nie aktywny");
                 return false;
             }
+            if (shootingPatent.getPatentNumber().isEmpty()) {
+                shootingPatent.setPatentNumber(shootingPatentEntity.getPatentNumber());
+            }
             if (shootingPatent.getPatentNumber() != null
                     && (memberEntity.getShootingPatent().getUuid() == shootingPatentEntity.getUuid())) {
                 if (shootingPatentRepository.findByPatentNumber(shootingPatent.getPatentNumber()).isPresent()
@@ -66,15 +69,15 @@ public class ShootingPatentService {
 
                 }
             }
-            if (shootingPatent.getPistolPermission() != null) {
+            if (shootingPatent.getPistolPermission().equals(true)) {
                 shootingPatentEntity.setPistolPermission(shootingPatent.getPistolPermission());
                 LOG.info("Dodano dyscyplinę : Pistolet");
             }
-            if (shootingPatent.getRiflePermission() != null) {
+            if (shootingPatent.getRiflePermission().equals(true)){
                 shootingPatentEntity.setRiflePermission(shootingPatent.getRiflePermission());
                 LOG.info("Dodano dyscyplinę : Karabin");
             }
-            if (shootingPatent.getShotgunPermission() != null) {
+            if (shootingPatent.getShotgunPermission().equals(true)) {
                 shootingPatentEntity.setShotgunPermission(shootingPatent.getShotgunPermission());
                 LOG.info("Dodano dyscyplinę : Strzelba");
             }
