@@ -41,6 +41,7 @@ public class MemberEntity {
     @ValidPESEL
     @Pattern(regexp = "[0-9]*")
     private String pesel;
+    private String IDCard;
 
     @ManyToOne @EqualsAndHashCode.Exclude
     @ToString.Exclude @JsonIgnoreProperties("members")

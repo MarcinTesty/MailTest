@@ -28,6 +28,7 @@ public class Member {
     @Email(message = "e-mail nie może być pusty ani zawierać spacji")
     private String email;
     private String pesel;
+    private String IDCard;
     private String phoneNumber;
     private Boolean weaponPermission;
     private Address address;

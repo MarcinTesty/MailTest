@@ -194,6 +194,8 @@ public class MemberService {
                 LOG.error("Ktoś już ma taki numer legitymacji");
             } else if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
                 LOG.error("Ktoś już ma taki numer telefonu");
+            } else if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
+                LOG.error("Ktoś już ma taki numer dowodu osobistego");
             } else {
                 if (member.getJoinDate() == null) {
                     LOG.info("ustawiono domyślną datę zapisu");
@@ -272,8 +274,6 @@ public class MemberService {
         }
         return null;
     }
-//  I   Półrocze (mm-dd) od 01-01 do 06-30 max do 09-30
-//  II  Półrocze (mm-dd) od 07-01 do 12-31 max do 03-31
 
 
     //--------------------------------------------------------------------------
