@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -23,5 +24,5 @@ public class RecordEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String record;
+    private LocalDate record;
 }
