@@ -5,9 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.http.HttpEntity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +28,6 @@ public class ContributionEntity {
 
     private LocalDate contribution;
     private LocalDate paymentDay;
-    @OneToMany
-    private Set<RecordEntity> history;
+    @OneToOne
+    private HistoryEntity history;
 }

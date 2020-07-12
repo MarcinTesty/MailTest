@@ -118,6 +118,7 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
+                .history(map(e.getHistory()))
                 .build()).orElse(null);
     }
 
@@ -125,15 +126,16 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
+                .history(map(e.getHistory()))
                 .build()).orElse(null);
     }
 
-    static Record map(RecordEntity r) {
-        return Optional.ofNullable(r).map(e -> Record.builder()
+    static History map(HistoryEntity r) {
+        return Optional.ofNullable(r).map(e -> History.builder()
                 .record(e.getRecord()).build()).orElse(null);
     }
-    static RecordEntity map(Record r) {
-        return Optional.ofNullable(r).map(e -> RecordEntity.builder()
+    static HistoryEntity map(History r) {
+        return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
                 .record(e.getRecord()).build()).orElse(null);
     }
 }

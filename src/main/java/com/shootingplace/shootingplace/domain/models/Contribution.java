@@ -15,5 +15,6 @@ public class Contribution {
 
     private LocalDate contribution;
     private LocalDate paymentDay;
+    private History history;
 
 }

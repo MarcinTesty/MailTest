@@ -19,6 +19,7 @@ public class MemberService {
     private final LicenseService licenseService;
     private final ShootingPatentService shootingPatentService;
     private final ContributionService contributionService;
+    private final HistoryService historyService;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -26,13 +27,14 @@ public class MemberService {
                          AddressService addressService,
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
-                         ContributionService contributionService
-    ) {
+                         ContributionService contributionService,
+                         HistoryService historyService) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
         this.licenseService = licenseService;
         this.shootingPatentService = shootingPatentService;
+        this.historyService = historyService;
     }
 
 
@@ -266,13 +268,20 @@ public class MemberService {
                     contributionService.addContribution(memberEntity.getUuid(), contribution);
 
                 }
+                if (memberEntity.getContribution().getHistory() == null) {
+                    LocalDate localDate = LocalDate.now();
+                    History history = History.builder().record(localDate.toString()).build();
+                    historyService.createRecord(memberEntity.getUuid(), history);
+                }
             }
             return Objects.requireNonNull(memberEntity).getUuid();
         } catch (Exception ex) {
-            LOG.error("Nie można utworzyć Klubowicza");
-            LOG.error(ex.getMessage());
+            LOG.error("Nie można utworzyć " + ex.getCause());
+            LOG.error("Nie można utworzyć " + ex.getLocalizedMessage());
+            LOG.error("Nie można utworzyć " + Arrays.toString(ex.getStackTrace()));
+            LOG.error("Nie można utworzyć " + Arrays.toString(ex.getSuppressed()));
+            return null;
         }
-        return null;
     }
 
 
