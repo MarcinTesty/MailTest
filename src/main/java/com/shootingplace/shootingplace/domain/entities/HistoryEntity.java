@@ -23,5 +23,5 @@ public class HistoryEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String record;
+    private String[] record;
 }

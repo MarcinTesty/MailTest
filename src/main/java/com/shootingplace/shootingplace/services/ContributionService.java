@@ -3,7 +3,6 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
-import com.shootingplace.shootingplace.domain.entities.HistoryEntity;
 import com.shootingplace.shootingplace.domain.models.Contribution;
 import com.shootingplace.shootingplace.repositories.ContributionRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
@@ -95,7 +94,7 @@ public class ContributionService {
             contributionEntity.setContribution(prolong);
             contributionEntity.setPaymentDay(LocalDate.now());
 
-            historyService.editRecord(memberEntity.getContribution().getHistory().getUuid(),LocalDate.now().toString());
+            historyService.addRecord(memberEntity.getContribution().getHistory().getUuid());
             contributionRepository.saveAndFlush(contributionEntity);
             memberEntity.setContribution(contributionEntity);
             memberRepository.saveAndFlush(memberEntity);

@@ -30,11 +30,11 @@ public class HistoryService {
         this.memberRepository = memberRepository;
     }
 
-    void createRecord(UUID memberUUID, History history) {
+    void createHistory(UUID memberUUID, History history) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = Mapping.map(history);
-        historyEntity.setRecord(LocalDate.now().toString());
+        historyEntity.setRecord(new String[]{LocalDate.now().toString()});
         historyRepository.saveAndFlush(historyEntity);
         ContributionEntity contributionEntity = contributionRepository.findById(memberEntity.getContribution().getUuid())
                 .orElseThrow(EntityNotFoundException::new);
@@ -45,10 +45,16 @@ public class HistoryService {
         LOG.info("Data została zapisana");
     }
 
-    void editRecord(UUID historyUUID, String newDate) {
+    void addRecord(UUID historyUUID) {
         HistoryEntity historyEntity = historyRepository.findById(historyUUID)
                 .orElseThrow(EntityNotFoundException::new);
-        String newState = historyEntity.getRecord().concat(" ; " + newDate);
+        String[] newState = new String[historyEntity.getRecord().length + 1];
+
+        for (int i = 0; i <= historyEntity.getRecord().length - 1; i++) {
+            newState[i] = historyEntity.getRecord()[i];
+            newState[i + 1] = LocalDate.now().toString();
+        }
+
         historyEntity.setRecord(newState);
         historyRepository.saveAndFlush(historyEntity);
     }

@@ -270,8 +270,8 @@ public class MemberService {
                 }
                 if (memberEntity.getContribution().getHistory() == null) {
                     LocalDate localDate = LocalDate.now();
-                    History history = History.builder().record(localDate.toString()).build();
-                    historyService.createRecord(memberEntity.getUuid(), history);
+                    History history = History.builder().record(new String[]{localDate.toString()}).build();
+                    historyService.createHistory(memberEntity.getUuid(), history);
                 }
             }
             return Objects.requireNonNull(memberEntity).getUuid();
