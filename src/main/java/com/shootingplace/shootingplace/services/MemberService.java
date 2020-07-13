@@ -91,8 +91,8 @@ public class MemberService {
         return list;
     }
 
-    public List<MemberEntity> getNonActiveMembers(Boolean active) {
-        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActive(active));
+    public List<MemberEntity> getNonActiveMembers(Boolean active, Boolean erased) {
+        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndErased(active,erased));
         LOG.info("Ilość klubowiczów nieaktywnych : " + list.size());
 
         return list;
@@ -449,5 +449,25 @@ public class MemberService {
     public Optional<MemberEntity> getSingleMember(UUID uuid) {
         LOG.info("Wywołano membera");
         return memberRepository.findById(uuid);
+    }
+
+    public List<MemberEntity> getErasedMembers(Boolean erased) {
+        LOG.info("Wyświetlono osoby skreślone z listy członków");
+        return memberRepository.findAllByErased(erased);
+    }
+
+    public boolean eraseMember(UUID uuid) {
+       MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
+       if(memberEntity.getErased().equals(false)){
+           memberEntity.setErased(true);
+           LOG.info("Skreślony");
+       }
+       else if(memberEntity.getErased().equals(true)){
+           memberEntity.setErased(false);
+           LOG.info("Przywrócony");
+       }
+
+       memberRepository.saveAndFlush(memberEntity);
+       return true;
     }
 }

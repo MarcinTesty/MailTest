@@ -34,4 +34,5 @@ public class Member {
     private Contribution contribution;
     private Boolean active = false;
     private Boolean adult = true;
+    private Boolean erased = false;
 }

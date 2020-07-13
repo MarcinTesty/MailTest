@@ -22,6 +22,7 @@ class Mapping {
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
                 .adult(e.getAdult())
+                .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();
@@ -42,6 +43,7 @@ class Mapping {
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
                 .adult(e.getAdult())
+                .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();

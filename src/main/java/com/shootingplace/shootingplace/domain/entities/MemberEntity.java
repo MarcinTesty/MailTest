@@ -57,4 +57,5 @@ public class MemberEntity {
     private ContributionEntity contribution;
     private Boolean active = false;
     private Boolean adult = true;
+    private Boolean erased = false;
 }

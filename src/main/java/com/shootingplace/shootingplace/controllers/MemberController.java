@@ -24,7 +24,9 @@ public class MemberController {
     }
 
     @GetMapping("/{uuid}")
-    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {return memberService.getSingleMember(uuid);}
+    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {
+        return memberService.getSingleMember(uuid);
+    }
 
     @GetMapping("/list")
     public Map<UUID, Member> getMembers() {
@@ -43,11 +45,17 @@ public class MemberController {
 
     @GetMapping("/activelist")
     public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult) {
-        return memberService.getActiveMembersList(active,adult);
+        return memberService.getActiveMembersList(active, adult);
     }
+
     @GetMapping("/nonactivelist")
-    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active) {
-        return memberService.getNonActiveMembers(active);
+    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active,@RequestParam Boolean erased) {
+        return memberService.getNonActiveMembers(active,erased);
+    }
+
+    @GetMapping("/erased")
+    public List<MemberEntity> getErasedMembers(@RequestParam Boolean erased) {
+        return memberService.getErasedMembers(erased);
     }
 
     @GetMapping("/license")
@@ -112,13 +120,20 @@ public class MemberController {
     public boolean activateOrDeactivateMember(@PathVariable UUID uuid) {
         return memberService.activateOrDeactivateMember(uuid);
     }
+
     @PatchMapping("/weapon/{uuid}")
-    public boolean changeWeaponPermission(@PathVariable UUID uuid){
+    public boolean changeWeaponPermission(@PathVariable UUID uuid) {
         return memberService.changeWeaponPermission(uuid);
     }
+
     @PatchMapping("/adult/{uuid}")
-    public boolean changeAdult(@PathVariable UUID uuid){
+    public boolean changeAdult(@PathVariable UUID uuid) {
         return memberService.changeAdult(uuid);
+    }
+
+    @PatchMapping("/erase/{uuid}")
+    public boolean eraseMember(@PathVariable UUID uuid) {
+        return memberService.eraseMember(uuid);
     }
 
 
