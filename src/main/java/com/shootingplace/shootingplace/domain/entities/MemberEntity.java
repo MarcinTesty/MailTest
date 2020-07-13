@@ -44,10 +44,7 @@ public class MemberEntity {
     @NotBlank
     private String IDCard;
 
-    @ManyToOne
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonIgnoreProperties("members")
+    @OneToOne
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
