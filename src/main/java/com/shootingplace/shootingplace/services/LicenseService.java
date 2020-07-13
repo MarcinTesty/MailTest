@@ -73,7 +73,7 @@ public class LicenseService {
                 LOG.error("Klubowicz nie aktywny");
                 return false;
             }
-            if (memberEntity.getShootingPatent().getPatentNumber() == null) {
+            if (memberEntity.getShootingPatent().getPatentNumber() == null&&memberEntity.getAdult()) {
                 LOG.error("Brak patentu");
                 return false;
             }
@@ -88,8 +88,8 @@ public class LicenseService {
                     LOG.info("Zaktualizowano numer licencji");
                 }
             }
-            if (license.getPistolPermission() != null) {
-                if (!memberEntity.getShootingPatent().getPistolPermission()) {
+            if (license.getPistolPermission()) {
+                if (!memberEntity.getShootingPatent().getPistolPermission()&&memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
                     return false;
                 } else {
@@ -97,17 +97,19 @@ public class LicenseService {
                     LOG.info("Zaktualizowano dyscyplinę : pistolet");
                 }
             }
-            if (license.getRiflePermission() != null) {
-                if (!memberEntity.getShootingPatent().getRiflePermission()) {
+            if (license.getRiflePermission()) {
+                if (!memberEntity.getShootingPatent().getRiflePermission()&&memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
+                    return false;
                 } else {
                     licenseEntity.setRiflePermission(license.getRiflePermission());
                     LOG.info("Zaktualizowano dyscyplinę : karabin");
                 }
             }
-            if (license.getShotgunPermission() != null) {
-                if (!memberEntity.getShootingPatent().getShotgunPermission()) {
+            if (license.getShotgunPermission()) {
+                if (!memberEntity.getShootingPatent().getShotgunPermission()&&memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
+                    return false;
                 } else {
                     licenseEntity.setShotgunPermission(license.getShotgunPermission());
                     LOG.info("Zaktualizowano dyscypliny : strzelba");
@@ -136,7 +138,7 @@ public class LicenseService {
     }
 
     //   tutaj trzeba poprawić warunki bo coś mi się nie zgadza tylko nie wiem jeszcze co.
-    public boolean setOrRenewLicenseValid(UUID memberUUID) {
+    public boolean renewLicenseValid(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()

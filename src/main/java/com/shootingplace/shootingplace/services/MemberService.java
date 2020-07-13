@@ -65,7 +65,7 @@ public class MemberService {
                 activateOrDeactivateMember(e.getUuid());
                 memberRepository.save(e);
                 LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-            }if (e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+            }else if (e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
                     || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31))
                     && !e.getActive()) {
                 activateOrDeactivateMember(e.getUuid());

@@ -69,15 +69,15 @@ public class ShootingPatentService {
 
                 }
             }
-            if (shootingPatent.getPistolPermission().equals(true)) {
+            if (shootingPatent.getPistolPermission()) {
                 shootingPatentEntity.setPistolPermission(shootingPatent.getPistolPermission());
                 LOG.info("Dodano dyscyplinę : Pistolet");
             }
-            if (shootingPatent.getRiflePermission().equals(true)){
+            if (shootingPatent.getRiflePermission()){
                 shootingPatentEntity.setRiflePermission(shootingPatent.getRiflePermission());
                 LOG.info("Dodano dyscyplinę : Karabin");
             }
-            if (shootingPatent.getShotgunPermission().equals(true)) {
+            if (shootingPatent.getShotgunPermission()) {
                 shootingPatentEntity.setShotgunPermission(shootingPatent.getShotgunPermission());
                 LOG.info("Dodano dyscyplinę : Strzelba");
             }
