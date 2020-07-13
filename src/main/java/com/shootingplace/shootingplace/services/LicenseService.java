@@ -91,6 +91,7 @@ public class LicenseService {
             if (license.getPistolPermission() != null) {
                 if (!memberEntity.getShootingPatent().getPistolPermission()) {
                     LOG.error(noPatentMessage());
+                    return false;
                 } else {
                     licenseEntity.setPistolPermission(license.getPistolPermission());
                     LOG.info("Zaktualizowano dyscyplinę : pistolet");
@@ -115,14 +116,17 @@ public class LicenseService {
             if (license.getValidThru() != null) {
                 licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
                 LOG.info("zaktualizowano datę licencji");
+            } else {
+                licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));
+                licenseEntity.setIsValid(true);
+                LOG.info("Brak ręcznego ustawienia daty, ustawiono na koniec bieżącego roku " + licenseEntity.getValidThru());
             }
             licenseRepository.saveAndFlush(licenseEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("zaktualizowano licencję");
             return true;
         } catch (Exception ex) {
-            LOG.error("Ktoś już ma taki numer licencji");
-            LOG.error(ex.getMessage());
+            LOG.error("Ktoś już ma taki numer licencji " + ex.getMessage());
             return false;
         }
     }

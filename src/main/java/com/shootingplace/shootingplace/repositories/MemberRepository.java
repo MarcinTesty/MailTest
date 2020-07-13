@@ -14,7 +14,8 @@ public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
 
     Optional<MemberEntity> findByLegitimationNumber(Integer legitimationNumber);
 
-    Set<MemberEntity> findAllByActive(Boolean b);
+    Set<MemberEntity> findAllByActive(Boolean active);
+    Set<MemberEntity> findAllByActiveAndAdult(Boolean active,Boolean adult);
 
     Optional<MemberEntity> findByPhoneNumber(String phoneNumber);
 

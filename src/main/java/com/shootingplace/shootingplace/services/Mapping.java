@@ -21,6 +21,7 @@ class Mapping {
                 .phoneNumber(e.getPhoneNumber())
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
+                .adult(e.getAdult())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();
@@ -40,6 +41,7 @@ class Mapping {
                 .phoneNumber(e.getPhoneNumber())
                 .weaponPermission(e.getWeaponPermission())
                 .active(e.getActive())
+                .adult(e.getAdult())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();
@@ -76,6 +78,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
+                        .isValid(e.getIsValid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -88,6 +91,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
+                        .isValid(e.getIsValid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }

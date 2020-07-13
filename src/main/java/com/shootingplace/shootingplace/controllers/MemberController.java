@@ -36,14 +36,18 @@ public class MemberController {
         return memberService.getActiveMembers();
     }
 
-    @GetMapping("/nonactive")
-    public Map<UUID, Member> getNonActiveMembers() {
-        return memberService.getNonActiveMembers();
-    }
+//    @GetMapping("/nonactive")
+//    public Map<UUID, Member> getNonActiveMembers() {
+//        return memberService.getNonActiveMembers();
+//    }
 
     @GetMapping("/activelist")
-    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean a) {
-        return memberService.getActiveMembersList(a);
+    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult) {
+        return memberService.getActiveMembersList(active,adult);
+    }
+    @GetMapping("/nonactivelist")
+    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active) {
+        return memberService.getNonActiveMembers(active);
     }
 
     @GetMapping("/license")
@@ -105,8 +109,16 @@ public class MemberController {
     }
 
     @PatchMapping("/{uuid}")
-    public boolean ActivateOrDeactivateMember(@PathVariable UUID uuid) {
+    public boolean activateOrDeactivateMember(@PathVariable UUID uuid) {
         return memberService.activateOrDeactivateMember(uuid);
+    }
+    @PatchMapping("/weapon/{uuid}")
+    public boolean changeWeaponPermission(@PathVariable UUID uuid){
+        return memberService.changeWeaponPermission(uuid);
+    }
+    @PatchMapping("/adult/{uuid}")
+    public boolean changeAdult(@PathVariable UUID uuid){
+        return memberService.changeAdult(uuid);
     }
 
 

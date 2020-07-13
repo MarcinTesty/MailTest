@@ -35,16 +35,19 @@ public class MemberEntity {
     private LicenseEntity license;
     @OneToOne(orphanRemoval = true)
     private ShootingPatentEntity shootingPatent;
-    @NotBlank
     @Email
     private String email;
+    @NotBlank
     @ValidPESEL
     @Pattern(regexp = "[0-9]*")
     private String pesel;
+    @NotBlank
     private String IDCard;
 
-    @ManyToOne @EqualsAndHashCode.Exclude
-    @ToString.Exclude @JsonIgnoreProperties("members")
+    @ManyToOne
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonIgnoreProperties("members")
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
@@ -53,4 +56,5 @@ public class MemberEntity {
     @OneToOne(orphanRemoval = true)
     private ContributionEntity contribution;
     private Boolean active = false;
+    private Boolean adult = true;
 }

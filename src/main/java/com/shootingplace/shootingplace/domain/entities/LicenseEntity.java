@@ -29,6 +29,8 @@ public class LicenseEntity {
     private Boolean riflePermission;
     private Boolean shotgunPermission;
 
+    private Boolean isValid;
+
 
     private String club;
 }

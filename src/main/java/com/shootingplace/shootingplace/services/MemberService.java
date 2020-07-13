@@ -57,19 +57,32 @@ public class MemberService {
         return map;
     }
 
-    public List<MemberEntity> getActiveMembersList(Boolean b) {
+    public List<MemberEntity> getActiveMembersList(Boolean active,Boolean adult) {
         memberRepository.findAll().forEach(e -> {
             if (e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    | e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31))
+                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31))
                     && e.getActive()) {
-                e.setActive(false);
+                activateOrDeactivateMember(e.getUuid());
                 memberRepository.save(e);
                 LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+            }if (e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31))
+                    && !e.getActive()) {
+                activateOrDeactivateMember(e.getUuid());
+                memberRepository.save(e);
+                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+            }
+            if (e.getLicense().getValidThru() != null) {
+                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+                    e.getLicense().setIsValid(false);
+                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
+                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
+                }
             }
         });
-        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActive(b));
+        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndAdult(active,adult));
         String c = "aktywnych";
-        if (!b) {
+        if (!active) {
             c = "nieaktywnych";
         }
         LOG.info("wyświetlono listę osób " + c);
@@ -78,12 +91,11 @@ public class MemberService {
         return list;
     }
 
-    public Map<UUID, Member> getNonActiveMembers() {
-        Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAllByActive(false).forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("Ilość klubowiczów aktywnych : " + map.size());
+    public List<MemberEntity> getNonActiveMembers(Boolean active) {
+        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActive(active));
+        LOG.info("Ilość klubowiczów nieaktywnych : " + list.size());
 
-        return map;
+        return list;
     }
 
     public Map<String, String> getMembersNamesWithLicenseNumberEqualsNotNull() {
@@ -219,7 +231,10 @@ public class MemberService {
                 if (member.getPhoneNumber() != null) {
                     member.setPhoneNumber(s + member.getPhoneNumber().replaceAll("\\s", ""));
                 }
-
+                if (member.getAdult().equals(false)) {
+                    LOG.info("Klubowicz należy do młodzieży");
+                    member.setAdult(false);
+                }
                 LOG.info("Dodano nowego członka Klubu");
                 memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
                 if (memberEntity.getAddress() == null) {
@@ -239,6 +254,7 @@ public class MemberService {
                             .pistolPermission(false)
                             .riflePermission(false)
                             .shotgunPermission(false)
+                            .isValid(false)
                             .club("Klub Strzelecki Dziesiątka LOK Łódź")
                             .build();
                     licenseService.addLicenseToMember(memberEntity.getUuid(), license);
@@ -354,7 +370,7 @@ public class MemberService {
                         LOG.error("Już ktoś ma taki sam e-mail");
                         return false;
                     } else {
-                        memberEntity.setEmail(member.getEmail());
+                        memberEntity.setEmail(member.getEmail().trim());
                         LOG.info(goodMessage() + "Email");
                     }
                 }
@@ -380,6 +396,14 @@ public class MemberService {
                     }
                     LOG.info(goodMessage() + "Numer Telefonu");
                 }
+                if (member.getIDCard() !=null){
+                    if(memberRepository.findByIDCard(member.getIDCard()).isPresent()){
+                        LOG.error("Ktoś już ma taki numer dowodu");
+                        return false;
+                    }
+                    LOG.info(goodMessage() + " Numer Dowodu");
+                }
+
             }
             memberRepository.saveAndFlush(memberEntity);
             return true;
@@ -389,6 +413,30 @@ public class MemberService {
             return false;
         }
     }
+
+    public boolean changeWeaponPermission(UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getWeaponPermission().equals(false)) {
+            memberEntity.setWeaponPermission(true);
+            LOG.info(" Pozwolenie zmieniono na : posiada");
+        } else {
+            memberEntity.setWeaponPermission(false);
+            LOG.info(" Pozwolenie zmieniono na : nieposiada");
+        }
+        memberRepository.saveAndFlush(memberEntity);
+        return true;
+    }
+
+    public boolean changeAdult(UUID memberUUID){
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getAdult().equals(false)) {
+            memberEntity.setAdult(true);
+            LOG.info(" Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
+        }
+        memberRepository.saveAndFlush(memberEntity);
+        return true;
+    }
+
 
     private String goodMessage() {
         return "Zaktualizowano pomyślnie : ";

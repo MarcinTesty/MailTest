@@ -54,7 +54,7 @@ public class ShootingPatentService {
                 LOG.warn("Klubowicz nie aktywny");
                 return false;
             }
-            if (shootingPatent.getPatentNumber().isEmpty()) {
+            if (shootingPatent.getPatentNumber().trim().isEmpty()) {
                 shootingPatent.setPatentNumber(shootingPatentEntity.getPatentNumber());
             }
             if (shootingPatent.getPatentNumber() != null
