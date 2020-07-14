@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;

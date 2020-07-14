@@ -344,11 +344,11 @@ public class MemberService {
                 LOG.warn("Klubowicz nie aktywny");
                 return false;
             } else {
-                if (member.getFirstName() != null) {
+                if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
                     memberEntity.setFirstName(member.getFirstName());
                     LOG.info(goodMessage() + "Imię");
                 }
-                if (member.getSecondName() != null) {
+                if (member.getSecondName() != null && !member.getSecondName().isEmpty()) {
                     memberEntity.setSecondName(member.getSecondName());
                     LOG.info(goodMessage() + "Nazwisko");
 
@@ -365,7 +365,7 @@ public class MemberService {
                         memberEntity.setLegitimationNumber(member.getLegitimationNumber());
                     }
                 }
-                if (member.getEmail() != null) {
+                if (member.getEmail() != null && !member.getEmail().isEmpty()) {
                     if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
                         LOG.error("Już ktoś ma taki sam e-mail");
                         return false;
@@ -374,7 +374,7 @@ public class MemberService {
                         LOG.info(goodMessage() + "Email");
                     }
                 }
-                if (member.getPesel() != null) {
+                if (member.getPesel() != null && !member.getPesel().isEmpty()) {
                     if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
                         LOG.error("Już ktoś ma taki sam numer PESEL");
                         return false;
@@ -383,11 +383,11 @@ public class MemberService {
                         LOG.info(goodMessage() + "Numer PESEL");
                     }
                 }
-                if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9) {
+                if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9&& !member.getPhoneNumber().isEmpty()) {
                     LOG.error("Żle podany numer");
                     return false;
                 }
-                if (member.getPhoneNumber() != null) {
+                if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
                     String s = "+48";
                     memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
                     if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
@@ -396,7 +396,7 @@ public class MemberService {
                     }
                     LOG.info(goodMessage() + "Numer Telefonu");
                 }
-                if (member.getIDCard() !=null){
+                if (member.getIDCard() !=null &&!member.getIDCard().isEmpty()){
                     if(memberRepository.findByIDCard(member.getIDCard()).isPresent()){
                         LOG.error("Ktoś już ma taki numer dowodu");
                         return false;
