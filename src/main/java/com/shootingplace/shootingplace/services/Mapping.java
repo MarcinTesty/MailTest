@@ -3,6 +3,7 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.*;
 
+import java.util.Collections;
 import java.util.Optional;
 
 class Mapping {
@@ -143,5 +144,16 @@ class Mapping {
     static HistoryEntity map(History r) {
         return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
                 .record(e.getRecord()).build()).orElse(null);
+    }
+
+    static ElectronicEvidence map(ElectronicEvidenceEntity el){
+        return Optional.ofNullable(el).map((e-> ElectronicEvidence.builder()
+        .date(e.getDate())
+        .build())).orElse(null);
+    }
+    static ElectronicEvidenceEntity map(ElectronicEvidence el){
+        return Optional.ofNullable(el).map((e-> ElectronicEvidenceEntity.builder()
+        .date(e.getDate())
+        .build())).orElse(null);
     }
 }
