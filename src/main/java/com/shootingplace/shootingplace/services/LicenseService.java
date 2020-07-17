@@ -73,7 +73,7 @@ public class LicenseService {
                 LOG.error("Klubowicz nie aktywny");
                 return false;
             }
-            if (memberEntity.getShootingPatent().getPatentNumber() == null&&memberEntity.getAdult()) {
+            if (memberEntity.getShootingPatent().getPatentNumber() == null && memberEntity.getAdult()) {
                 LOG.error("Brak patentu");
                 return false;
             }
@@ -89,7 +89,7 @@ public class LicenseService {
                 }
             }
             if (license.getPistolPermission()) {
-                if (!memberEntity.getShootingPatent().getPistolPermission()&&memberEntity.getAdult()) {
+                if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
                     return false;
                 } else {
@@ -98,7 +98,7 @@ public class LicenseService {
                 }
             }
             if (license.getRiflePermission()) {
-                if (!memberEntity.getShootingPatent().getRiflePermission()&&memberEntity.getAdult()) {
+                if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
                     return false;
                 } else {
@@ -107,7 +107,7 @@ public class LicenseService {
                 }
             }
             if (license.getShotgunPermission()) {
-                if (!memberEntity.getShootingPatent().getShotgunPermission()&&memberEntity.getAdult()) {
+                if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
                     LOG.error(noPatentMessage());
                     return false;
                 } else {

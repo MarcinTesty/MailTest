@@ -3,7 +3,9 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -44,13 +46,13 @@ public class MemberController {
 //    }
 
     @GetMapping("/activelist")
-    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult) {
-        return memberService.getActiveMembersList(active, adult);
+    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
+        return memberService.getActiveMembersList(active, adult, erase);
     }
 
     @GetMapping("/nonactivelist")
-    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active,@RequestParam Boolean erased) {
-        return memberService.getNonActiveMembers(active,erased);
+    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active, @RequestParam Boolean erased) {
+        return memberService.getNonActiveMembers(active, erased);
     }
 
     @GetMapping("/erased")
@@ -102,7 +104,7 @@ public class MemberController {
 
     @PostMapping("/")
     public UUID addMember(@RequestBody @Valid Member member) {
-        return memberService.addMember(member);
+        return memberService.addNewMember(member);
     }
 
     @PutMapping("/{uuid}")
@@ -121,9 +123,9 @@ public class MemberController {
         return memberService.activateOrDeactivateMember(uuid);
     }
 
-    @PatchMapping("/weapon/{uuid}")
-    public boolean changeWeaponPermission(@PathVariable UUID uuid) {
-        return memberService.changeWeaponPermission(uuid);
+    @PutMapping("/weapon/{uuid}")
+    public boolean changeWeaponPermission(@PathVariable UUID uuid, @RequestBody WeaponPermission weaponPermission) {
+        return memberService.changeWeaponPermission(uuid, weaponPermission);
     }
 
     @PatchMapping("/adult/{uuid}")

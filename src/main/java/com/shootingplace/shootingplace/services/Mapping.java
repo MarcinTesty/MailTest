@@ -2,8 +2,8 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.*;
+import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 
-import java.util.Collections;
 import java.util.Optional;
 
 class Mapping {
@@ -20,7 +20,7 @@ class Mapping {
                 .pesel(e.getPesel())
                 .IDCard(e.getIDCard())
                 .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
+                .weaponPermission(map(e.getWeaponPermission()))
                 .active(e.getActive())
                 .adult(e.getAdult())
                 .erased(e.getErased())
@@ -41,7 +41,7 @@ class Mapping {
                 .pesel(e.getPesel())
                 .IDCard(e.getIDCard())
                 .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
+                .weaponPermission(map(e.getWeaponPermission()))
                 .active(e.getActive())
                 .adult(e.getAdult())
                 .erased(e.getErased())
@@ -155,5 +155,18 @@ class Mapping {
         return Optional.ofNullable(el).map((e-> ElectronicEvidenceEntity.builder()
         .date(e.getDate())
         .build())).orElse(null);
+    }
+
+    static WeaponPermission map(WeaponPermissionEntity w){
+        return Optional.ofNullable(w).map(e-> WeaponPermission.builder()
+        .number(e.getNumber())
+        .isExist(e.getIsExist())
+        .build()).orElse(null);
+    }
+    static WeaponPermissionEntity map(WeaponPermission w){
+        return Optional.ofNullable(w).map(e-> WeaponPermissionEntity.builder()
+        .number(e.getNumber())
+        .isExist(e.getIsExist())
+        .build()).orElse(null);
     }
 }

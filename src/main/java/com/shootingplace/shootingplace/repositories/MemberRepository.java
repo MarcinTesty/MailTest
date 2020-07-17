@@ -14,14 +14,18 @@ public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
     Optional<MemberEntity> findByEmail(String email);
 
     Optional<MemberEntity> findByLegitimationNumber(Integer legitimationNumber);
+
     Set<MemberEntity> findAllByActive(Boolean active);
+
     Set<MemberEntity> findAllByActiveAndErased(Boolean active, Boolean erased);
-    Set<MemberEntity> findAllByActiveAndAdult(Boolean active,Boolean adult);
+
+    Set<MemberEntity> findAllByActiveAndAdultAndErased(Boolean active, Boolean adult, Boolean erase);
 
     Optional<MemberEntity> findByPhoneNumber(String phoneNumber);
 
     Optional<MemberEntity> findByIDCard(String IDCard);
+
     List<MemberEntity> findAllByErased(Boolean erased);
 
-    List<MemberEntity> findByOrPeselEqualsOrEmailEqualsOrIDCardOrLegitimationNumberOrLicense_NumberOrFirstNameEqualsOrSecondName(String Pesel,String email, String IDCard, int legitimation, String licenseNumber,String firstName,String secondName);
+    List<MemberEntity> findByOrPeselEqualsOrEmailEqualsOrIDCardOrLegitimationNumberOrLicense_NumberOrFirstNameEqualsOrSecondName(String Pesel, String email, String IDCard, int legitimation, String licenseNumber, String firstName, String secondName);
 }

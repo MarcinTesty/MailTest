@@ -29,7 +29,7 @@ public class Member {
     private String pesel;
     private String IDCard;
     private String phoneNumber;
-    private Boolean weaponPermission;
+    private WeaponPermission weaponPermission;
     private Address address;
     private Contribution contribution;
     private Boolean active = false;
