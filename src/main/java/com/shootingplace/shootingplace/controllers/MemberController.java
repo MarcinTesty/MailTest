@@ -3,6 +3,7 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,9 @@ public class MemberController {
     }
 
     @GetMapping("/{uuid}")
-    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {return memberService.getSingleMember(uuid);}
+    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {
+        return memberService.getSingleMember(uuid);
+    }
 
     @GetMapping("/list")
     public Map<UUID, Member> getMembers() {
@@ -36,14 +39,19 @@ public class MemberController {
         return memberService.getActiveMembers();
     }
 
-    @GetMapping("/nonactive")
-    public Map<UUID, Member> getNonActiveMembers() {
-        return memberService.getNonActiveMembers();
+    @GetMapping("/activelist")
+    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
+        return memberService.getActiveMembersList(active, adult, erase);
     }
 
-    @GetMapping("/activelist")
-    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean a) {
-        return memberService.getActiveMembersList(a);
+    @GetMapping("/nonactivelist")
+    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active, @RequestParam Boolean erased) {
+        return memberService.getNonActiveMembers(active, erased);
+    }
+
+    @GetMapping("/erased")
+    public List<MemberEntity> getErasedMembers(@RequestParam Boolean erased) {
+        return memberService.getErasedMembers(erased);
     }
 
     @GetMapping("/license")
@@ -82,15 +90,10 @@ public class MemberController {
 
     }
 
-    @GetMapping("/weaponpermissionwithoutlicense")
-    public Map<String, String> getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense() {
-        return memberService.getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense();
-    }
-
 
     @PostMapping("/")
     public UUID addMember(@RequestBody @Valid Member member) {
-        return memberService.addMember(member);
+        return memberService.addNewMember(member);
     }
 
     @PutMapping("/{uuid}")
@@ -105,8 +108,23 @@ public class MemberController {
     }
 
     @PatchMapping("/{uuid}")
-    public boolean ActivateOrDeactivateMember(@PathVariable UUID uuid) {
+    public boolean activateOrDeactivateMember(@PathVariable UUID uuid) {
         return memberService.activateOrDeactivateMember(uuid);
+    }
+
+    @PutMapping("/weapon/{uuid}")
+    public boolean changeWeaponPermission(@PathVariable UUID uuid, @RequestBody WeaponPermission weaponPermission) {
+        return memberService.changeWeaponPermission(uuid, weaponPermission);
+    }
+
+    @PatchMapping("/adult/{uuid}")
+    public boolean changeAdult(@PathVariable UUID uuid) {
+        return memberService.changeAdult(uuid);
+    }
+
+    @PatchMapping("/erase/{uuid}")
+    public boolean eraseMember(@PathVariable UUID uuid) {
+        return memberService.eraseMember(uuid);
     }
 
 

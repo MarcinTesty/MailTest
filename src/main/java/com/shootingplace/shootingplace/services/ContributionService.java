@@ -19,12 +19,14 @@ public class ContributionService {
 
     private final ContributionRepository contributionRepository;
     private final MemberRepository memberRepository;
+    private final HistoryService historyService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository) {
+    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService) {
         this.contributionRepository = contributionRepository;
         this.memberRepository = memberRepository;
+        this.historyService = historyService;
     }
 
     public boolean addContribution(UUID memberUUID, Contribution contribution) {
@@ -91,6 +93,8 @@ public class ContributionService {
                     .orElseThrow(EntityNotFoundException::new);
             contributionEntity.setContribution(prolong);
             contributionEntity.setPaymentDay(LocalDate.now());
+
+            historyService.addRecord(memberEntity.getContribution().getHistory().getUuid());
             contributionRepository.saveAndFlush(contributionEntity);
             memberEntity.setContribution(contributionEntity);
             memberRepository.saveAndFlush(memberEntity);

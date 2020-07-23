@@ -5,16 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Contribution {
+public class Club {
 
-    private LocalDate contribution;
-    private LocalDate paymentDay;
-    private History history;
-
+    private String name = "Klub Strzelecki Dziesiątka LOK Łódź";
+    private String licenseNumber = "1233/2020";
 }

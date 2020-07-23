@@ -24,13 +24,15 @@ public class Member {
     private String secondName;
     private License license;
     private ShootingPatent shootingPatent;
-    @NotBlank
-    @Email(message = "e-mail nie może być pusty ani zawierać spacji")
+    @Email
     private String email;
     private String pesel;
+    private String IDCard;
     private String phoneNumber;
-    private Boolean weaponPermission;
+    private WeaponPermission weaponPermission;
     private Address address;
     private Contribution contribution;
     private Boolean active = false;
+    private Boolean adult = true;
+    private Boolean erased = false;
 }

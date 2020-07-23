@@ -6,15 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Contribution {
+public class ElectronicEvidence {
 
-    private LocalDate contribution;
-    private LocalDate paymentDay;
-    private History history;
+    private LocalDate date;
+
+    private Set<Member> members = new HashSet<>();
+
 
 }

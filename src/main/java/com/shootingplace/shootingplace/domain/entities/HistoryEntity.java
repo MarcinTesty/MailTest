@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+
 import java.util.UUID;
 
 @Entity
@@ -15,16 +15,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ContributionEntity {
-
-
+public class HistoryEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private LocalDate contribution;
-    private LocalDate paymentDay;
-    @OneToOne
-    private HistoryEntity history;
+    private String[] record;
 }

@@ -1,12 +1,14 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.validation.constraints.Pattern;
 import java.util.UUID;
 
 @Entity
@@ -14,17 +16,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddressEntity {
+public class WeaponPermissionEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    @Pattern(regexp = "\\d{2}-\\d{3}")
-    private String zipCode;
-    private String postOfficeCity;
-    private String street;
-    private String streetNumber;
-    private String flatNumber;
+    private String number;
+
+    private Boolean isExist = false;
 }

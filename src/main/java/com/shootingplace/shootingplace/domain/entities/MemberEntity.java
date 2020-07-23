@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -35,21 +34,25 @@ public class MemberEntity {
     private LicenseEntity license;
     @OneToOne(orphanRemoval = true)
     private ShootingPatentEntity shootingPatent;
-    @NotBlank
     @Email
-    private String email;
+    private String email = "";
+    @NotBlank
     @ValidPESEL
     @Pattern(regexp = "[0-9]*")
     private String pesel;
+    @NotBlank
+    private String IDCard;
 
-    @ManyToOne @EqualsAndHashCode.Exclude
-    @ToString.Exclude @JsonIgnoreProperties("members")
+    @OneToOne
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
     private String phoneNumber;
-    private Boolean weaponPermission;
+    @OneToOne(orphanRemoval = true)
+    private WeaponPermissionEntity weaponPermission;
     @OneToOne(orphanRemoval = true)
     private ContributionEntity contribution;
     private Boolean active = false;
+    private Boolean adult = true;
+    private Boolean erased = false;
 }

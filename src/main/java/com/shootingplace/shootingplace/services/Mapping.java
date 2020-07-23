@@ -2,6 +2,7 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.*;
+import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 
 import java.util.Optional;
 
@@ -17,9 +18,12 @@ class Mapping {
                 .license(map(e.getLicense()))
                 .email(e.getEmail())
                 .pesel(e.getPesel())
+                .IDCard(e.getIDCard())
                 .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
+                .weaponPermission(map(e.getWeaponPermission()))
                 .active(e.getActive())
+                .adult(e.getAdult())
+                .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();
@@ -35,9 +39,12 @@ class Mapping {
                 .license(map(e.getLicense()))
                 .email(e.getEmail())
                 .pesel(e.getPesel())
+                .IDCard(e.getIDCard())
                 .phoneNumber(e.getPhoneNumber())
-                .weaponPermission(e.getWeaponPermission())
+                .weaponPermission(map(e.getWeaponPermission()))
                 .active(e.getActive())
+                .adult(e.getAdult())
+                .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .build();
@@ -74,6 +81,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
+                        .isValid(e.getIsValid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -86,6 +94,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
+                        .isValid(e.getIsValid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -116,6 +125,7 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
+                .history(map(e.getHistory()))
                 .build()).orElse(null);
     }
 
@@ -123,6 +133,43 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
+                .history(map(e.getHistory()))
+                .build()).orElse(null);
+    }
+
+    static History map(HistoryEntity r) {
+        return Optional.ofNullable(r).map(e -> History.builder()
+                .record(e.getRecord()).build()).orElse(null);
+    }
+
+    static HistoryEntity map(History r) {
+        return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
+                .record(e.getRecord()).build()).orElse(null);
+    }
+
+    static ElectronicEvidence map(ElectronicEvidenceEntity el) {
+        return Optional.ofNullable(el).map((e -> ElectronicEvidence.builder()
+                .date(e.getDate())
+                .build())).orElse(null);
+    }
+
+    static ElectronicEvidenceEntity map(ElectronicEvidence el) {
+        return Optional.ofNullable(el).map((e -> ElectronicEvidenceEntity.builder()
+                .date(e.getDate())
+                .build())).orElse(null);
+    }
+
+    static WeaponPermission map(WeaponPermissionEntity w) {
+        return Optional.ofNullable(w).map(e -> WeaponPermission.builder()
+                .number(e.getNumber())
+                .isExist(e.getIsExist())
+                .build()).orElse(null);
+    }
+
+    static WeaponPermissionEntity map(WeaponPermission w) {
+        return Optional.ofNullable(w).map(e -> WeaponPermissionEntity.builder()
+                .number(e.getNumber())
+                .isExist(e.getIsExist())
                 .build()).orElse(null);
     }
 }

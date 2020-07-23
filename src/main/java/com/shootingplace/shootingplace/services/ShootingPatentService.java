@@ -44,57 +44,55 @@ public class ShootingPatentService {
     }
 
     public boolean updatePatent(UUID memberUUID, ShootingPatent shootingPatent) {
-        try {
-            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            ShootingPatentEntity shootingPatentEntity = shootingPatentRepository.findById(memberEntity
-                    .getShootingPatent()
-                    .getUuid())
-                    .orElseThrow(EntityNotFoundException::new);
-            if (memberEntity.getActive().equals(false)) {
-                LOG.warn("Klubowicz nie aktywny");
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        ShootingPatentEntity shootingPatentEntity = shootingPatentRepository.findById(memberEntity
+                .getShootingPatent()
+                .getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getActive().equals(false)) {
+            LOG.warn("Klubowicz nie aktywny");
+            return false;
+        }
+        if (shootingPatent.getPatentNumber() != null && !shootingPatent.getPatentNumber().isEmpty()) {
+            if (shootingPatentRepository.findByPatentNumber(shootingPatent.getPatentNumber()).isPresent()
+                    && !memberEntity.getShootingPatent().getPatentNumber().equals(shootingPatent.getPatentNumber())) {
+                LOG.error("ktoś już ma taki numer patentu");
                 return false;
+            } else {
+                shootingPatentEntity.setPatentNumber(shootingPatent.getPatentNumber());
+                LOG.info("Wprowadzono numer patentu");
             }
-            if (shootingPatent.getPatentNumber() != null
-                    && (memberEntity.getShootingPatent().getUuid() == shootingPatentEntity.getUuid())) {
-                if (shootingPatentRepository.findByPatentNumber(shootingPatent.getPatentNumber()).isPresent()
-                        && !memberEntity.getShootingPatent().getPatentNumber().equals(shootingPatent.getPatentNumber())) {
-                    LOG.error("ktoś już ma taki numer patentu");
-                    return false;
-                } else {
-                    shootingPatentEntity.setPatentNumber(shootingPatent.getPatentNumber());
-                    LOG.info("Wprowadzono numer patentu");
-
-                }
-            }
-            if (shootingPatent.getPistolPermission() != null) {
+        }
+        if (shootingPatent.getPistolPermission() != null) {
+            if (shootingPatent.getPistolPermission().equals(true)) {
                 shootingPatentEntity.setPistolPermission(shootingPatent.getPistolPermission());
                 LOG.info("Dodano dyscyplinę : Pistolet");
             }
-            if (shootingPatent.getRiflePermission() != null) {
+        }
+        if (shootingPatent.getRiflePermission() != null) {
+            if (shootingPatent.getRiflePermission().equals(true)) {
                 shootingPatentEntity.setRiflePermission(shootingPatent.getRiflePermission());
                 LOG.info("Dodano dyscyplinę : Karabin");
             }
-            if (shootingPatent.getShotgunPermission() != null) {
+        }
+        if (shootingPatent.getShotgunPermission() != null) {
+            if (shootingPatent.getShotgunPermission().equals(true)) {
                 shootingPatentEntity.setShotgunPermission(shootingPatent.getShotgunPermission());
                 LOG.info("Dodano dyscyplinę : Strzelba");
             }
-            if (shootingPatent.getDateOfPosting() != null && shootingPatent.getDateOfPosting().isBefore(LocalDate.now())) {
-                System.out.println("ustawiono datę przyznania patentu na : " + shootingPatent.getDateOfPosting());
-                shootingPatentEntity.setDateOfPosting(shootingPatent.getDateOfPosting());
-            }
-            if (shootingPatent.getDateOfPosting() == null) {
-                LOG.info("ustawiono domyślną datę nadania patentu na : " + LocalDate.now());
-                shootingPatentEntity.setDateOfPosting(LocalDate.now());
-            }
-            shootingPatentRepository.saveAndFlush(shootingPatentEntity);
-            memberEntity.setShootingPatent(shootingPatentEntity);
-            memberRepository.saveAndFlush(memberEntity);
-            LOG.info("Zaktualizowano patent");
-            return true;
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            LOG.error("ktoś już ma taki numer patentu");
-            return false;
         }
+        if (shootingPatent.getDateOfPosting() != null){
+            LOG.info("ustawiono datę przyznania patentu na : " + shootingPatent.getDateOfPosting());
+            shootingPatentEntity.setDateOfPosting(shootingPatent.getDateOfPosting());
+        }
+//        if (shootingPatent.getDateOfPosting() == null ||String.valueOf(shootingPatent.getDateOfPosting()).isEmpty()) {
+//            LOG.info("ustawiono domyślną datę nadania patentu na : " + LocalDate.now());
+//            shootingPatentEntity.setDateOfPosting(LocalDate.now());
+//        }
+        shootingPatentRepository.saveAndFlush(shootingPatentEntity);
+        memberEntity.setShootingPatent(shootingPatentEntity);
+        memberRepository.saveAndFlush(memberEntity);
+        LOG.info("Zaktualizowano patent");
+        return true;
     }
 }

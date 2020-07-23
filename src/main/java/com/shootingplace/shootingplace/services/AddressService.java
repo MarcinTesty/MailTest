@@ -47,23 +47,23 @@ public class AddressService {
                     .getAddress()
                     .getUuid())
                     .orElseThrow(EntityNotFoundException::new);
-            if (address.getZipCode() != null) {
+            if (address.getZipCode() != null && !address.getZipCode().isEmpty()) {
                 addressEntity.setZipCode(address.getZipCode());
                 LOG.info("Dodano Kod pocztowy");
             }
-            if (address.getPostOfficeCity() != null) {
+            if (address.getPostOfficeCity() != null && !address.getPostOfficeCity().isEmpty()) {
                 addressEntity.setPostOfficeCity(address.getPostOfficeCity());
                 LOG.info("Dodano Miasto");
             }
-            if (address.getStreet() != null) {
+            if (address.getStreet() != null && !address.getStreet().isEmpty()) {
                 addressEntity.setStreet(address.getStreet());
                 LOG.info("Dodano Ulica");
             }
-            if (address.getStreetNumber() != null) {
+            if (address.getStreetNumber() != null && !address.getStreetNumber().isEmpty()) {
                 addressEntity.setStreetNumber(address.getStreetNumber());
                 LOG.info("Dodano Numer ulicy");
             }
-            if (address.getFlatNumber() != null) {
+            if (address.getFlatNumber() != null && !address.getFlatNumber().isEmpty()) {
                 addressEntity.setFlatNumber(address.getFlatNumber());
                 LOG.info("Dodano Numer mieszkania");
             }
