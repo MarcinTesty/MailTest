@@ -82,11 +82,13 @@ public class ContributionService {
             if (prolong.getMonth().getValue() == 12) {
                 prolong = prolong.plusDays(1);
             }
-            if(memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(),9,30))|
-            memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(),3,31))){
+            if (memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(), 9, 30)) |
+                    memberEntity.getContribution().getContribution().isAfter(LocalDate.of(LocalDate.now().getYear(), 3, 31))) {
                 LOG.info("klubowicz jest już aktywny");
                 memberEntity.setActive(true);
-            } else {memberEntity.setActive(false);}
+            } else {
+                memberEntity.setActive(false);
+            }
             ContributionEntity contributionEntity = contributionRepository.findById(memberEntity
                     .getContribution()
                     .getUuid())

@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface LicenseRepository extends JpaRepository<LicenseEntity, UUID> {
     Optional<LicenseEntity> findByNumber(String number);
+
     List<LicenseEntity> findAllByNumberIsNotNull();
 }

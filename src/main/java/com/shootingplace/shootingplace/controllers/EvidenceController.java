@@ -23,20 +23,24 @@ public class EvidenceController {
     public List<MemberEntity> getMembersInEvidence() {
         return evidenceService.getMembersInEvidence();
     }
+
     @GetMapping("/evidence")
     public ElectronicEvidenceEntity getEvidence() {
         return evidenceService.getEvidence();
     }
+
     @PatchMapping("/{uuid}")
-    public Boolean addMemberToEvidence(@PathVariable UUID uuid){
+    public Boolean addMemberToEvidence(@PathVariable UUID uuid) {
         return evidenceService.addMemberToEvidence(uuid);
     }
+
     @PatchMapping("/clear")
-    public Boolean clearEvidence(){
+    public Boolean clearEvidence() {
         return evidenceService.clearEvidence();
     }
+
     @PutMapping("/setdate")
-    public Boolean setEvidenceDate(@RequestParam String date){
+    public Boolean setEvidenceDate(@RequestParam String date) {
         return evidenceService.setEvidenceDate(date);
     }
 }

@@ -7,7 +7,6 @@ import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
@@ -98,12 +97,6 @@ public class LicenseService {
                 LOG.info("Dodano dyscyplinę : pistolet");
             }
         }
-//        if (shootingPatent.getPistolPermission() != null) {
-//            if (shootingPatent.getPistolPermission().equals(true)) {
-//                shootingPatentEntity.setPistolPermission(shootingPatent.getPistolPermission());
-//                LOG.info("Dodano dyscyplinę : Pistolet");
-//            }
-//        }
         if (license.getRiflePermission() != null) {
             if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                 LOG.error(noPatentMessage());

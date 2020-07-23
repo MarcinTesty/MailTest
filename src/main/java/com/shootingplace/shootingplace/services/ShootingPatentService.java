@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 
 import javax.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -81,14 +80,10 @@ public class ShootingPatentService {
                 LOG.info("Dodano dyscyplinę : Strzelba");
             }
         }
-        if (shootingPatent.getDateOfPosting() != null){
+        if (shootingPatent.getDateOfPosting() != null) {
             LOG.info("ustawiono datę przyznania patentu na : " + shootingPatent.getDateOfPosting());
             shootingPatentEntity.setDateOfPosting(shootingPatent.getDateOfPosting());
         }
-//        if (shootingPatent.getDateOfPosting() == null ||String.valueOf(shootingPatent.getDateOfPosting()).isEmpty()) {
-//            LOG.info("ustawiono domyślną datę nadania patentu na : " + LocalDate.now());
-//            shootingPatentEntity.setDateOfPosting(LocalDate.now());
-//        }
         shootingPatentRepository.saveAndFlush(shootingPatentEntity);
         memberEntity.setShootingPatent(shootingPatentEntity);
         memberRepository.saveAndFlush(memberEntity);
