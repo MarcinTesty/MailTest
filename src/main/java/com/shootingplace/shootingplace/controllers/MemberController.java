@@ -90,9 +90,8 @@ public class MemberController {
 
     }
 
-
     @PostMapping("/")
-    public UUID addMember(@RequestBody @Valid Member member) {
+    public UUID addMember(@RequestBody @Valid Member member) throws Exception {
         return memberService.addNewMember(member);
     }
 

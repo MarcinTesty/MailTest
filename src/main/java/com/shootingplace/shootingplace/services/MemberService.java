@@ -187,35 +187,41 @@ public class MemberService {
     }
 
     //--------------------------------------------------------------------------
-    public UUID addNewMember(Member member) {
+    public UUID addNewMember(Member member) throws Exception {
         MemberEntity memberEntity = null;
-        if (member.getEmail() == null){
+        if (member.getEmail() == null) {
             member.setEmail("");
         }
+
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
-        } else if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
+        }
+        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
             LOG.error("Ktoś już ma taki adres e-mail");
-        } else if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+        }
+        if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
-        } else if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
+        }
+        if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
-        } else if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
+        }
+        if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
         } else {
             if (member.getJoinDate() == null) {
-                LOG.info("ustawiono domyślną datę zapisu");
                 member.setJoinDate(LocalDate.now());
+                LOG.info("ustawiono domyślną datę zapisu " + member.getJoinDate());
             }
             if (member.getLegitimationNumber() == null) {
-                Integer number = memberRepository.findAll().size() + 1;
-//                    if (memberRepository.findByLegitimationNumber(number).isPresent()) {
-//                        LOG.error("Ktoś już ma taki numer legitymacji");
-//                    }
-//                    else {
+                List<MemberEntity> numberList = new ArrayList<>(memberRepository.findAll());
+                numberList.sort(Comparator.comparing(MemberEntity::getSecondName));
+                Integer number = numberList.get(0).getLegitimationNumber() + 1;
                 member.setLegitimationNumber(number);
-                LOG.info("ustawiono domyślny numer legitymacji");
-
+                if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+                    LOG.error("Ktoś już ma taki numer legitymacji");
+                    throw new Exception();
+                }
+                LOG.info("ustawiono domyślny numer legitymacji : " + member.getLegitimationNumber());
             }
             String s = "+48";
             if (member.getPhoneNumber() != null) {
@@ -330,70 +336,70 @@ public class MemberService {
         try {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
 
-        if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
-            memberEntity.setFirstName(member.getFirstName());
-            LOG.info(goodMessage() + "Imię");
-        }
-        if (member.getSecondName() != null && !member.getSecondName().isEmpty()) {
-            memberEntity.setSecondName(member.getSecondName());
-            LOG.info(goodMessage() + "Nazwisko");
+            if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
+                memberEntity.setFirstName(member.getFirstName());
+                LOG.info(goodMessage() + "Imię");
+            }
+            if (member.getSecondName() != null && !member.getSecondName().isEmpty()) {
+                memberEntity.setSecondName(member.getSecondName());
+                LOG.info(goodMessage() + "Nazwisko");
 
-        }
+            }
             if (member.getJoinDate() != null) {
-            memberEntity.setJoinDate(member.getJoinDate());
-            LOG.info(goodMessage() + "Data przystąpienia do klubu");
-        }
-        if (member.getLegitimationNumber() != null) {
-            if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
-                LOG.warn("Już ktoś ma taki numer legitymacji");
-                return false;
-            } else {
-                memberEntity.setLegitimationNumber(member.getLegitimationNumber());
-                LOG.info(goodMessage()+ "numer legitymacji");
+                memberEntity.setJoinDate(member.getJoinDate());
+                LOG.info(goodMessage() + "Data przystąpienia do klubu");
             }
-        }
-        if (member.getEmail() != null && !member.getEmail().isEmpty()) {
-            if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
-                LOG.error("Już ktoś ma taki sam e-mail");
-                return false;
-            } else {
-                memberEntity.setEmail(member.getEmail().trim());
-                LOG.info(goodMessage() + "Email");
+            if (member.getLegitimationNumber() != null) {
+                if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+                    LOG.warn("Już ktoś ma taki numer legitymacji");
+                    return false;
+                } else {
+                    memberEntity.setLegitimationNumber(member.getLegitimationNumber());
+                    LOG.info(goodMessage() + "numer legitymacji");
+                }
             }
-        }
-        if (member.getPesel() != null && !member.getPesel().isEmpty()) {
-            if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
-                LOG.error("Już ktoś ma taki sam numer PESEL");
-                return false;
-            } else {
-                memberEntity.setPesel(member.getPesel());
-                LOG.info(goodMessage() + "Numer PESEL");
+            if (member.getEmail() != null && !member.getEmail().isEmpty()) {
+                if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
+                    LOG.error("Już ktoś ma taki sam e-mail");
+                    return false;
+                } else {
+                    memberEntity.setEmail(member.getEmail().trim());
+                    LOG.info(goodMessage() + "Email");
+                }
             }
-        }
-        if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
-            if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9 && !member.getPhoneNumber().isEmpty()) {
-                LOG.error("Żle podany numer");
-                return false;
+            if (member.getPesel() != null && !member.getPesel().isEmpty()) {
+                if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
+                    LOG.error("Już ktoś ma taki sam numer PESEL");
+                    return false;
+                } else {
+                    memberEntity.setPesel(member.getPesel());
+                    LOG.info(goodMessage() + "Numer PESEL");
+                }
             }
-            String s = "+48";
-            memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
-            if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
-                LOG.error("Ktoś już ma taki numer telefonu");
-                return false;
+            if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
+                if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9 && !member.getPhoneNumber().isEmpty()) {
+                    LOG.error("Żle podany numer");
+                    return false;
+                }
+                String s = "+48";
+                memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
+                if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
+                    LOG.error("Ktoś już ma taki numer telefonu");
+                    return false;
+                }
+                if (member.getPhoneNumber().equals(memberEntity.getPhoneNumber())) {
+                    memberEntity.setPhoneNumber(member.getPhoneNumber());
+                    LOG.info(goodMessage() + "Numer Telefonu");
+                }
             }
-            if (member.getPhoneNumber().equals(memberEntity.getPhoneNumber())) {
-                memberEntity.setPhoneNumber(member.getPhoneNumber());
-                LOG.info(goodMessage() + "Numer Telefonu");
+            if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
+                if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
+                    LOG.error("Ktoś już ma taki numer dowodu");
+                    return false;
+                }
+                memberEntity.setIDCard(member.getIDCard());
+                LOG.info(goodMessage() + " Numer Dowodu");
             }
-        }
-        if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
-            if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
-                LOG.error("Ktoś już ma taki numer dowodu");
-                return false;
-            }
-            memberEntity.setIDCard(member.getIDCard());
-            LOG.info(goodMessage() + " Numer Dowodu");
-        }
 
             memberRepository.saveAndFlush(memberEntity);
             return true;

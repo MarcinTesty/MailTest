@@ -52,10 +52,11 @@ public class ElectronicEvidenceService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         if (!evidenceRepository.findById(1).isPresent()) {
+            Set<MemberEntity> set = new HashSet<>();
             ElectronicEvidenceEntity evidenceEntity = ElectronicEvidenceEntity.builder()
                     .id(1)
                     .date(LocalDate.now())
-                    .members(null)
+                    .members(set)
                     .others("Brak")
                     .build();
             evidenceRepository.saveAndFlush(evidenceEntity);
@@ -100,7 +101,8 @@ public class ElectronicEvidenceService {
         evidenceRepository.saveAndFlush(evidenceEntity);
         return true;
     }
-    public Boolean setEvidenceDate(String date){
+
+    public Boolean setEvidenceDate(String date) {
         ElectronicEvidenceEntity evidenceEntity = evidenceRepository.findById(1).orElseThrow(EntityNotFoundException::new);
         evidenceEntity.setDate(LocalDate.parse(date));
         evidenceRepository.saveAndFlush(evidenceEntity);

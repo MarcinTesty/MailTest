@@ -1,7 +1,7 @@
 package com.shootingplace.shootingplace;
 
-import com.shootingplace.shootingplace.domain.entities.ClubEntity;
 import com.shootingplace.shootingplace.domain.entities.ElectronicEvidenceEntity;
+import com.shootingplace.shootingplace.repositories.ElectronicEvidenceRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
