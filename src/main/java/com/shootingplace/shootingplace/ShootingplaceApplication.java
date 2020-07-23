@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace;
 
+import com.shootingplace.shootingplace.domain.entities.ClubEntity;
 import com.shootingplace.shootingplace.domain.entities.ElectronicEvidenceEntity;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +16,7 @@ public class ShootingplaceApplication {
 		SpringApplication.run(ShootingplaceApplication.class, args);
 	}
 	@Bean
-	public CommandLineRunner init() {
+	public CommandLineRunner initEvidence() {
 		return args ->
 			ElectronicEvidenceEntity.builder()
 					.id(1)
@@ -23,7 +24,6 @@ public class ShootingplaceApplication {
 					.date(LocalDate.now())
 					.others(null)
 					.build();
-
 
 	}
 

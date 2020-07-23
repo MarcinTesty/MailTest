@@ -35,7 +35,7 @@ public class MemberEntity {
     @OneToOne(orphanRemoval = true)
     private ShootingPatentEntity shootingPatent;
     @Email
-    private String email;
+    private String email = "";
     @NotBlank
     @ValidPESEL
     @Pattern(regexp = "[0-9]*")

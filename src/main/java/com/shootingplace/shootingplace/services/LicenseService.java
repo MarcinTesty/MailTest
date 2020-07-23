@@ -7,6 +7,7 @@ import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
@@ -63,95 +64,101 @@ public class LicenseService {
     }
 
     public boolean updateLicense(UUID memberUUID, License license) {
-        try {
-            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            LicenseEntity licenseEntity = licenseRepository.findById(memberEntity
-                    .getLicense()
-                    .getUuid())
-                    .orElseThrow(EntityNotFoundException::new);
-            if (memberEntity.getActive().equals(false)) {
-                LOG.error("Klubowicz nie aktywny");
-                return false;
-            }
-            if (memberEntity.getShootingPatent().getPatentNumber() == null && memberEntity.getAdult()) {
-                LOG.error("Brak patentu");
-                return false;
-            }
-            if (license.getNumber() != null
-                    && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
-                if (licenseRepository.findByNumber(license.getNumber()).isPresent()
-                        && !memberEntity.getLicense().getNumber().equals(license.getNumber())) {
-                    LOG.error("Ktoś już ma taki numer licencji");
-                    return false;
-                } else {
-                    licenseEntity.setNumber(license.getNumber());
-                    LOG.info("Zaktualizowano numer licencji");
-                }
-            }
-            if (license.getPistolPermission()) {
-                if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
-                    LOG.error(noPatentMessage());
-                    return false;
-                } else {
-                    licenseEntity.setPistolPermission(license.getPistolPermission());
-                    LOG.info("Zaktualizowano dyscyplinę : pistolet");
-                }
-            }
-            if (license.getRiflePermission()) {
-                if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
-                    LOG.error(noPatentMessage());
-                    return false;
-                } else {
-                    licenseEntity.setRiflePermission(license.getRiflePermission());
-                    LOG.info("Zaktualizowano dyscyplinę : karabin");
-                }
-            }
-            if (license.getShotgunPermission()) {
-                if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
-                    LOG.error(noPatentMessage());
-                    return false;
-                } else {
-                    licenseEntity.setShotgunPermission(license.getShotgunPermission());
-                    LOG.info("Zaktualizowano dyscypliny : strzelba");
-                }
-            }
-            if (license.getValidThru() != null) {
-                licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
-                LOG.info("zaktualizowano datę licencji");
-            } else {
-                licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));
-                licenseEntity.setIsValid(true);
-                LOG.info("Brak ręcznego ustawienia daty, ustawiono na koniec bieżącego roku " + licenseEntity.getValidThru());
-            }
-            licenseRepository.saveAndFlush(licenseEntity);
-            memberRepository.saveAndFlush(memberEntity);
-            LOG.info("zaktualizowano licencję");
-            return true;
-        } catch (Exception ex) {
-            LOG.error("Ktoś już ma taki numer licencji " + ex.getMessage());
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        LicenseEntity licenseEntity = licenseRepository.findById(memberEntity
+                .getLicense()
+                .getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getActive().equals(false)) {
+            LOG.error("Klubowicz nie aktywny");
             return false;
         }
+        if (memberEntity.getShootingPatent().getPatentNumber() == null && memberEntity.getAdult()) {
+            LOG.error("Brak patentu");
+            return false;
+        }
+        if (license.getNumber() != null
+                && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
+            if (licenseRepository.findByNumber(license.getNumber()).isPresent()
+                    && !memberEntity.getLicense().getNumber().equals(license.getNumber())) {
+                LOG.error("Ktoś już ma taki numer licencji");
+                return false;
+            } else {
+                licenseEntity.setNumber(license.getNumber());
+                LOG.info("Dodano numer licencji");
+            }
+        }
+        if (license.getPistolPermission() != null) {
+            if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
+                LOG.error(noPatentMessage());
+                return false;
+            }
+            if (license.getPistolPermission().equals(true)) {
+                licenseEntity.setPistolPermission(license.getPistolPermission());
+                LOG.info("Dodano dyscyplinę : pistolet");
+            }
+        }
+//        if (shootingPatent.getPistolPermission() != null) {
+//            if (shootingPatent.getPistolPermission().equals(true)) {
+//                shootingPatentEntity.setPistolPermission(shootingPatent.getPistolPermission());
+//                LOG.info("Dodano dyscyplinę : Pistolet");
+//            }
+//        }
+        if (license.getRiflePermission() != null) {
+            if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
+                LOG.error(noPatentMessage());
+                return false;
+            }
+            if (license.getRiflePermission().equals(true)) {
+                licenseEntity.setRiflePermission(license.getRiflePermission());
+                LOG.info("Dodano dyscyplinę : karabin");
+            }
+        }
+        if (license.getShotgunPermission() != null) {
+            if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
+                LOG.error(noPatentMessage());
+                return false;
+            }
+            if (license.getShotgunPermission().equals(true)) {
+                licenseEntity.setShotgunPermission(license.getShotgunPermission());
+                LOG.info("Dodano dyscyplinę : strzelba");
+            }
+        }
+        if (license.getValidThru() != null) {
+            licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
+            LOG.info("zaktualizowano datę licencji");
+        } else {
+            licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));
+            licenseEntity.setIsValid(true);
+            LOG.info("Brak ręcznego ustawienia daty, ustawiono na koniec bieżącego roku " + licenseEntity.getValidThru());
+        }
+        licenseRepository.saveAndFlush(licenseEntity);
+        memberRepository.saveAndFlush(memberEntity);
+        LOG.info("zaktualizowano licencję");
+        return true;
     }
 
     private String noPatentMessage() {
         return "Nie ma na to Patentu";
     }
 
-    //   tutaj trzeba poprawić warunki bo coś mi się nie zgadza tylko nie wiem jeszcze co.
     public boolean renewLicenseValid(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
                 && licenseEntity.getNumber() != null) {
+            if (LocalDate.now().isAfter(LocalDate.of(LocalDate.now().getYear(), 10, 1))) {
+                licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
+                licenseEntity.setIsValid(true);
+                licenseRepository.saveAndFlush(licenseEntity);
+                LOG.info("Przedłużono licencję");
+                return true;
 
-            licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
-            licenseRepository.saveAndFlush(licenseEntity);
-            LOG.info("Przedłużono licencję");
-            return true;
-
+            } else {
+                LOG.error("nie można przedłużyć licencji");
+                return false;
+            }
         }
-        LOG.error("nie można przedłużyć licencji");
         return false;
-
     }
 }

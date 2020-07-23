@@ -5,7 +5,6 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,11 +38,6 @@ public class MemberController {
     public Map<UUID, Member> getActiveMembers() {
         return memberService.getActiveMembers();
     }
-
-//    @GetMapping("/nonactive")
-//    public Map<UUID, Member> getNonActiveMembers() {
-//        return memberService.getNonActiveMembers();
-//    }
 
     @GetMapping("/activelist")
     public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
@@ -94,11 +88,6 @@ public class MemberController {
     public Map<String, String> getMembersWhoHaveValidLicenseAndNotValidContribution() {
         return memberService.getMembersWhoHaveValidLicenseAndNotValidContribution();
 
-    }
-
-    @GetMapping("/weaponpermissionwithoutlicense")
-    public Map<String, String> getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense() {
-        return memberService.getMemberWithWeaponPermissionIsTrueAndWithoutValidLicense();
     }
 
 

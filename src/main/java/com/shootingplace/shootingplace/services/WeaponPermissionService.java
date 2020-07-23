@@ -47,9 +47,7 @@ public class WeaponPermissionService {
             LOG.error("Klubowicz nie aktywny");
             return false;
         }
-//        if (weaponPermission.getNumber().trim().isEmpty()) {
-//            weaponPermission.setNumber(weaponPermissionEntity.getNumber());
-//        }
+
         if (weaponPermission.getNumber() != null) {
             if (weaponPermissionRepository.findByNumber(weaponPermission.getNumber()).isPresent()
                     && !memberEntity.getWeaponPermission().getNumber().equals(weaponPermission.getNumber())) {

@@ -1,11 +1,12 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.ElectronicEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.services.ElectronicEvidenceService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/evidence")
@@ -18,8 +19,24 @@ public class EvidenceController {
         this.evidenceService = evidenceService;
     }
 
-    @GetMapping("/{id}")
-    public ElectronicEvidenceEntity getMembersInEvidence(Integer id){
-        return evidenceService.getMembersInEvidence(id);
+    @GetMapping("/members")
+    public List<MemberEntity> getMembersInEvidence() {
+        return evidenceService.getMembersInEvidence();
+    }
+    @GetMapping("/evidence")
+    public ElectronicEvidenceEntity getEvidence() {
+        return evidenceService.getEvidence();
+    }
+    @PatchMapping("/{uuid}")
+    public Boolean addMemberToEvidence(@PathVariable UUID uuid){
+        return evidenceService.addMemberToEvidence(uuid);
+    }
+    @PatchMapping("/clear")
+    public Boolean clearEvidence(){
+        return evidenceService.clearEvidence();
+    }
+    @PutMapping("/setdate")
+    public Boolean setEvidenceDate(@RequestParam String date){
+        return evidenceService.setEvidenceDate(date);
     }
 }

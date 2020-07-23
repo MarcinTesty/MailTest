@@ -5,19 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ElectronicEvidence {
+public class Club {
 
-    private LocalDate date;
-
-    private Set<Member> members = new HashSet<>();
-
-
+    private String name = "Klub Strzelecki Dziesiątka LOK Łódź";
+    private String licenseNumber = "1233/2020";
 }

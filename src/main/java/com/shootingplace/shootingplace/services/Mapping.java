@@ -141,32 +141,35 @@ class Mapping {
         return Optional.ofNullable(r).map(e -> History.builder()
                 .record(e.getRecord()).build()).orElse(null);
     }
+
     static HistoryEntity map(History r) {
         return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
                 .record(e.getRecord()).build()).orElse(null);
     }
 
-    static ElectronicEvidence map(ElectronicEvidenceEntity el){
-        return Optional.ofNullable(el).map((e-> ElectronicEvidence.builder()
-        .date(e.getDate())
-        .build())).orElse(null);
-    }
-    static ElectronicEvidenceEntity map(ElectronicEvidence el){
-        return Optional.ofNullable(el).map((e-> ElectronicEvidenceEntity.builder()
-        .date(e.getDate())
-        .build())).orElse(null);
+    static ElectronicEvidence map(ElectronicEvidenceEntity el) {
+        return Optional.ofNullable(el).map((e -> ElectronicEvidence.builder()
+                .date(e.getDate())
+                .build())).orElse(null);
     }
 
-    static WeaponPermission map(WeaponPermissionEntity w){
-        return Optional.ofNullable(w).map(e-> WeaponPermission.builder()
-        .number(e.getNumber())
-        .isExist(e.getIsExist())
-        .build()).orElse(null);
+    static ElectronicEvidenceEntity map(ElectronicEvidence el) {
+        return Optional.ofNullable(el).map((e -> ElectronicEvidenceEntity.builder()
+                .date(e.getDate())
+                .build())).orElse(null);
     }
-    static WeaponPermissionEntity map(WeaponPermission w){
-        return Optional.ofNullable(w).map(e-> WeaponPermissionEntity.builder()
-        .number(e.getNumber())
-        .isExist(e.getIsExist())
-        .build()).orElse(null);
+
+    static WeaponPermission map(WeaponPermissionEntity w) {
+        return Optional.ofNullable(w).map(e -> WeaponPermission.builder()
+                .number(e.getNumber())
+                .isExist(e.getIsExist())
+                .build()).orElse(null);
+    }
+
+    static WeaponPermissionEntity map(WeaponPermission w) {
+        return Optional.ofNullable(w).map(e -> WeaponPermissionEntity.builder()
+                .number(e.getNumber())
+                .isExist(e.getIsExist())
+                .build()).orElse(null);
     }
 }
