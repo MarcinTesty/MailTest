@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace.domain.entities;
 
+import com.shootingplace.shootingplace.domain.models.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -16,11 +17,17 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class HistoryEntity {
+public class AmmoEvidenceEntity {
+
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String[] record;
+    private String label;
+    @OneToMany
+    @JoinColumn(name="member_id")
+    private Set<MemberEntity> members;
+    private Integer quantity;
+    private LocalDate date;
 }

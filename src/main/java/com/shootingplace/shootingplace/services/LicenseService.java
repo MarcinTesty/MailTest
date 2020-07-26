@@ -90,7 +90,6 @@ public class LicenseService {
         if (license.getPistolPermission() != null) {
             if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                 LOG.error(noPatentMessage());
-                return false;
             }
             if (license.getPistolPermission().equals(true)) {
                 licenseEntity.setPistolPermission(license.getPistolPermission());
@@ -100,7 +99,6 @@ public class LicenseService {
         if (license.getRiflePermission() != null) {
             if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                 LOG.error(noPatentMessage());
-                return false;
             }
             if (license.getRiflePermission().equals(true)) {
                 licenseEntity.setRiflePermission(license.getRiflePermission());
@@ -110,7 +108,6 @@ public class LicenseService {
         if (license.getShotgunPermission() != null) {
             if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
                 LOG.error(noPatentMessage());
-                return false;
             }
             if (license.getShotgunPermission().equals(true)) {
                 licenseEntity.setShotgunPermission(license.getShotgunPermission());

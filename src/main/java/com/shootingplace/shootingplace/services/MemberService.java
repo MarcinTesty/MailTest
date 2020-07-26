@@ -196,9 +196,12 @@ public class MemberService {
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
         }
-        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
-            LOG.error("Ktoś już ma taki adres e-mail");
+        if (member.getEmail() == null || member.getEmail().isEmpty()){
+            member.setEmail("");
         }
+//        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
+//            LOG.error("Ktoś już ma taki adres e-mail");
+//        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
         }
@@ -208,6 +211,7 @@ public class MemberService {
         if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
         } else {
+            member.setIDCard(member.getIDCard().toUpperCase());
             if (member.getJoinDate() == null) {
                 member.setJoinDate(LocalDate.now());
                 LOG.info("ustawiono domyślną datę zapisu " + member.getJoinDate());
@@ -219,6 +223,7 @@ public class MemberService {
                 member.setLegitimationNumber(number);
                 if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
                     LOG.error("Ktoś już ma taki numer legitymacji");
+                    System.out.println(numberList);
                     throw new Exception();
                 }
                 LOG.info("ustawiono domyślny numer legitymacji : " + member.getLegitimationNumber());
@@ -397,7 +402,7 @@ public class MemberService {
                     LOG.error("Ktoś już ma taki numer dowodu");
                     return false;
                 }
-                memberEntity.setIDCard(member.getIDCard());
+                memberEntity.setIDCard(member.getIDCard().toUpperCase());
                 LOG.info(goodMessage() + " Numer Dowodu");
             }
 
