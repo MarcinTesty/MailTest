@@ -35,4 +35,6 @@ public class Member {
     private Boolean active = false;
     private Boolean adult = true;
     private Boolean erased = false;
+
+    private History history;
 }

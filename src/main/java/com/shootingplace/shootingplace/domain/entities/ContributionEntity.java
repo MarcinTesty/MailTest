@@ -25,6 +25,5 @@ public class ContributionEntity {
 
     private LocalDate contribution;
     private LocalDate paymentDay;
-    @OneToOne
-    private HistoryEntity history;
+
 }

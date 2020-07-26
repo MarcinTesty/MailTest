@@ -20,13 +20,15 @@ import java.util.UUID;
 public class LicenseService {
     private final MemberRepository memberRepository;
     private final LicenseRepository licenseRepository;
+    private final HistoryService historyService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
     public LicenseService(MemberRepository memberRepository,
-                          LicenseRepository licenseRepository) {
+                          LicenseRepository licenseRepository, HistoryService historyService) {
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
+        this.historyService = historyService;
     }
 
     public Map<UUID, License> getLicense() {
@@ -92,6 +94,7 @@ public class LicenseService {
                 LOG.error(noPatentMessage());
             }
             if (license.getPistolPermission().equals(true)) {
+                historyService.addLicenseHistoryRecord(memberUUID, 0);
                 licenseEntity.setPistolPermission(license.getPistolPermission());
                 LOG.info("Dodano dyscyplinę : pistolet");
             }
@@ -101,6 +104,7 @@ public class LicenseService {
                 LOG.error(noPatentMessage());
             }
             if (license.getRiflePermission().equals(true)) {
+                historyService.addLicenseHistoryRecord(memberUUID, 1);
                 licenseEntity.setRiflePermission(license.getRiflePermission());
                 LOG.info("Dodano dyscyplinę : karabin");
             }
@@ -110,10 +114,13 @@ public class LicenseService {
                 LOG.error(noPatentMessage());
             }
             if (license.getShotgunPermission().equals(true)) {
+                historyService.addLicenseHistoryRecord(memberUUID, 2);
                 licenseEntity.setShotgunPermission(license.getShotgunPermission());
                 LOG.info("Dodano dyscyplinę : strzelba");
             }
         }
+        LocalDate localDate = license.getValidThru();
+        System.out.println(localDate);
         if (license.getValidThru() != null) {
             licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
             LOG.info("zaktualizowano datę licencji");
@@ -132,7 +139,7 @@ public class LicenseService {
         return "Nie ma na to Patentu";
     }
 
-    public boolean renewLicenseValid(UUID memberUUID) {
+    public boolean renewLicenseValid(UUID memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
@@ -140,6 +147,36 @@ public class LicenseService {
             if (LocalDate.now().isAfter(LocalDate.of(LocalDate.now().getYear(), 10, 1))) {
                 licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
                 licenseEntity.setIsValid(true);
+                if (license.getPistolPermission() != null) {
+                    if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
+                        LOG.error("Brak Patentu");
+                    }
+                    if (license.getPistolPermission().equals(true)) {
+                        historyService.addLicenseHistoryRecord(memberUUID, 0);
+                        licenseEntity.setPistolPermission(license.getPistolPermission());
+                        LOG.info("Dodano dyscyplinę : pistolet");
+                    }
+                }
+                if (license.getRiflePermission() != null) {
+                    if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
+                        LOG.error("Brak Patentu");
+                    }
+                    if (license.getRiflePermission() != null) {
+                        historyService.addLicenseHistoryRecord(memberUUID, 1);
+                        licenseEntity.setRiflePermission(license.getRiflePermission());
+                        LOG.info("Dodano dyscyplinę : karabin");
+                    }
+                }
+                if (license.getShotgunPermission() != null) {
+                    if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
+                        LOG.error("Brak Patentu");
+                    }
+                    if (license.getShotgunPermission() != null) {
+                        historyService.addLicenseHistoryRecord(memberUUID, 2);
+                        licenseEntity.setShotgunPermission(license.getShotgunPermission());
+                        LOG.info("Dodano dyscyplinę : strzelba");
+                    }
+                }
                 licenseRepository.saveAndFlush(licenseEntity);
                 LOG.info("Przedłużono licencję");
                 return true;

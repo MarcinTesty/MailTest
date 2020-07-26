@@ -56,4 +56,7 @@ public class MemberEntity {
     private Boolean active = false;
     private Boolean adult = true;
     private Boolean erased = false;
+
+    @OneToOne(orphanRemoval = true)
+    private HistoryEntity history;
 }

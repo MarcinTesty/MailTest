@@ -39,8 +39,8 @@ public class LicenseController {
     }
 
     @PatchMapping("/{memberUUID}")
-    public boolean renewLicenseValidDate(@PathVariable UUID memberUUID) {
-        return licenseService.renewLicenseValid(memberUUID);
+    public boolean renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
+        return licenseService.renewLicenseValid(memberUUID,license);
     }
 
 }

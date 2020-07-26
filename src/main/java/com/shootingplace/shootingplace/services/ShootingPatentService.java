@@ -1,8 +1,10 @@
 package com.shootingplace.shootingplace.services;
 
+import com.shootingplace.shootingplace.domain.entities.HistoryEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.entities.ShootingPatentEntity;
 import com.shootingplace.shootingplace.domain.models.ShootingPatent;
+import com.shootingplace.shootingplace.repositories.HistoryRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import com.shootingplace.shootingplace.repositories.ShootingPatentRepository;
 import org.apache.logging.log4j.LogManager;
@@ -18,13 +20,17 @@ public class ShootingPatentService {
 
     private final ShootingPatentRepository shootingPatentRepository;
     private final MemberRepository memberRepository;
+    private final HistoryService historyService;
+    private final HistoryRepository historyRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
     public ShootingPatentService(ShootingPatentRepository shootingPatentRepository,
-                                 MemberRepository memberRepository) {
+                                 MemberRepository memberRepository, HistoryService historyService, HistoryRepository historyRepository) {
         this.shootingPatentRepository = shootingPatentRepository;
         this.memberRepository = memberRepository;
+        this.historyService = historyService;
+        this.historyRepository = historyRepository;
     }
 
 
@@ -85,9 +91,26 @@ public class ShootingPatentService {
             shootingPatentEntity.setDateOfPosting(shootingPatent.getDateOfPosting());
         }
         shootingPatentRepository.saveAndFlush(shootingPatentEntity);
+        LOG.info("Zaktualizowano patent");
         memberEntity.setShootingPatent(shootingPatentEntity);
         memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Zaktualizowano patent");
+        HistoryEntity historyEntity =
+                historyRepository.findById(memberEntity.getHistory().getUuid()).orElseThrow(EntityNotFoundException::new);
+
+        if (shootingPatentEntity.getPistolPermission() && shootingPatentEntity.getDateOfPosting() != null) {
+            historyService.addDateToPatentPermissions(memberUUID, 0);
+        }
+        if (shootingPatentEntity.getRiflePermission() && shootingPatentEntity.getDateOfPosting() != null) {
+            historyService.addDateToPatentPermissions(memberUUID, 1);
+        }
+        if (shootingPatentEntity.getShotgunPermission() && shootingPatentEntity.getDateOfPosting() != null) {
+            historyService.addDateToPatentPermissions(memberUUID, 2);
+        }
+        if (shootingPatentEntity.getDateOfPosting() != null) {
+            historyEntity.setPatentFirstRecord(true);
+        }
+        LOG.info("już nie dodam pierwszej daty patentu");
+        historyRepository.saveAndFlush(historyEntity);
         return true;
     }
 }

@@ -196,7 +196,7 @@ public class MemberService {
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
         }
-        if (member.getEmail() == null || member.getEmail().isEmpty()){
+        if (member.getEmail() == null || member.getEmail().isEmpty()) {
             member.setEmail("");
         }
 //        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
@@ -287,9 +287,13 @@ public class MemberService {
                 contributionService.addContribution(memberEntity.getUuid(), contribution);
 
             }
-            if (memberEntity.getContribution().getHistory() == null) {
+            if (memberEntity.getHistory() == null) {
                 LocalDate localDate = LocalDate.now();
-                History history = History.builder().record(new String[]{localDate.toString()}).build();
+                History history = History.builder()
+                        .contributionRecord(new LocalDate[]{localDate})
+                        .licenseHistory(new String[]{})
+                        .patentDay(new LocalDate[3])
+                        .patentFirstRecord(false).build();
                 historyService.createHistory(memberEntity.getUuid(), history);
             }
             if (memberEntity.getWeaponPermission() == null) {

@@ -5,11 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class History {
-    private String[] record;
+    private LocalDate[] contributionRecord;
+
+    private String[] licenseHistory;
+
+    private Boolean patentFirstRecord = false;
+    private LocalDate[] patentDay;
+
 }

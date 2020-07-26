@@ -96,7 +96,7 @@ public class ContributionService {
             contributionEntity.setContribution(prolong);
             contributionEntity.setPaymentDay(LocalDate.now());
 
-            historyService.addRecord(memberEntity.getContribution().getHistory().getUuid());
+            historyService.addContributionRecord(memberEntity.getHistory().getUuid());
             contributionRepository.saveAndFlush(contributionEntity);
             memberEntity.setContribution(contributionEntity);
             memberRepository.saveAndFlush(memberEntity);
