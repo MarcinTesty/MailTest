@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -21,5 +22,9 @@ public class HistoryEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String[] record;
+    private LocalDate[] contributionRecord;
+
+    private String[] licenseHistory;
+    private Boolean patentFirstRecord = false;
+    private LocalDate[] patentDay;
 }

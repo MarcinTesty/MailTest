@@ -26,6 +26,7 @@ class Mapping {
                 .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
+                .history(map(e.getHistory()))
                 .build();
     }
 
@@ -47,6 +48,7 @@ class Mapping {
                 .erased(e.getErased())
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
+                .history(map(e.getHistory()))
                 .build();
     }
 
@@ -125,7 +127,6 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
-                .history(map(e.getHistory()))
                 .build()).orElse(null);
     }
 
@@ -133,18 +134,25 @@ class Mapping {
         return Optional.ofNullable(c).map(e -> Contribution.builder()
                 .contribution(e.getContribution())
                 .paymentDay(e.getPaymentDay())
-                .history(map(e.getHistory()))
                 .build()).orElse(null);
     }
 
     static History map(HistoryEntity r) {
         return Optional.ofNullable(r).map(e -> History.builder()
-                .record(e.getRecord()).build()).orElse(null);
+                .contributionRecord(e.getContributionRecord())
+                .licenseHistory(e.getLicenseHistory())
+                .patentDay(e.getPatentDay())
+                .patentFirstRecord(e.getPatentFirstRecord())
+                .build()).orElse(null);
     }
 
     static HistoryEntity map(History r) {
         return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
-                .record(e.getRecord()).build()).orElse(null);
+                .contributionRecord(e.getContributionRecord())
+                .licenseHistory(e.getLicenseHistory())
+                .patentDay(e.getPatentDay())
+                .patentFirstRecord(e.getPatentFirstRecord())
+                .build()).orElse(null);
     }
 
     static ElectronicEvidence map(ElectronicEvidenceEntity el) {

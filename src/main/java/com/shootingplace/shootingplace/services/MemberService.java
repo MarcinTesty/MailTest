@@ -196,11 +196,15 @@ public class MemberService {
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
         }
-        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
-            LOG.error("Ktoś już ma taki adres e-mail");
+        if (member.getEmail() == null || member.getEmail().isEmpty()) {
+            member.setEmail("");
         }
+//        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
+//            LOG.error("Ktoś już ma taki adres e-mail");
+//        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
+            throw new Exception();
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
@@ -208,6 +212,7 @@ public class MemberService {
         if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
         } else {
+            member.setIDCard(member.getIDCard().toUpperCase());
             if (member.getJoinDate() == null) {
                 member.setJoinDate(LocalDate.now());
                 LOG.info("ustawiono domyślną datę zapisu " + member.getJoinDate());
@@ -217,7 +222,7 @@ public class MemberService {
                 numberList.sort(Comparator.comparing(MemberEntity::getSecondName));
                 Integer number = numberList.get(0).getLegitimationNumber() + 1;
                 member.setLegitimationNumber(number);
-                if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+                if (memberRepository.findByLegitimationNumber(number).isPresent()) {
                     LOG.error("Ktoś już ma taki numer legitymacji");
                     throw new Exception();
                 }
@@ -233,6 +238,8 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
+            member.setFirstName(member.getFirstName().substring(0,1).toUpperCase()+member.getFirstName().substring(1).toLowerCase());
+            member.setSecondName(member.getSecondName().toUpperCase());
             LOG.info("Dodano nowego członka Klubu");
             memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
             if (memberEntity.getAddress() == null) {
@@ -282,9 +289,13 @@ public class MemberService {
                 contributionService.addContribution(memberEntity.getUuid(), contribution);
 
             }
-            if (memberEntity.getContribution().getHistory() == null) {
+            if (memberEntity.getHistory() == null) {
                 LocalDate localDate = LocalDate.now();
-                History history = History.builder().record(new String[]{localDate.toString()}).build();
+                History history = History.builder()
+                        .contributionRecord(new LocalDate[]{localDate})
+                        .licenseHistory(new String[]{})
+                        .patentDay(new LocalDate[3])
+                        .patentFirstRecord(false).build();
                 historyService.createHistory(memberEntity.getUuid(), history);
             }
             if (memberEntity.getWeaponPermission() == null) {
@@ -397,7 +408,7 @@ public class MemberService {
                     LOG.error("Ktoś już ma taki numer dowodu");
                     return false;
                 }
-                memberEntity.setIDCard(member.getIDCard());
+                memberEntity.setIDCard(member.getIDCard().toUpperCase());
                 LOG.info(goodMessage() + " Numer Dowodu");
             }
 

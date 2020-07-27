@@ -43,12 +43,7 @@ public class WeaponPermissionService {
                 .getWeaponPermission()
                 .getUuid())
                 .orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getActive().equals(false)) {
-            LOG.error("Klubowicz nie aktywny");
-            return false;
-        }
-
-        if (weaponPermission.getNumber() != null) {
+        if (weaponPermission.getNumber() != null && !weaponPermission.getNumber().isEmpty()) {
             if (weaponPermissionRepository.findByNumber(weaponPermission.getNumber()).isPresent()
                     && !memberEntity.getWeaponPermission().getNumber().equals(weaponPermission.getNumber())) {
                 LOG.error("ktoś już ma taki numer pozwolenia");
@@ -58,7 +53,8 @@ public class WeaponPermissionService {
                 LOG.info("Wprowadzono numer pozwolenia");
             }
         }
-        if (weaponPermission.getNumber() == null && !weaponPermission.getIsExist()) {
+        if ((weaponPermission.getNumber() == null||weaponPermission.getNumber().equals("")) && !weaponPermission.getIsExist()) {
+            weaponPermissionEntity.setNumber("");
             weaponPermissionEntity.setIsExist(false);
             LOG.info("Usunięto pozwolenie");
         }

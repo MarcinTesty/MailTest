@@ -24,6 +24,5 @@ public class License {
 
     private Boolean isValid;
 
-
     private String club;
 }

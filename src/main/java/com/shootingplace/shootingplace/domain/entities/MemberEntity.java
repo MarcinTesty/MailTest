@@ -41,6 +41,7 @@ public class MemberEntity {
     @Pattern(regexp = "[0-9]*")
     private String pesel;
     @NotBlank
+    @Pattern(regexp = "\\w{3}\\d{6}")
     private String IDCard;
 
     @OneToOne
@@ -55,4 +56,7 @@ public class MemberEntity {
     private Boolean active = false;
     private Boolean adult = true;
     private Boolean erased = false;
+
+    @OneToOne(orphanRemoval = true)
+    private HistoryEntity history;
 }
