@@ -25,6 +25,7 @@ public class HistoryEntity {
     private LocalDate[] contributionRecord;
 
     private String[] licenseHistory;
+    private LocalDate[] licensePaymentHistory;
     private Boolean patentFirstRecord = false;
     private LocalDate[] patentDay;
 }

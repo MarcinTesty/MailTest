@@ -1,9 +1,11 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.models.License;
+import com.shootingplace.shootingplace.services.HistoryService;
 import com.shootingplace.shootingplace.services.LicenseService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,9 +15,10 @@ import java.util.UUID;
 public class LicenseController {
 
     private final LicenseService licenseService;
-
-    public LicenseController(LicenseService licenseService) {
+    private final HistoryService historyService;
+    public LicenseController(LicenseService licenseService, HistoryService historyService) {
         this.licenseService = licenseService;
+        this.historyService = historyService;
     }
 
     @GetMapping("/")
@@ -41,6 +44,14 @@ public class LicenseController {
     @PatchMapping("/{memberUUID}")
     public boolean renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
         return licenseService.renewLicenseValid(memberUUID,license);
+    }
+    @PutMapping("/history{memberUUID}")
+    public Boolean addlicensePaymentHistory(@PathVariable UUID memberUUID){
+        return historyService.addLicenseHistoryPayment(memberUUID);
+    }
+    @PutMapping("/history{memberUUID}")
+    public Boolean addlicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date){
+        return historyService.addLicenseHistoryPaymentRecord(memberUUID,date);
     }
 
 }

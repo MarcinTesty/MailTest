@@ -139,6 +139,48 @@ public class HistoryService {
 
     }
 
+    public Boolean addLicenseHistoryPayment(UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        if (historyEntity.getLicensePaymentHistory() != null) {
+            LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+
+            for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+                newState[i] = historyEntity.getLicensePaymentHistory()[i];
+                newState[i + 1] = LocalDate.now();
+            }
+            LocalDate[] sortState = selectionSort(newState);
+            historyEntity.setLicensePaymentHistory(sortState);
+            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+            historyRepository.saveAndFlush(historyEntity);
+
+        } else {
+
+            LocalDate[] newState = new LocalDate[1];
+            newState[0] = LocalDate.now();
+            historyEntity.setLicensePaymentHistory(newState);
+            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+            historyRepository.saveAndFlush(historyEntity);
+        }
+        return true;
+    }
+    public Boolean addLicenseHistoryPaymentRecord(UUID memberUUID, LocalDate date) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+
+        for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+            newState[i] = historyEntity.getLicensePaymentHistory()[i];
+            newState[i + 1] = date;
+        }
+        LocalDate[] sortState = selectionSort(newState);
+        historyEntity.setContributionRecord(sortState);
+        historyRepository.saveAndFlush(historyEntity);
+        return true;
+    }
+
     private LocalDate[] selectionSort(LocalDate[] array) {
 
         int n = array.length;
@@ -154,7 +196,6 @@ public class HistoryService {
             array[min] = array[i];
             array[i] = temp;
         }
-        LOG.info("posortowano " + array[0]);
         return array;
     }
 
