@@ -151,8 +151,10 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getPistolPermission().equals(true)) {
-                        historyService.addLicenseHistoryRecord(memberUUID, 0);
+                    if (license.getPistolPermission() != null&&memberEntity.getShootingPatent().getPistolPermission()) {
+                        if (!license.getPistolPermission()) {
+                            historyService.addLicenseHistoryRecord(memberUUID, 0);
+                        }
                         licenseEntity.setPistolPermission(license.getPistolPermission());
                         LOG.info("Dodano dyscyplinę : pistolet");
                     }
@@ -161,8 +163,10 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getRiflePermission() != null) {
-                        historyService.addLicenseHistoryRecord(memberUUID, 1);
+                    if (license.getRiflePermission() != null&&memberEntity.getShootingPatent().getRiflePermission()) {
+                        if (!license.getRiflePermission()) {
+                            historyService.addLicenseHistoryRecord(memberUUID, 1);
+                        }
                         licenseEntity.setRiflePermission(license.getRiflePermission());
                         LOG.info("Dodano dyscyplinę : karabin");
                     }
@@ -171,8 +175,10 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getShotgunPermission() != null) {
-                        historyService.addLicenseHistoryRecord(memberUUID, 2);
+                    if (license.getShotgunPermission() != null&&memberEntity.getShootingPatent().getShotgunPermission()) {
+                        if (!license.getShotgunPermission()) {
+                            historyService.addLicenseHistoryRecord(memberUUID, 2);
+                        }
                         licenseEntity.setShotgunPermission(license.getShotgunPermission());
                         LOG.info("Dodano dyscyplinę : strzelba");
                     }

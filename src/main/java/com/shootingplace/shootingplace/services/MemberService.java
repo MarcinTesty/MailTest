@@ -204,6 +204,7 @@ public class MemberService {
 //        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
+            throw new Exception();
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
@@ -221,9 +222,8 @@ public class MemberService {
                 numberList.sort(Comparator.comparing(MemberEntity::getSecondName));
                 Integer number = numberList.get(0).getLegitimationNumber() + 1;
                 member.setLegitimationNumber(number);
-                if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+                if (memberRepository.findByLegitimationNumber(number).isPresent()) {
                     LOG.error("Ktoś już ma taki numer legitymacji");
-                    System.out.println(numberList);
                     throw new Exception();
                 }
                 LOG.info("ustawiono domyślny numer legitymacji : " + member.getLegitimationNumber());
@@ -238,6 +238,8 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
+            member.setFirstName(member.getFirstName().substring(0,1).toUpperCase()+member.getFirstName().substring(1).toLowerCase());
+            member.setSecondName(member.getSecondName().toUpperCase());
             LOG.info("Dodano nowego członka Klubu");
             memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
             if (memberEntity.getAddress() == null) {

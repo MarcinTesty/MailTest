@@ -3,9 +3,7 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.HistoryEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.History;
-import com.shootingplace.shootingplace.repositories.ContributionRepository;
 import com.shootingplace.shootingplace.repositories.HistoryRepository;
-import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,16 +17,12 @@ import java.util.UUID;
 public class HistoryService {
 
     private final HistoryRepository historyRepository;
-    private final ContributionRepository contributionRepository;
-    private final LicenseRepository licenseRepository;
     private final MemberRepository memberRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public HistoryService(HistoryRepository historyRepository, ContributionRepository contributionRepository, LicenseRepository licenseRepository, MemberRepository memberRepository) {
+    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository) {
         this.historyRepository = historyRepository;
-        this.contributionRepository = contributionRepository;
-        this.licenseRepository = licenseRepository;
         this.memberRepository = memberRepository;
     }
 
@@ -45,6 +39,8 @@ public class HistoryService {
         LOG.info("Historia zaostała utworzona");
     }
 
+//    dodawanie ręczne rekordu do historii
+
     void addContributionRecord(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
@@ -55,9 +51,25 @@ public class HistoryService {
             newState[i] = historyEntity.getContributionRecord()[i];
             newState[i + 1] = LocalDate.now();
         }
-
-        historyEntity.setContributionRecord(newState);
+        LocalDate[] sortState = selectionSort(newState);
+        historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
+    }
+
+    public Boolean addContributionRecord(UUID memberUUID, String date) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
+
+        for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
+            newState[i] = historyEntity.getContributionRecord()[i];
+            newState[i + 1] = LocalDate.parse(date);
+        }
+        LocalDate[] sortState = selectionSort(newState);
+        historyEntity.setContributionRecord(sortState);
+        historyRepository.saveAndFlush(historyEntity);
+        return true;
     }
 
     void addLicenseHistoryRecord(UUID memberUUID, int index) {
@@ -125,6 +137,25 @@ public class HistoryService {
         historyEntity.setPatentDay(dateTab);
         historyRepository.saveAndFlush(historyEntity);
 
+    }
+
+    private LocalDate[] selectionSort(LocalDate[] array) {
+
+        int n = array.length;
+
+        for (int i = 0; i < n - 1; i++) {
+            int min = i;
+            for (int j = i + 1; j < n; j++) {
+                if (array[j].isAfter(array[min])) {
+                    min = j;
+                }
+            }
+            LocalDate temp = array[min];
+            array[min] = array[i];
+            array[i] = temp;
+        }
+        LOG.info("posortowano " + array[0]);
+        return array;
     }
 
 }
