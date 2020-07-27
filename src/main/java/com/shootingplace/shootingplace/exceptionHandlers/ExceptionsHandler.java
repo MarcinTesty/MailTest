@@ -35,10 +35,10 @@ public class ExceptionsHandler {
         return "Wprowadzono nieprawidłowe dane";
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleLegitimationNumberException(Exception ex) {
-        LOG.error("Nie można nadać komuś tego numeru legitymacji");
-        return "Nie można nadać komuś tego numeru legitymacji";
-    }
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public String handleLegitimationNumberException(Exception ex) {
+//        LOG.error("Nie można nadać komuś tego numeru legitymacji");
+//        return "Nie można nadać komuś tego numeru legitymacji";
+//    }
 }

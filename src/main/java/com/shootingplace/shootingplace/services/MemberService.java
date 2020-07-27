@@ -295,6 +295,7 @@ public class MemberService {
                         .contributionRecord(new LocalDate[]{localDate})
                         .licenseHistory(new String[]{})
                         .patentDay(new LocalDate[3])
+                        .licensePaymentHistory(null)
                         .patentFirstRecord(false).build();
                 historyService.createHistory(memberEntity.getUuid(), history);
             }

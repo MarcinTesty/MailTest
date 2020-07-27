@@ -143,6 +143,7 @@ class Mapping {
                 .licenseHistory(e.getLicenseHistory())
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
+                .licensePaymentHistory(e.getLicensePaymentHistory())
                 .build()).orElse(null);
     }
 
@@ -152,6 +153,7 @@ class Mapping {
                 .licenseHistory(e.getLicenseHistory())
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
+                .licensePaymentHistory(e.getLicensePaymentHistory())
                 .build()).orElse(null);
     }
 
