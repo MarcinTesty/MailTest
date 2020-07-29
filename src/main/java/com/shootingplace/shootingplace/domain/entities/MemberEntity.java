@@ -59,4 +59,7 @@ public class MemberEntity {
 
     @OneToOne(orphanRemoval = true)
     private HistoryEntity history;
+
+    @OneToOne(orphanRemoval = true)
+    private MemberPermissionsEntity memberPermissions;
 }

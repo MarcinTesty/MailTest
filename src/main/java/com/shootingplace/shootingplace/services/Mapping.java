@@ -182,4 +182,23 @@ class Mapping {
                 .isExist(e.getIsExist())
                 .build()).orElse(null);
     }
+
+    static MemberPermissions map(MemberPermissionsEntity m){
+        return Optional.ofNullable(m).map(e->MemberPermissions.builder()
+        .instructorNumber(e.getInstructorNumber())
+        .arbiterNumber(e.getArbiterNumber())
+        .arbiterClass(e.getArbiterClass())
+        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+        .shootingLeaderNumber(e.getShootingLeaderNumber())
+        .build()).orElse(null);
+    }
+    static MemberPermissionsEntity map(MemberPermissions m){
+        return Optional.ofNullable(m).map(e->MemberPermissionsEntity.builder()
+        .instructorNumber(e.getInstructorNumber())
+        .arbiterNumber(e.getArbiterNumber())
+        .arbiterClass(e.getArbiterClass())
+        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+        .shootingLeaderNumber(e.getShootingLeaderNumber())
+        .build()).orElse(null);
+    }
 }

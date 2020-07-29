@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -30,6 +28,7 @@ public class MemberPermissionsEntity {
     private String shootingLeaderNumber;
 
     private String arbiterNumber;
+    @Enumerated(EnumType.STRING)
     private ArbiterClass arbiterClass;
     private LocalDate arbiterPermissionValidThru;
 }

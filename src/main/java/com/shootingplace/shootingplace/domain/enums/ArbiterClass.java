@@ -1,5 +1,23 @@
 package com.shootingplace.shootingplace.domain.enums;
 
 public enum ArbiterClass {
-    CLASS_3,CLASS_2,CLASS_1,CLASS_STATE,CLASS_INTERNATIONAL
+    NONE("Brak"),
+    CLASS_3("Klasa 3"),
+    CLASS_2("Klasa 2"),
+    CLASS_1("Klasa 1"),
+    CLASS_STATE("Klasa Państwowa"),
+    CLASS_INTERNATIONAL("Klasa Międzynarodowa");
+
+    private String name;
+
+    ArbiterClass(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+
+
 }

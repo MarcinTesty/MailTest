@@ -46,11 +46,11 @@ public class LicenseController {
         return licenseService.renewLicenseValid(memberUUID,license);
     }
     @PutMapping("/history{memberUUID}")
-    public Boolean addlicensePaymentHistory(@PathVariable UUID memberUUID){
+    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID){
         return historyService.addLicenseHistoryPayment(memberUUID);
     }
-    @PutMapping("/history{memberUUID}")
-    public Boolean addlicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date){
+    @PutMapping("/historyrec{memberUUID}")
+    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date){
         return historyService.addLicenseHistoryPaymentRecord(memberUUID,date);
     }
 
