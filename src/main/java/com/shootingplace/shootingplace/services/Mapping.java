@@ -27,6 +27,7 @@ class Mapping {
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
+                .memberPermissions(map(e.getMemberPermissions()))
                 .build();
     }
 
@@ -49,6 +50,7 @@ class Mapping {
                 .address(map(e.getAddress()))
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
+                .memberPermissions(map(e.getMemberPermissions()))
                 .build();
     }
 

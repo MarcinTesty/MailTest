@@ -1,13 +1,14 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class MemberPermissionsEntity {
     private String shootingLeaderNumber;
 
     private String arbiterNumber;
-    @Enumerated(EnumType.STRING)
-    private ArbiterClass arbiterClass;
+
+    private String arbiterClass;
     private LocalDate arbiterPermissionValidThru;
 }

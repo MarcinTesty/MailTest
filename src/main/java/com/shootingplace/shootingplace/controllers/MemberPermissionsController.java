@@ -16,8 +16,10 @@ public class MemberPermissionsController {
     public MemberPermissionsController(MemberPermissionsService memberPermissionsService) {
         this.memberPermissionsService = memberPermissionsService;
     }
+
     @PutMapping("/{memberUUID}")
-    public Boolean updateMemberPermissions(@PathVariable UUID memberUUID,@RequestBody MemberPermissions memberPermissions,@RequestParam int ordinal){
-        return memberPermissionsService.updateMemberPermissions(memberUUID,memberPermissions,ordinal);
+    public Boolean updateMemberPermissions(@PathVariable UUID memberUUID,
+                                           @RequestBody MemberPermissions memberPermissions,@RequestParam String ordinal) {
+        return memberPermissionsService.updateMemberPermissions(memberUUID, memberPermissions,ordinal);
     }
 }

@@ -27,51 +27,75 @@ public class MemberPermissionsService {
         this.memberRepository = memberRepository;
     }
 
-    public Boolean addMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions) {
+    void addMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getMemberPermissions() != null) {
             LOG.error("nie można już dodać Encji");
-            return false;
+            return;
         }
         MemberPermissionsEntity memberPermissionsEntity = Mapping.map(memberPermissions);
         memberPermissionsRepository.saveAndFlush(memberPermissionsEntity);
         memberEntity.setMemberPermissions(memberPermissionsEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Encja uprawnień została zapisana");
-        return true;
     }
 
-    public Boolean updateMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions, int ordinal) {
+    public Boolean updateMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions, String ordinal) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         MemberPermissionsEntity memberPermissionsEntity = memberPermissionsRepository.findById(
                 memberEntity.getMemberPermissions().getUuid()).orElseThrow(EntityNotFoundException::new);
+        System.out.println("instruktor " + memberPermissions.getInstructorNumber());
+        System.out.println("prowadzący " + memberPermissions.getShootingLeaderNumber());
+        System.out.println("sędzia " + memberPermissions.getArbiterNumber());
+        System.out.println("sędzia ważność " + memberPermissions.getArbiterPermissionValidThru());
+        System.out.println("sędzia klasa " + memberPermissions.getArbiterClass());
+        System.out.println("numer ordinala " + ordinal);
 //        Instruktor
         if (memberPermissions.getInstructorNumber() != null) {
             if (!memberPermissions.getInstructorNumber().isEmpty()) {
                 memberPermissionsEntity.setInstructorNumber(memberPermissions.getInstructorNumber());
+
+                LOG.info("Uprawnienia Instruktora");
             }
         }
 //        Prowadzący Strzelanie
         if (memberPermissions.getShootingLeaderNumber() != null) {
             if (!memberPermissions.getShootingLeaderNumber().isEmpty()) {
                 memberPermissionsEntity.setShootingLeaderNumber(memberPermissions.getShootingLeaderNumber());
+
+                LOG.info("Uprawnienia Prowadzącego Strzelanie");
             }
         }
 //        Sędzia
-        ArbiterClass[] arbiterClass = ArbiterClass.values();
-        if (memberPermissions.getArbiterClass().ordinal() < ordinal || memberEntity.getMemberPermissions() == null) {
-            memberPermissionsEntity.setArbiterClass(arbiterClass[ordinal]);
-        }
         if (memberPermissions.getArbiterNumber() != null) {
             if (!memberPermissions.getArbiterNumber().isEmpty()) {
                 memberPermissionsEntity.setArbiterNumber(memberPermissions.getArbiterNumber());
             }
+            if (ordinal != null && !ordinal.isEmpty()) {
+                if (ordinal.equals("1")) {
+                    memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_3.getName());
+                }
+                if (ordinal.equals("2")) {
+                    memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_2.getName());
+                }
+                if (ordinal.equals("3")) {
+                    memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_1.getName());
+                }
+                if (ordinal.equals("4")) {
+                    memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_STATE.getName());
+                }
+                if (ordinal.equals("5")) {
+                    memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_INTERNATIONAL.getName());
+                }
+            }
+            if (memberPermissions.getArbiterPermissionValidThru() != null) {
+                LocalDate date = LocalDate.of(memberPermissions.getArbiterPermissionValidThru().getYear(), 12, 31);
+                memberPermissionsEntity.setArbiterPermissionValidThru(date);
+            }
         }
-        if (memberPermissions.getArbiterPermissionValidThru() != null) {
-            LocalDate date = LocalDate.of(memberPermissions.getArbiterPermissionValidThru().getYear(), 12, 31);
-            memberPermissionsEntity.setArbiterPermissionValidThru(date);
-
-        }
+        memberPermissionsRepository.saveAndFlush(memberPermissionsEntity);
+        memberEntity.setMemberPermissions(memberPermissionsEntity);
+        memberRepository.saveAndFlush(memberEntity);
 
         return true;
     }

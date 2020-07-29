@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.domain.models;
 
-import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class MemberPermissions {
     private String shootingLeaderNumber;
 
     private String arbiterNumber;
-    private ArbiterClass arbiterClass;
+    private String arbiterClass;
     private LocalDate arbiterPermissionValidThru;
 
 }

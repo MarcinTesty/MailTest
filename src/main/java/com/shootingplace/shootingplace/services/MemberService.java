@@ -312,7 +312,7 @@ public class MemberService {
                 MemberPermissions memberPermissions = MemberPermissions.builder()
                         .instructorNumber(null)
                         .shootingLeaderNumber(null)
-                        .arbiterClass(ArbiterClass.NONE)
+                        .arbiterClass(ArbiterClass.NONE.getName())
                         .arbiterNumber(null)
                         .arbiterPermissionValidThru(null)
                         .build();
