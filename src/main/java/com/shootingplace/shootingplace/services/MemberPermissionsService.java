@@ -44,12 +44,6 @@ public class MemberPermissionsService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         MemberPermissionsEntity memberPermissionsEntity = memberPermissionsRepository.findById(
                 memberEntity.getMemberPermissions().getUuid()).orElseThrow(EntityNotFoundException::new);
-        System.out.println("instruktor " + memberPermissions.getInstructorNumber());
-        System.out.println("prowadzący " + memberPermissions.getShootingLeaderNumber());
-        System.out.println("sędzia " + memberPermissions.getArbiterNumber());
-        System.out.println("sędzia ważność " + memberPermissions.getArbiterPermissionValidThru());
-        System.out.println("sędzia klasa " + memberPermissions.getArbiterClass());
-        System.out.println("numer ordinala " + ordinal);
 //        Instruktor
         if (memberPermissions.getInstructorNumber() != null) {
             if (!memberPermissions.getInstructorNumber().isEmpty()) {
@@ -70,6 +64,7 @@ public class MemberPermissionsService {
         if (memberPermissions.getArbiterNumber() != null) {
             if (!memberPermissions.getArbiterNumber().isEmpty()) {
                 memberPermissionsEntity.setArbiterNumber(memberPermissions.getArbiterNumber());
+                LOG.info("Zmieniono numer sędziego");
             }
             if (ordinal != null && !ordinal.isEmpty()) {
                 if (ordinal.equals("1")) {
@@ -87,11 +82,13 @@ public class MemberPermissionsService {
                 if (ordinal.equals("5")) {
                     memberPermissionsEntity.setArbiterClass(ArbiterClass.CLASS_INTERNATIONAL.getName());
                 }
+                LOG.info("Klasa sędziego ustawiona na pole nr "+ ordinal);
             }
             if (memberPermissions.getArbiterPermissionValidThru() != null) {
                 LocalDate date = LocalDate.of(memberPermissions.getArbiterPermissionValidThru().getYear(), 12, 31);
                 memberPermissionsEntity.setArbiterPermissionValidThru(date);
             }
+            LOG.info("Zmieniono datę ważności licencji sędziowskiej");
         }
         memberPermissionsRepository.saveAndFlush(memberPermissionsEntity);
         memberEntity.setMemberPermissions(memberPermissionsEntity);
