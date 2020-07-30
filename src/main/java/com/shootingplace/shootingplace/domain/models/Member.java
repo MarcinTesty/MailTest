@@ -37,4 +37,6 @@ public class Member {
     private Boolean erased = false;
 
     private History history;
+    private MemberPermissions memberPermissions;
+
 }

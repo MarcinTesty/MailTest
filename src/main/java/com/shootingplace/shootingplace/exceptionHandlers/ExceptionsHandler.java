@@ -21,12 +21,12 @@ public class ExceptionsHandler {
         return ex.getMessage();
     }
 
-    @ExceptionHandler(value = NumberFormatException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleNumberFormatException(Exception ex) {
-        LOG.error(ex.getMessage() + "źle podano numer PESEL");
-        return "podałeś złe dane";
-    }
+//    @ExceptionHandler(value = NumberFormatException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public String handleNumberFormatException(Exception ex) {
+//        LOG.error(ex.getMessage() + "źle podano numer PESEL");
+//        return "podałeś złe dane";
+//    }
 
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -1,8 +1,8 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.*;
-import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +22,7 @@ public class MemberService {
     private final ContributionService contributionService;
     private final HistoryService historyService;
     private final WeaponPermissionService weaponPermissionService;
+    private final MemberPermissionsService memberPermissionsService;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -30,7 +31,7 @@ public class MemberService {
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
                          ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -38,6 +39,7 @@ public class MemberService {
         this.shootingPatentService = shootingPatentService;
         this.historyService = historyService;
         this.weaponPermissionService = weaponPermissionService;
+        this.memberPermissionsService = memberPermissionsService;
     }
 
 
@@ -238,7 +240,7 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
-            member.setFirstName(member.getFirstName().substring(0,1).toUpperCase()+member.getFirstName().substring(1).toLowerCase());
+            member.setFirstName(member.getFirstName().substring(0, 1).toUpperCase() + member.getFirstName().substring(1).toLowerCase());
             member.setSecondName(member.getSecondName().toUpperCase());
             LOG.info("Dodano nowego członka Klubu");
             memberEntity = memberRepository.saveAndFlush(Mapping.map(member));
@@ -305,6 +307,16 @@ public class MemberService {
                         .isExist(false)
                         .build();
                 weaponPermissionService.addWeaponPermission(memberEntity.getUuid(), weaponPermission);
+            }
+            if (memberEntity.getMemberPermissions() == null) {
+                MemberPermissions memberPermissions = MemberPermissions.builder()
+                        .instructorNumber(null)
+                        .shootingLeaderNumber(null)
+                        .arbiterClass(ArbiterClass.NONE.getName())
+                        .arbiterNumber(null)
+                        .arbiterPermissionValidThru(null)
+                        .build();
+                memberPermissionsService.addMemberPermissions(memberEntity.getUuid(), memberPermissions);
             }
         }
         return Objects.requireNonNull(memberEntity).getUuid();
