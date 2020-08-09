@@ -1,12 +1,18 @@
 package com.shootingplace.shootingplace.domain.entities;
 
 import com.shootingplace.shootingplace.validators.ValidPESEL;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.UUID;

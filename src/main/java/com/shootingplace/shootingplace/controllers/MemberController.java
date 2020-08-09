@@ -91,8 +91,13 @@ public class MemberController {
     }
 
     @PostMapping("/")
-    public UUID addMember(@RequestBody @Valid Member member) throws Exception {
-        return memberService.addNewMember(member);
+    public UUID addMember(@RequestBody @Valid Member member) {
+        try {
+            return memberService.addNewMember(member);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @PutMapping("/{uuid}")

@@ -51,6 +51,7 @@ public class HistoryService {
             newState[i] = historyEntity.getContributionRecord()[i];
             newState[i + 1] = LocalDate.now();
         }
+        LOG.info("Dodano rekord w historii składek");
         LocalDate[] sortState = selectionSort(newState);
         historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
@@ -66,6 +67,7 @@ public class HistoryService {
             newState[i] = historyEntity.getContributionRecord()[i];
             newState[i + 1] = LocalDate.parse(date);
         }
+        LOG.info("Dodano rekord w historii składek");
         LocalDate[] sortState = selectionSort(newState);
         historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);

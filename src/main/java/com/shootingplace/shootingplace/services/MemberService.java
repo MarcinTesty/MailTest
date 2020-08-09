@@ -319,7 +319,8 @@ public class MemberService {
                 memberPermissionsService.addMemberPermissions(memberEntity.getUuid(), memberPermissions);
             }
         }
-        return Objects.requireNonNull(memberEntity).getUuid();
+        assert memberEntity != null;
+        return memberEntity.getUuid();
 
 
     }

@@ -185,22 +185,51 @@ class Mapping {
                 .build()).orElse(null);
     }
 
-    static MemberPermissions map(MemberPermissionsEntity m){
-        return Optional.ofNullable(m).map(e->MemberPermissions.builder()
-        .instructorNumber(e.getInstructorNumber())
-        .arbiterNumber(e.getArbiterNumber())
-        .arbiterClass(e.getArbiterClass())
-        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
-        .shootingLeaderNumber(e.getShootingLeaderNumber())
-        .build()).orElse(null);
+    static MemberPermissions map(MemberPermissionsEntity m) {
+        return Optional.ofNullable(m).map(e -> MemberPermissions.builder()
+                .instructorNumber(e.getInstructorNumber())
+                .arbiterNumber(e.getArbiterNumber())
+                .arbiterClass(e.getArbiterClass())
+                .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+                .shootingLeaderNumber(e.getShootingLeaderNumber())
+                .build()).orElse(null);
     }
-    static MemberPermissionsEntity map(MemberPermissions m){
-        return Optional.ofNullable(m).map(e->MemberPermissionsEntity.builder()
-        .instructorNumber(e.getInstructorNumber())
-        .arbiterNumber(e.getArbiterNumber())
-        .arbiterClass(e.getArbiterClass())
-        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
-        .shootingLeaderNumber(e.getShootingLeaderNumber())
-        .build()).orElse(null);
+
+    static MemberPermissionsEntity map(MemberPermissions m) {
+        return Optional.ofNullable(m).map(e -> MemberPermissionsEntity.builder()
+                .instructorNumber(e.getInstructorNumber())
+                .arbiterNumber(e.getArbiterNumber())
+                .arbiterClass(e.getArbiterClass())
+                .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+                .shootingLeaderNumber(e.getShootingLeaderNumber())
+                .build()).orElse(null);
+    }
+
+    static Tournament map(TournamentEntity t) {
+        return Tournament.builder()
+                .name(t.getName())
+                .date(t.getDate())
+                .open(t.getOpen())
+                .build();
+    }
+
+    static TournamentEntity map(Tournament t) {
+        return TournamentEntity.builder()
+                .name(t.getName())
+                .date(t.getDate())
+                .open(t.getOpen())
+                .build();
+    }
+
+    static Competition map(CompetitionEntity c) {
+        return Competition.builder()
+                .name(c.getName())
+                .build();
+    }
+
+    static CompetitionEntity map(Competition c) {
+        return CompetitionEntity.builder()
+                .name(c.getName())
+                .build();
     }
 }
