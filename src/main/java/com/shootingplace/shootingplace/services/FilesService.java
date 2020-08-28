@@ -39,7 +39,7 @@ public class FilesService {
         this.filesRepository = filesRepository;
     }
 
-    void addFilesEntity(UUID memberUUID, FilesModel filesModel) {
+    void createContributionFileEntity(UUID memberUUID, FilesModel filesModel) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getContributionFile() != null) {
             LOG.error("nie można już dodać pola z plikiem");
@@ -48,12 +48,24 @@ public class FilesService {
         filesRepository.saveAndFlush(filesEntity);
         memberEntity.setContributionFile(filesEntity);
         memberRepository.saveAndFlush(memberEntity);
-        LOG.info("pole z plikiem zostało zapisane");
+        LOG.info("pole z plikiem Potwierdzenia Składki zostało zapisane");
+
+    }
+    void createPersonalCardFileEntity(UUID memberUUID, FilesModel filesModel) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getPersonalCardFile() != null) {
+            LOG.error("nie można już dodać pola z plikiem");
+        }
+        FilesEntity filesEntity = Mapping.map(filesModel);
+        filesRepository.saveAndFlush(filesEntity);
+        memberEntity.setPersonalCardFile(filesEntity);
+        memberRepository.saveAndFlush(memberEntity);
+        LOG.info("pole z plikiem Karty Personalnej zostało zapisane");
 
     }
 
 
-    public void contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
+    void contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LocalDate contribution = memberEntity.getContribution().getContribution();
         String fileName = "Składka_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + "_" + LocalDate.now() + ".pdf";
@@ -71,6 +83,7 @@ public class FilesService {
         } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
+
         String status;
         if (getSex(memberEntity.getPesel()).equals("Pani")) {
             status = "opłaciła";
@@ -111,6 +124,47 @@ public class FilesService {
         file.delete();
     }
 
+    void personalCardFile(UUID memberUUID) throws IOException, DocumentException {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
+        String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName()+".pdf";
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+
+
+        try {
+            czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
+        } catch (DocumentException | IOException e) {
+            e.printStackTrace();
+        }
+
+        Paragraph p = new Paragraph(Element.ALIGN_CENTER, "KARTA CZŁONKOWSKA", new Font(czcionka, 20));
+
+        document.add(p);
+
+        document.close();
+
+        byte[] data = convertToByteArray(fileName);
+
+        FilesEntity filesEntity = memberEntity.getPersonalCardFile();
+        filesEntity.setName(fileName);
+        filesEntity.setType(String.valueOf(MediaType.APPLICATION_PDF));
+        filesEntity.setData(data);
+        File file = new File(fileName);
+        MultipartFile multipartFile = new MockMultipartFile(fileName,
+                file.getName(), filesEntity.getType(), filesEntity.getData());
+        memberEntity.setPersonalCardFile(saveFile(multipartFile));
+        memberRepository.saveAndFlush(memberEntity);
+        file.delete();
+
+    }
+
     private String getSex(String pesel) {
         int i = (int) pesel.charAt(8);
         if (i % 2 == 1) {
@@ -139,9 +193,4 @@ public class FilesService {
 
     }
 
-    void createPersonalCardFIle(UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-
-
-    }
 }

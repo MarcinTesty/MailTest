@@ -312,7 +312,7 @@ public class MemberService {
                         .data(null)
                         .type(String.valueOf(MediaType.APPLICATION_PDF))
                         .build();
-                filesService.addFilesEntity(memberEntity.getUuid(), filesModel);
+                filesService.createContributionFileEntity(memberEntity.getUuid(), filesModel);
                 filesService.contributionConfirm(memberEntity.getUuid());
             }
             if (memberEntity.getPersonalCardFile() == null) {
@@ -321,8 +321,8 @@ public class MemberService {
                         .data(null)
                         .type(String.valueOf(MediaType.APPLICATION_PDF))
                         .build();
-                filesService.addFilesEntity(memberEntity.getUuid(), filesModel);
-                filesService.createPersonalCardFIle(memberEntity.getUuid());
+                filesService.createPersonalCardFileEntity(memberEntity.getUuid(), filesModel);
+                filesService.personalCardFile(memberEntity.getUuid());
             }
         }
         assert memberEntity != null;

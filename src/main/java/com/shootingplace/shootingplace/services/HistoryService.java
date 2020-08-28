@@ -36,7 +36,7 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
         memberEntity.setHistory(historyEntity);
         memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Historia zaostała utworzona");
+        LOG.info("Historia została utworzona");
     }
 
 //    dodawanie ręczne rekordu do historii
