@@ -68,4 +68,10 @@ public class MemberEntity {
 
     @OneToOne(orphanRemoval = true)
     private MemberPermissionsEntity memberPermissions;
+
+    @OneToOne(orphanRemoval = true)
+    private FilesEntity contributionFile;
+
+    @OneToOne(orphanRemoval = true)
+    private FilesEntity personalCardFile;
 }

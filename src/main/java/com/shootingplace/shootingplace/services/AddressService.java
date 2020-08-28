@@ -24,24 +24,21 @@ public class AddressService {
     }
 
 
-    public boolean addAddress(UUID memberUUID, Address address) {
+    public void addAddress(UUID memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getAddress() != null) {
             LOG.error("nie można już dodać adresu");
-            return false;
         }
         AddressEntity addressEntity = Mapping.map(address);
         addressRepository.saveAndFlush(addressEntity);
         memberEntity.setAddress(addressEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Adres został zapisany");
-        return true;
     }
 
     //--------------------------------------------------------------------------
 
-    public boolean updateAddress(UUID memberUUID, Address address) {
-        try {
+    public void updateAddress(UUID memberUUID, Address address) {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
             AddressEntity addressEntity = addressRepository.findById(memberEntity
                     .getAddress()
@@ -71,11 +68,6 @@ public class AddressService {
             memberEntity.setAddress(addressEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("Zaktualizowano adres");
-            return true;
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            return false;
-        }
 
     }
 }

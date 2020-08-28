@@ -28,6 +28,8 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
+                .contributionFile(map(e.getContributionFile()))
+                .personalCardFile(map(e.getPersonalCardFile()))
                 .build();
     }
 
@@ -51,6 +53,8 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
+                .contributionFile(map(e.getContributionFile()))
+                .personalCardFile(map(e.getPersonalCardFile()))
                 .build();
     }
 
@@ -231,5 +235,21 @@ class Mapping {
         return CompetitionEntity.builder()
                 .name(c.getName())
                 .build();
+    }
+
+    public static FilesEntity map(FilesModel f) {
+        return Optional.ofNullable(f).map(e -> FilesEntity.builder()
+                .name(e.getName())
+                .data(e.getData())
+                .type(e.getType())
+                .build()).orElse(null);
+    }
+
+    public static FilesModel map(FilesEntity f) {
+        return Optional.ofNullable(f).map(e -> FilesModel.builder()
+                .name(e.getName())
+                .data(e.getData())
+                .type(e.getType())
+                .build()).orElse(null);
     }
 }

@@ -38,5 +38,7 @@ public class Member {
 
     private History history;
     private MemberPermissions memberPermissions;
+    private FilesModel contributionFile;
+    private FilesModel personalCardFile;
 
 }

@@ -34,19 +34,9 @@ public class MemberController {
         return memberService.getMembers();
     }
 
-    @GetMapping("/active")
-    public Map<UUID, Member> getActiveMembers() {
-        return memberService.getActiveMembers();
-    }
-
     @GetMapping("/activelist")
     public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return memberService.getActiveMembersList(active, adult, erase);
-    }
-
-    @GetMapping("/nonactivelist")
-    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active, @RequestParam Boolean erased) {
-        return memberService.getNonActiveMembers(active, erased);
     }
 
     @GetMapping("/erased")

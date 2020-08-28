@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.configurations;
 
 import com.shootingplace.shootingplace.domain.entities.ClubEntity;
 import com.shootingplace.shootingplace.repositories.ClubRepository;
-import com.shootingplace.shootingplace.services.CompetitionService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class EvidenceConfiguration {
 
     private final ClubRepository clubRepository;
-    private final CompetitionService competitionService;
 
 
-    public EvidenceConfiguration(ClubRepository clubRepository, CompetitionService competitionService) {
+    public EvidenceConfiguration(ClubRepository clubRepository) {
         this.clubRepository = clubRepository;
-        this.competitionService = competitionService;
     }
 
     @Bean

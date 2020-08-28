@@ -6,6 +6,7 @@ import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -23,6 +24,7 @@ public class MemberService {
     private final HistoryService historyService;
     private final WeaponPermissionService weaponPermissionService;
     private final MemberPermissionsService memberPermissionsService;
+    private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -31,7 +33,7 @@ public class MemberService {
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
                          ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, FilesService filesService) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -40,6 +42,7 @@ public class MemberService {
         this.historyService = historyService;
         this.weaponPermissionService = weaponPermissionService;
         this.memberPermissionsService = memberPermissionsService;
+        this.filesService = filesService;
     }
 
 
@@ -51,14 +54,6 @@ public class MemberService {
         LOG.info("Ilość klubowiczów aktywnych : " + memberRepository.findAllByActive(true).size());
         LOG.info("Ilość klubowiczów nieaktywnych : " + memberRepository.findAllByActive(false).size());
         LOG.info("liczba wpisów do rejestru : " + map.size());
-        return map;
-    }
-
-    public Map<UUID, Member> getActiveMembers() {
-        Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAllByActive(true).forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("Ilość klubowiczów aktywnych : " + map.size());
-
         return map;
     }
 
@@ -93,13 +88,6 @@ public class MemberService {
         LOG.info("wyświetlono listę osób " + c);
         LOG.info("ilość osób " + c + " : " + list.size());
         list.sort(Comparator.comparing(MemberEntity::getSecondName));
-        return list;
-    }
-
-    public List<MemberEntity> getNonActiveMembers(Boolean active, Boolean erased) {
-        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndErased(active, erased));
-        LOG.info("Ilość klubowiczów nieaktywnych : " + list.size());
-
         return list;
     }
 
@@ -317,6 +305,24 @@ public class MemberService {
                         .arbiterPermissionValidThru(null)
                         .build();
                 memberPermissionsService.addMemberPermissions(memberEntity.getUuid(), memberPermissions);
+            }
+            if (memberEntity.getContributionFile() == null) {
+                FilesModel filesModel = FilesModel.builder()
+                        .name("")
+                        .data(null)
+                        .type(String.valueOf(MediaType.APPLICATION_PDF))
+                        .build();
+                filesService.addFilesEntity(memberEntity.getUuid(), filesModel);
+                filesService.contributionConfirm(memberEntity.getUuid());
+            }
+            if (memberEntity.getPersonalCardFile() == null) {
+                FilesModel filesModel = FilesModel.builder()
+                        .name("")
+                        .data(null)
+                        .type(String.valueOf(MediaType.APPLICATION_PDF))
+                        .build();
+                filesService.addFilesEntity(memberEntity.getUuid(), filesModel);
+                filesService.createPersonalCardFIle(memberEntity.getUuid());
             }
         }
         assert memberEntity != null;
