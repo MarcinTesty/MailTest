@@ -91,8 +91,8 @@ public class MemberController {
     }
 
     @PutMapping("/{uuid}")
-    public boolean updateMember(@PathVariable UUID uuid, @RequestBody Member member) {
-        return memberService.updateMember(uuid, member);
+    public void updateMember(@PathVariable UUID uuid, @RequestBody Member member) {
+        memberService.updateMember(uuid, member);
     }
 
     @DeleteMapping("/{uuid}")

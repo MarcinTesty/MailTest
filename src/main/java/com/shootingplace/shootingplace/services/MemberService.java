@@ -4,6 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
@@ -363,8 +364,8 @@ public class MemberService {
 
 
     //--------------------------------------------------------------------------
-    public boolean updateMember(UUID uuid, Member member) {
-        try {
+    @SneakyThrows
+    public void updateMember(UUID uuid, Member member) {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
 
             if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
@@ -383,7 +384,6 @@ public class MemberService {
             if (member.getLegitimationNumber() != null) {
                 if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
                     LOG.warn("Już ktoś ma taki numer legitymacji");
-                    return false;
                 } else {
                     memberEntity.setLegitimationNumber(member.getLegitimationNumber());
                     LOG.info(goodMessage() + "numer legitymacji");
@@ -392,7 +392,6 @@ public class MemberService {
             if (member.getEmail() != null && !member.getEmail().isEmpty()) {
                 if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
                     LOG.error("Już ktoś ma taki sam e-mail");
-                    return false;
                 } else {
                     memberEntity.setEmail(member.getEmail().trim());
                     LOG.info(goodMessage() + "Email");
@@ -401,7 +400,6 @@ public class MemberService {
             if (member.getPesel() != null && !member.getPesel().isEmpty()) {
                 if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
                     LOG.error("Już ktoś ma taki sam numer PESEL");
-                    return false;
                 } else {
                     memberEntity.setPesel(member.getPesel());
                     LOG.info(goodMessage() + "Numer PESEL");
@@ -410,13 +408,11 @@ public class MemberService {
             if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
                 if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9 && !member.getPhoneNumber().isEmpty()) {
                     LOG.error("Żle podany numer");
-                    return false;
                 }
                 String s = "+48";
                 memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
                 if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
                     LOG.error("Ktoś już ma taki numer telefonu");
-                    return false;
                 }
                 if (member.getPhoneNumber().equals(memberEntity.getPhoneNumber())) {
                     memberEntity.setPhoneNumber(member.getPhoneNumber());
@@ -426,19 +422,12 @@ public class MemberService {
             if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
                 if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
                     LOG.error("Ktoś już ma taki numer dowodu");
-                    return false;
                 }
                 memberEntity.setIDCard(member.getIDCard().toUpperCase());
                 LOG.info(goodMessage() + " Numer Dowodu");
             }
 
             memberRepository.saveAndFlush(memberEntity);
-            return true;
-        } catch (
-                EntityNotFoundException ex) {
-            badMessage();
-            return false;
-        }
     }
 
     public boolean changeWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {

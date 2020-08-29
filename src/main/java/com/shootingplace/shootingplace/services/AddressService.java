@@ -5,9 +5,10 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Address;
 import com.shootingplace.shootingplace.repositories.AddressRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
-import org.springframework.stereotype.Service;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
@@ -16,11 +17,13 @@ import java.util.UUID;
 public class AddressService {
     private final AddressRepository addressRepository;
     private final MemberRepository memberRepository;
+    private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
-    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository) {
+    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository, FilesService filesService) {
         this.addressRepository = addressRepository;
         this.memberRepository = memberRepository;
+        this.filesService = filesService;
     }
 
 
@@ -38,6 +41,7 @@ public class AddressService {
 
     //--------------------------------------------------------------------------
 
+    @SneakyThrows
     public void updateAddress(UUID memberUUID, Address address) {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
             AddressEntity addressEntity = addressRepository.findById(memberEntity
@@ -68,6 +72,7 @@ public class AddressService {
             memberEntity.setAddress(addressEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("Zaktualizowano adres");
+            filesService.personalCardFile(memberUUID);
 
     }
 }
