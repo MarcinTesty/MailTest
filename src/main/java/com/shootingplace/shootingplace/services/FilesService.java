@@ -123,7 +123,7 @@ public class FilesService {
         File file = new File(fileName);
         MultipartFile multipartFile = new MockMultipartFile(fileName,
                 file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setContributionFile(saveFile(multipartFile));
+        memberEntity.setContributionFile(saveContributionFile(multipartFile,memberEntity.getUuid()));
         memberRepository.saveAndFlush(memberEntity);
         file.delete();
     }
@@ -141,6 +141,16 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
+        String RODO = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin massa mauris, scelerisque et finibus eu, commodo et augue. In ornare eleifend leo, sed euismod nisi molestie in. Vivamus viverra laoreet velit sed efficitur. Nullam varius purus in convallis tincidunt. Integer vulputate cursus iaculis. Fusce a vehicula lorem. Suspendisse ut lacus et erat ultrices dictum sed nec nisl.\n" +
+                "\n" +
+                "Vestibulum elit enim, hendrerit sed posuere in, ultricies sed mi. Donec non purus nulla. Nulla condimentum lacinia laoreet. Praesent ultricies eu enim vel faucibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin eleifend libero sed volutpat convallis. Aliquam sapien urna, porta eu bibendum eget, gravida in metus. Fusce lobortis mi eget dolor suscipit, in elementum arcu ultricies. Ut rhoncus ante ut mauris commodo, ac cursus elit rutrum. Integer tincidunt vulputate sem, pellentesque congue lacus rutrum eget. In at nisl ac eros molestie gravida ut in sem. Nam non ex suscipit, tempus ex sit amet, porttitor lectus.\n" +
+                "\n" +
+                "Aenean consectetur finibus sapien, consectetur tincidunt augue euismod sed. Sed ullamcorper varius bibendum. Aliquam magna odio, ultricies a purus sed, iaculis ultricies dui. Maecenas ac vestibulum erat. Nullam facilisis, ante in convallis volutpat, purus enim ullamcorper purus, non porttitor enim elit aliquam turpis. Vivamus eget justo lacus. Proin et consectetur lectus. Suspendisse faucibus odio magna, a tempor diam volutpat non. Pellentesque diam libero, ullamcorper facilisis euismod maximus, ornare at felis. Nullam aliquet leo tortor, ut imperdiet ipsum aliquet a. Donec sed mauris venenatis, rhoncus elit ac, condimentum ligula.\n" +
+                "\n" +
+                "Nam mi augue, vulputate eu libero non, vulputate dignissim neque. Vivamus suscipit urna at urna vestibulum malesuada. Nulla facilisi. Nam vel felis ut dui convallis placerat molestie consequat sem. Vestibulum at mi condimentum, rutrum est at, convallis nisl. Cras eu euismod tortor. Quisque ut sem nec mauris lacinia posuere. Donec interdum euismod augue. Aenean eu suscipit nisl. Suspendisse sed finibus ex, at fermentum eros. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum pellentesque vestibulum libero vitae consequat. Proin sit amet condimentum enim. Nulla facilisi.\n" +
+                "\n" +
+                "Proin vel blandit nisl. Donec sed felis interdum, accumsan dolor sed, fringilla dolor. Sed aliquam feugiat velit eu venenatis. Vivamus sed est fermentum, fermentum magna id, porta lectus. Nunc vestibulum egestas quam ut tincidunt. Vivamus consectetur, enim nec venenatis tempus, tellus nisi facilisis diam, ac interdum risus nisi et mauris. Suspendisse elementum sed dolor sed congue. Nunc volutpat in augue at scelerisque. Pellentesque at ultricies est, vitae dapibus purus.";
+
 
         try {
             czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
@@ -156,7 +166,7 @@ public class FilesService {
         } else {
             status = "Gr. Młodzieżowa";
         }
-        Paragraph p1 = new Paragraph("            Nr Leg. " + memberEntity.getLegitimationNumber() + " " + status, new Font(czcionka, 14));
+        Paragraph p1 = new Paragraph("            "+status+ " Nr. leg." + memberEntity.getLegitimationNumber(), new Font(czcionka, 14));
         p.add(p1);
         Paragraph p2 = new Paragraph("Imię i Nazwisko : ", new Font(czcionka, 14));
         p2.setAlignment(Element.ALIGN_JUSTIFIED);
@@ -165,6 +175,8 @@ public class FilesService {
         p3.add("PESEL : " + memberEntity.getPesel());
         p3.add("\n");
         p3.add("Numer dowodu : " + memberEntity.getIDCard());
+        p3.add("\n");
+        p3.add("Data zapisu : " + memberEntity.getJoinDate());
         Paragraph p4 = new Paragraph("dane teleadresowe".toUpperCase(), new Font(czcionka, 16));
         p4.setIndentationLeft(175);
         Paragraph p5 = new Paragraph("", new Font(czcionka, 14));
@@ -208,25 +220,8 @@ public class FilesService {
         }
         Paragraph p8 = new Paragraph("RODO", new Font(czcionka, 20));
         Paragraph p9 = new Paragraph("", new Font(czcionka, 10));
-        p9.add("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin massa mauris, scelerisque et finibus eu, commodo et augue. In ornare eleifend leo, sed euismod nisi molestie in. Vivamus viverra laoreet velit sed efficitur. Nullam varius purus in convallis tincidunt. Integer vulputate cursus iaculis. Fusce a vehicula lorem. Suspendisse ut lacus et erat ultrices dictum sed nec nisl.\n" +
-                "\n" +
-                "Vestibulum elit enim, hendrerit sed posuere in, ultricies sed mi. Donec non purus nulla. Nulla condimentum lacinia laoreet. Praesent ultricies eu enim vel faucibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin eleifend libero sed volutpat convallis. Aliquam sapien urna, porta eu bibendum eget, gravida in metus. Fusce lobortis mi eget dolor suscipit, in elementum arcu ultricies. Ut rhoncus ante ut mauris commodo, ac cursus elit rutrum. Integer tincidunt vulputate sem, pellentesque congue lacus rutrum eget. In at nisl ac eros molestie gravida ut in sem. Nam non ex suscipit, tempus ex sit amet, porttitor lectus.\n" +
-                "\n" +
-                "Aenean consectetur finibus sapien, consectetur tincidunt augue euismod sed. Sed ullamcorper varius bibendum. Aliquam magna odio, ultricies a purus sed, iaculis ultricies dui. Maecenas ac vestibulum erat. Nullam facilisis, ante in convallis volutpat, purus enim ullamcorper purus, non porttitor enim elit aliquam turpis. Vivamus eget justo lacus. Proin et consectetur lectus. Suspendisse faucibus odio magna, a tempor diam volutpat non. Pellentesque diam libero, ullamcorper facilisis euismod maximus, ornare at felis. Nullam aliquet leo tortor, ut imperdiet ipsum aliquet a. Donec sed mauris venenatis, rhoncus elit ac, condimentum ligula.\n" +
-                "\n" +
-                "Nam mi augue, vulputate eu libero non, vulputate dignissim neque. Vivamus suscipit urna at urna vestibulum malesuada. Nulla facilisi. Nam vel felis ut dui convallis placerat molestie consequat sem. Vestibulum at mi condimentum, rutrum est at, convallis nisl. Cras eu euismod tortor. Quisque ut sem nec mauris lacinia posuere. Donec interdum euismod augue. Aenean eu suscipit nisl. Suspendisse sed finibus ex, at fermentum eros. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum pellentesque vestibulum libero vitae consequat. Proin sit amet condimentum enim. Nulla facilisi.\n" +
-                "\n" +
-                "Proin vel blandit nisl. Donec sed felis interdum, accumsan dolor sed, fringilla dolor. Sed aliquam feugiat velit eu venenatis. Vivamus sed est fermentum, fermentum magna id, porta lectus. Nunc vestibulum egestas quam ut tincidunt. Vivamus consectetur, enim nec venenatis tempus, tellus nisi facilisis diam, ac interdum risus nisi et mauris. Suspendisse elementum sed dolor sed congue. Nunc volutpat in augue at scelerisque. Pellentesque at ultricies est, vitae dapibus purus.");
+        p9.add(RODO);
 
-//  Imię nazwisko
-//  PESEL
-//  Numer Dowodu
-//  Numer Legitymacji
-//
-//
-//
-//
-//  RODO
         document.add(p);
         document.add(p2);
         document.add(p3);
@@ -248,7 +243,7 @@ public class FilesService {
         File file = new File(fileName);
         MultipartFile multipartFile = new MockMultipartFile(fileName,
                 file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setPersonalCardFile(saveFile(multipartFile));
+        memberEntity.setPersonalCardFile(savePersonalCardFile(multipartFile,memberEntity.getUuid()));
         memberRepository.saveAndFlush(memberEntity);
         file.delete();
 
@@ -265,15 +260,22 @@ public class FilesService {
         return filesRepository.findById(fileUUID);
     }
 
-    private FilesEntity saveFile(MultipartFile file) {
+    private FilesEntity saveContributionFile(MultipartFile file,UUID memberUUID) throws IOException {
         String docName = file.getOriginalFilename();
-        try {
-            FilesModel doc = new FilesModel(docName, file.getContentType(), file.getBytes());
-            return filesRepository.saveAndFlush(Mapping.map(doc));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        FilesEntity filesEntity = memberRepository.findById(memberUUID).get().getContributionFile();
+        filesEntity.setName(docName);
+        filesEntity.setType(file.getContentType());
+        filesEntity.setData(file.getBytes());
+        return filesRepository.saveAndFlush(filesEntity);
+    }
+
+    private FilesEntity savePersonalCardFile(MultipartFile file, UUID memberUUID) throws IOException {
+        String docName = file.getOriginalFilename();
+        FilesEntity filesEntity = memberRepository.findById(memberUUID).get().getPersonalCardFile();
+        filesEntity.setName(docName);
+        filesEntity.setType(file.getContentType());
+        filesEntity.setData(file.getBytes());
+        return filesRepository.saveAndFlush(filesEntity);
     }
 
     private byte[] convertToByteArray(String path) throws IOException {

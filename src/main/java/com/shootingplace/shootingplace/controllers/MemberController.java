@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -22,11 +21,6 @@ public class MemberController {
 
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
-    }
-
-    @GetMapping("/{uuid}")
-    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {
-        return memberService.getSingleMember(uuid);
     }
 
     @GetMapping("/list")
@@ -119,6 +113,11 @@ public class MemberController {
     @PatchMapping("/erase/{uuid}")
     public boolean eraseMember(@PathVariable UUID uuid) {
         return memberService.eraseMember(uuid);
+    }
+
+    @GetMapping("/membersEmails")
+    public String getMembersEmails(@RequestParam Boolean condition){
+        return memberService.getAdultMembersEmails(condition);
     }
 
 

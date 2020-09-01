@@ -72,7 +72,7 @@ public class AddressService {
             memberEntity.setAddress(addressEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("Zaktualizowano adres");
-            filesService.personalCardFile(memberUUID);
+            filesService.personalCardFile(memberEntity.getUuid());
 
     }
 }
