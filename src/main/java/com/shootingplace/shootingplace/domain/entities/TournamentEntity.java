@@ -24,18 +24,12 @@ public class TournamentEntity {
 
     private String name;
     private LocalDate date;
-    @OneToMany
-    private Set<MemberEntity> members = new HashSet<>();
-    @OneToMany
-    private Set<MemberEntity> lineArbiters = new HashSet<>();
+
     @OneToOne(orphanRemoval = true)
     private MemberEntity commissionRTSArbiter;
     @OneToOne(orphanRemoval = true)
     private MemberEntity mainArbiter;
     private Boolean open;
-    @ManyToMany
-    private List<CompetitionEntity> competitionList;
-    @OneToMany
-    private Map<CompetitionEntity,MemberEntity> map;
+
 
 }

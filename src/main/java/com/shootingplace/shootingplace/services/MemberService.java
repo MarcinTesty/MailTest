@@ -25,6 +25,7 @@ public class MemberService {
     private final HistoryService historyService;
     private final WeaponPermissionService weaponPermissionService;
     private final MemberPermissionsService memberPermissionsService;
+    private final PersonalEvidenceService personalEvidenceService;
     private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger();
 
@@ -34,7 +35,7 @@ public class MemberService {
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
                          ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, FilesService filesService) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, PersonalEvidenceService personalEvidenceService, FilesService filesService) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -43,6 +44,7 @@ public class MemberService {
         this.historyService = historyService;
         this.weaponPermissionService = weaponPermissionService;
         this.memberPermissionsService = memberPermissionsService;
+        this.personalEvidenceService = personalEvidenceService;
         this.filesService = filesService;
     }
 
@@ -88,6 +90,20 @@ public class MemberService {
         }
         LOG.info("wyświetlono listę osób " + c);
         LOG.info("ilość osób " + c + " : " + list.size());
+        list.sort(Comparator.comparing(MemberEntity::getSecondName));
+        return list;
+    }
+
+    public List<MemberEntity> getMembersWithPermissions() {
+        List<MemberEntity> list = new ArrayList<>();
+
+        memberRepository.findAll().forEach(e -> {
+            if ((e.getMemberPermissions().getShootingLeaderNumber() != null)
+                    || (e.getMemberPermissions().getArbiterNumber() != null)
+                    || (e.getMemberPermissions().getInstructorNumber() != null)) {
+                list.add(e);
+            }
+        });
         list.sort(Comparator.comparing(MemberEntity::getSecondName));
         return list;
     }
@@ -325,6 +341,13 @@ public class MemberService {
                 filesService.createPersonalCardFileEntity(memberEntity.getUuid(), filesModel);
                 filesService.personalCardFile(memberEntity.getUuid());
             }
+            if (memberEntity.getPersonalEvidence() == null) {
+                PersonalEvidence personalEvidence = PersonalEvidence.builder()
+                        .ammo(new String[0])
+                        .file(null)
+                        .build();
+                personalEvidenceService.addPersonalEvidence(memberEntity.getUuid(),personalEvidence);
+            }
         }
         assert memberEntity != null;
         return memberEntity.getUuid();
@@ -482,10 +505,10 @@ public class MemberService {
     public String getAdultMembersEmails(Boolean condition) {
         List<String> list = new ArrayList<>();
         memberRepository.findAll().forEach(e -> {
-            if ((e.getEmail() != null && !e.getEmail().isEmpty())&&e.getAdult()==condition) {
+            if ((e.getEmail() != null && !e.getEmail().isEmpty()) && e.getAdult() == condition) {
                 list.add(e.getEmail().concat(";"));
             }
         });
-        return list.toString().replaceAll(",","");
+        return list.toString().replaceAll(",", "");
     }
 }

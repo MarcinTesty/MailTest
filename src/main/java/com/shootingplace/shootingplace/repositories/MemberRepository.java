@@ -17,8 +17,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
 
     Set<MemberEntity> findAllByActive(Boolean active);
 
-    Set<MemberEntity> findAllByActiveAndErased(Boolean active, Boolean erased);
-
     Set<MemberEntity> findAllByActiveAndAdultAndErased(Boolean active, Boolean adult, Boolean erase);
 
     Optional<MemberEntity> findByPhoneNumber(String phoneNumber);

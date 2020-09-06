@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.services;
 
-import com.shootingplace.shootingplace.domain.entities.CompetitionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
@@ -13,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TournamentService {
@@ -42,10 +44,10 @@ public class TournamentService {
         if (tournament.getDate() == null) {
             tournamentEntity.setDate(LocalDate.now());
         }
-        if (tournament.getCompetitionList() == null){
-            List<CompetitionEntity> competitionEntities = competitionRepository.findAll();
-            tournamentEntity.setCompetitionList(competitionEntities);
-        }
+//        if (tournament.getCompetitionList() == null){
+//            List<CompetitionEntity> competitionEntities = competitionRepository.findAll();
+//            tournamentEntity.setCompetitionList(competitionEntities);
+//        }
 
         tournamentRepository.saveAndFlush(tournamentEntity);
         LOG.info("Stworzono nowe zawody z identyfikatorem : " + tournamentEntity.getUuid());
@@ -78,9 +80,9 @@ public class TournamentService {
                 tournamentEntity.setCommissionRTSArbiter(memberEntity);
                 LOG.info("Ustawiono sędziego RTS");
             }
-            if (tournament.getMap() !=null){
-                
-            }
+//            if (tournament.getMap() !=null){
+//
+//            }
             tournamentRepository.saveAndFlush(tournamentEntity);
             return true;
         }
@@ -123,9 +125,9 @@ public class TournamentService {
         MemberEntity memberEntity = memberRepository.findByLegitimationNumber(Integer.valueOf(memberLegitimation)).orElseThrow(EntityNotFoundException::new);
 
 
-        Set<MemberEntity> set = tournamentEntity.getMembers();
-        set.add(memberEntity);
-        tournamentEntity.setMembers(set);
+//        Set<MemberEntity> set = tournamentEntity.getMembers();
+//        set.add(memberEntity);
+//        tournamentEntity.setMembers(set);
 
         tournamentRepository.saveAndFlush(tournamentEntity);
 

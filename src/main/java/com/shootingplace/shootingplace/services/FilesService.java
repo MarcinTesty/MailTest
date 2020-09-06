@@ -71,7 +71,7 @@ public class FilesService {
         LocalDate contribution = memberEntity.getContribution().getContribution();
         String fileName = "Składka_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + "_" + LocalDate.now() + ".pdf";
 
-        Document document = new Document(PageSize.A5.rotate());
+        Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document,
                 new FileOutputStream(fileName));
 
@@ -84,6 +84,12 @@ public class FilesService {
         } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
+        String group;
+        if (memberEntity.getAdult()) {
+            group = "OGÓLNA";
+        } else {
+            group = "MŁODZIEŻOWA";
+        }
 
         String status;
         if (getSex(memberEntity.getPesel()).equals("Pani")) {
@@ -91,27 +97,71 @@ public class FilesService {
         } else {
             status = "opłacił";
         }
+        String contributionLevel;
+        if (memberEntity.getAdult()) {
+            contributionLevel = "120";
+        } else {
+            contributionLevel = "50";
+        }
 
-        Paragraph p = new Paragraph(Element.ALIGN_JUSTIFIED, "\nPotwierdzenie opłacenia składki członkowskiej\n".toUpperCase(), new Font(czcionka, 14));
-        Paragraph p1 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName() + " " + memberEntity.getSecondName() + " nr legitymacji " + memberEntity.getLegitimationNumber(), new Font(czcionka));
-        Paragraph p2 = new Paragraph("Dnia " + LocalDate.now() + " " + status + " składkę członkowską\n", new Font(czcionka));
-        Paragraph p3 = new Paragraph("Składka ważna do : " + contribution + "\n", new Font(czcionka));
-        Paragraph p4 = new Paragraph("Najpóźniejszy termin opłacenia kolejnej składki to : " + contribution.plusMonths(9), new Font(czcionka));
-        Paragraph p5 = new Paragraph("Tutaj można dodać jakieś przypomnienie w stylu, że jeśli składka nie będzie opłacona to " +
-                "coś tam coś tam\n\n\n\n\n\n", new Font(czcionka));
-        Paragraph p6 = new Paragraph("Podpis Klubowicza" +
-                "                                                                      " +
-                " Podpis Osoby przyjmującej składkę", new Font(czcionka));
+        Paragraph p = new Paragraph(Element.ALIGN_JUSTIFIED, "KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI".toUpperCase() + "\n", new Font(czcionka, 14, Font.BOLD));
+        Paragraph p1 = new Paragraph("Potwierdzenie opłacenia składki członkowskiej", new Font(czcionka, 14, Font.ITALIC));
+        Paragraph h1 = new Paragraph("Grupa ", new Font(czcionka, 14));
+        Phrase h2 = new Phrase(group, new Font(czcionka, 14, Font.BOLD));
+        Paragraph p2 = new Paragraph("\n\nNazwisko i Imię : ", new Font(czcionka, 11));
+        Phrase p3 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName(), new Font(czcionka, 18, Font.BOLD));
+        Phrase p4 = new Phrase("Numer Legitymacji : ", new Font(czcionka, 11));
+        Phrase p5 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), new Font(czcionka, 18, Font.BOLD));
+        Paragraph p6 = new Paragraph("\n\n\nData opłacenia składki : ", new Font(czcionka, 11));
+        Phrase p7 = new Phrase(String.valueOf(memberEntity.getContribution().getPaymentDay()), new Font(czcionka, 11, Font.BOLD));
+        Paragraph p8 = new Paragraph("\n\nSkładka ważna do : ", new Font(czcionka, 11));
+        Phrase p9 = new Phrase(String.valueOf(contribution), new Font(czcionka, 11, Font.BOLD));
+        Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", new Font(czcionka, 11));
+        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + memberEntity.getContribution().getPaymentDay() + " " + status + " półroczną składkę członkowską w wysokości "+contributionLevel+ " PLN.", new Font(czcionka, 11));
+        Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", new Font(czcionka, 11));
+        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
+        Paragraph p14 = new Paragraph("", new Font(czcionka, 11));
+        Phrase p15 = new Phrase("\n\nSkładki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
+                "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
+                "niedotrzymania terminu wpłaty (raty), wysokość (raty) składki ulega powiększeniu o karę w wysokości 50%" +
+                " zaległości. (Regulamin Opłacania Składek Członkowskich Klubu Strzeleckiego „Dziesiątka” LOK w Łodzi)", new Font(czcionka, 11, Font.ITALIC));
+        Paragraph p16 = new Paragraph("\n\n\n\n\n\n\n\n\n", new Font(czcionka, 11));
+        Paragraph p19 = new Paragraph("pieczęć klubu", new Font(czcionka, 11));
+        Phrase p20 = new Phrase("                                                                 ");
+        Phrase p21 = new Phrase("pieczęć i podpis osoby przyjmującej składkę");
 
-        String imFile = "logo_midi.jpg";
+        p.setIndentationLeft(100);
+        p1.setIndentationLeft(120);
+        h1.add(h2);
+        h1.setIndentationLeft(190);
+        p2.add(p3);
+        p2.add("                                        ");
+        p4.add(p5);
+        p2.add(p4);
+        p6.add(p7);
+        p8.add(p9);
+        p10.add(p11);
+        p14.add(p15);
+
+        p20.add(p21);
+        p19.add(p20);
+        p16.setIndentationLeft(25);
+        p19.setIndentationLeft(40);
+
 
         document.add(p);
         document.add(p1);
+        document.add(h1);
         document.add(p2);
-        document.add(p3);
-        document.add(p4);
-        document.add(p5);
         document.add(p6);
+        document.add(p8);
+        document.add(p10);
+        document.add(p12);
+        document.add(p13);
+        document.add(p14);
+        document.add(p16);
+        document.add(p19);
+
         document.close();
 
         byte[] data = convertToByteArray(fileName);
@@ -123,7 +173,7 @@ public class FilesService {
         File file = new File(fileName);
         MultipartFile multipartFile = new MockMultipartFile(fileName,
                 file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setContributionFile(saveContributionFile(multipartFile,memberEntity.getUuid()));
+        memberEntity.setContributionFile(saveContributionFile(multipartFile, memberEntity.getUuid()));
         memberRepository.saveAndFlush(memberEntity);
         file.delete();
     }
@@ -132,7 +182,7 @@ public class FilesService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
-
+        LocalDate birthDate = birthDay(memberEntity.getPesel());
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document,
                 new FileOutputStream(fileName));
@@ -141,15 +191,12 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
-        String RODO = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin massa mauris, scelerisque et finibus eu, commodo et augue. In ornare eleifend leo, sed euismod nisi molestie in. Vivamus viverra laoreet velit sed efficitur. Nullam varius purus in convallis tincidunt. Integer vulputate cursus iaculis. Fusce a vehicula lorem. Suspendisse ut lacus et erat ultrices dictum sed nec nisl.\n" +
-                "\n" +
-                "Vestibulum elit enim, hendrerit sed posuere in, ultricies sed mi. Donec non purus nulla. Nulla condimentum lacinia laoreet. Praesent ultricies eu enim vel faucibus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin eleifend libero sed volutpat convallis. Aliquam sapien urna, porta eu bibendum eget, gravida in metus. Fusce lobortis mi eget dolor suscipit, in elementum arcu ultricies. Ut rhoncus ante ut mauris commodo, ac cursus elit rutrum. Integer tincidunt vulputate sem, pellentesque congue lacus rutrum eget. In at nisl ac eros molestie gravida ut in sem. Nam non ex suscipit, tempus ex sit amet, porttitor lectus.\n" +
-                "\n" +
-                "Aenean consectetur finibus sapien, consectetur tincidunt augue euismod sed. Sed ullamcorper varius bibendum. Aliquam magna odio, ultricies a purus sed, iaculis ultricies dui. Maecenas ac vestibulum erat. Nullam facilisis, ante in convallis volutpat, purus enim ullamcorper purus, non porttitor enim elit aliquam turpis. Vivamus eget justo lacus. Proin et consectetur lectus. Suspendisse faucibus odio magna, a tempor diam volutpat non. Pellentesque diam libero, ullamcorper facilisis euismod maximus, ornare at felis. Nullam aliquet leo tortor, ut imperdiet ipsum aliquet a. Donec sed mauris venenatis, rhoncus elit ac, condimentum ligula.\n" +
-                "\n" +
-                "Nam mi augue, vulputate eu libero non, vulputate dignissim neque. Vivamus suscipit urna at urna vestibulum malesuada. Nulla facilisi. Nam vel felis ut dui convallis placerat molestie consequat sem. Vestibulum at mi condimentum, rutrum est at, convallis nisl. Cras eu euismod tortor. Quisque ut sem nec mauris lacinia posuere. Donec interdum euismod augue. Aenean eu suscipit nisl. Suspendisse sed finibus ex, at fermentum eros. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum pellentesque vestibulum libero vitae consequat. Proin sit amet condimentum enim. Nulla facilisi.\n" +
-                "\n" +
-                "Proin vel blandit nisl. Donec sed felis interdum, accumsan dolor sed, fringilla dolor. Sed aliquam feugiat velit eu venenatis. Vivamus sed est fermentum, fermentum magna id, porta lectus. Nunc vestibulum egestas quam ut tincidunt. Vivamus consectetur, enim nec venenatis tempus, tellus nisi facilisis diam, ac interdum risus nisi et mauris. Suspendisse elementum sed dolor sed congue. Nunc volutpat in augue at scelerisque. Pellentesque at ultricies est, vitae dapibus purus.";
+        String statement = "Oświadczenie:\n" +
+                "- Zobowiązuję się do przestrzegania Regulaminu Strzelnicy, oraz Regulaminu Klubu Strzeleckiego „Dziesiątka” Ligi Obrony Kraju w Łodzi.\n" +
+                "- Wyrażam zgodę na przesyłanie mi informacji przez Klub Strzelecki „Dziesiątka” za pomocą środków komunikacji elektronicznej, w szczególności pocztą elektroniczną oraz w postaci smsów/mms-ów.\n" +
+                "Wyrażenie zgody jest dobrowolne i może być odwołane w każdym czasie w na podstawie oświadczenia skierowanego na adres siedziby Klubu, na podstawie oświadczenia przesłanego za pośrednictwem poczty elektronicznej na adres: biuro@ksdziesiatka.pl lub w inny uzgodniony sposób.\n" +
+                "- Zgadzam się na przetwarzanie moich danych osobowych (w tym wizerunku) przez Administratora Danych, którym jest Stowarzyszenie Liga Obrony Kraju mające siedzibę główną w Warszawie pod adresem: \n" +
+                "ul. Chocimska 14, 00-791 Warszawa w celach związanych z moim członkostwem w KS „Dziesiątka” LOK Łódź.";
 
 
         try {
@@ -158,79 +205,113 @@ public class FilesService {
             e.printStackTrace();
         }
 
-        Paragraph p = new Paragraph("KARTA CZŁONKOWSKA\n", new Font(czcionka, 20));
-        p.setIndentationLeft(150);
-        String status;
+        Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", new Font(czcionka, 14, Font.BOLD));
+        p.setIndentationLeft(100);
+        String group;
         if (memberEntity.getAdult()) {
-            status = "Gr. Powszechna";
+            group = "OGÓLNA";
         } else {
-            status = "Gr. Młodzieżowa";
+            group = "MŁODZIEŻOWA";
         }
-        Paragraph p1 = new Paragraph("            "+status+ " Nr. leg." + memberEntity.getLegitimationNumber(), new Font(czcionka, 14));
-        p.add(p1);
-        Paragraph p2 = new Paragraph("Imię i Nazwisko : ", new Font(czcionka, 14));
-        p2.setAlignment(Element.ALIGN_JUSTIFIED);
-        p2.add(memberEntity.getFirstName() + " " + memberEntity.getSecondName());
-        Paragraph p3 = new Paragraph("", new Font(czcionka, 14));
-        p3.add("PESEL : " + memberEntity.getPesel());
-        p3.add("\n");
-        p3.add("Numer dowodu : " + memberEntity.getIDCard());
-        p3.add("\n");
-        p3.add("Data zapisu : " + memberEntity.getJoinDate());
-        Paragraph p4 = new Paragraph("dane teleadresowe".toUpperCase(), new Font(czcionka, 16));
-        p4.setIndentationLeft(175);
-        Paragraph p5 = new Paragraph("", new Font(czcionka, 14));
+        Paragraph p1 = new Paragraph("Karta Członkowska\n", new Font(czcionka, 14, Font.ITALIC));
+        Phrase p2 = new Phrase(group, new Font(czcionka, 14, Font.BOLD));
+        Paragraph p3 = new Paragraph("\nNazwisko i Imię : ", new Font(czcionka, 11));
+        Phrase p4 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName(), new Font(czcionka, 18, Font.BOLD));
+        Phrase p5 = new Phrase("Numer Legitymacji : ", new Font(czcionka, 11));
+        Phrase p6 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), new Font(czcionka, 18, Font.BOLD));
+        Paragraph p7 = new Paragraph("\nData Wstąpienia : ", new Font(czcionka, 11));
+        Phrase p8 = new Phrase(String.valueOf(memberEntity.getJoinDate()), new Font(czcionka, 15));
+        Paragraph p9 = new Paragraph("\nData Urodzenia : ", new Font(czcionka, 11));
+        Phrase p10 = new Phrase(String.valueOf(birthDate));
+        Paragraph p11 = new Paragraph("PESEL : " + memberEntity.getPesel(), new Font(czcionka, 11));
+        Paragraph p12 = new Paragraph("", new Font(czcionka, 11));
+        Phrase p13 = new Phrase(memberEntity.getIDCard());
+        Paragraph p14 = new Paragraph("Telefon Kontaktowy : " + memberEntity.getPhoneNumber(), new Font(czcionka, 11));
+        Paragraph p15 = new Paragraph("", new Font(czcionka, 11));
+        Paragraph p16 = new Paragraph("\n\nAdres Zamieszkania", new Font(czcionka, 11));
+        Paragraph p17 = new Paragraph("", new Font(czcionka, 11));
+        Paragraph p18 = new Paragraph("\n\n" + statement, new Font(czcionka, 11));
+        Paragraph p19 = new Paragraph("\n\n\n\n\n\n.............................................", new Font(czcionka, 11));
+        Phrase p20 = new Phrase("                                                              ");
+        Phrase p21 = new Phrase("............................................................");
+        Paragraph p22 = new Paragraph("podpis przyjmującego", new Font(czcionka, 11));
+        Phrase p23 = new Phrase("                                                                 ");
+        Phrase p24 = new Phrase("miejscowość, data i podpis Klubowicza");
+
+        p1.add("Grupa ");
+        p1.add(p2);
+        p1.add("\n");
+        p1.setIndentationLeft(190);
+        p3.add(p4);
+        p3.add("                                        ");
+        p5.add(p6);
+        p3.add(p5);
+        p7.add(p8);
+        p7.add("\n");
+        p9.add(p10);
+        if (memberEntity.getAdult()) {
+            p12.add("Numer Dowodu Osobistego : ");
+        } else {
+            p12.add("Numer Legitymacji Szkolnej / Numer Dowodu Osobistego : ")
+            ;
+        }
+        p12.add(p13);
+        p12.add("\n\n\n");
         if (memberEntity.getEmail() != null) {
-            p5.add("Email : " + memberEntity.getEmail());
+            p15.add("Email : " + memberEntity.getEmail());
         } else {
-            p5.add("Email : Nie podano");
+            p15.add("Email : Nie podano");
         }
-        p5.add("\n");
-        p5.add("Numer telefonu : " + memberEntity.getPhoneNumber());
-        Paragraph p6 = new Paragraph("Adres Zamieszkania".toUpperCase(), new Font(czcionka, 14));
-        p6.setIndentationLeft(50);
-        Paragraph p7 = new Paragraph("", new Font(czcionka, 14));
         if (memberEntity.getAddress().getPostOfficeCity() != null) {
-            p7.add("Miasto : " + memberEntity.getAddress().getPostOfficeCity());
+            p17.add("Miasto : " + memberEntity.getAddress().getPostOfficeCity());
         } else {
-            p7.add("Miasto : ");
+            p17.add("Miasto : ");
         }
-        p7.add("\n");
+        p17.add("\n");
         if (memberEntity.getAddress().getZipCode() != null) {
-            p7.add("Kod pocztowy : " + memberEntity.getAddress().getZipCode());
+            p17.add("Kod pocztowy : " + memberEntity.getAddress().getZipCode());
         } else {
-            p7.add("Kod pocztowy : ");
+            p17.add("Kod pocztowy : ");
         }
-        p7.add("\n");
+        p17.add("\n");
         if (memberEntity.getAddress().getStreet() != null) {
-            p7.add("Ulica : " + memberEntity.getAddress().getStreet());
+            p17.add("Ulica : " + memberEntity.getAddress().getStreet());
             if (memberEntity.getAddress().getStreetNumber() != null) {
-                p7.add(" " + memberEntity.getAddress().getStreetNumber());
+                p17.add(" " + memberEntity.getAddress().getStreetNumber());
             } else {
-                p7.add(" ");
+                p17.add(" ");
             }
         } else {
-            p7.add("Ulica : ");
+            p17.add("Ulica : ");
         }
-        p7.add("\n");
+        p17.add("\n");
         if (memberEntity.getAddress().getFlatNumber() != null) {
-            p7.add("Numer Mieszkania : " + memberEntity.getAddress().getFlatNumber());
+            p17.add("Numer Mieszkania : " + memberEntity.getAddress().getFlatNumber());
         } else {
-            p7.add("Numer Mieszkania : ");
+            p17.add("Numer Mieszkania : ");
         }
-        Paragraph p8 = new Paragraph("RODO", new Font(czcionka, 20));
-        Paragraph p9 = new Paragraph("", new Font(czcionka, 10));
-        p9.add(RODO);
+        p20.add(p21);
+        p19.add(p20);
+        p19.setIndentationLeft(25);
+        p22.setIndentationLeft(40);
+        p22.add(p23);
+        p22.add(p24);
 
         document.add(p);
-        document.add(p2);
+        document.add(p1);
         document.add(p3);
-        document.add(p4);
-        document.add(p5);
-        document.add(p6);
         document.add(p7);
-        document.add(p8);
         document.add(p9);
+        document.add(p11);
+        document.add(p12);
+        document.add(p14);
+        document.add(p15);
+        document.add(p16);
+        document.add(p17);
+        document.add(p18);
+        document.add(p19);
+        document.add(p22);
+
 
         document.close();
 
@@ -243,7 +324,7 @@ public class FilesService {
         File file = new File(fileName);
         MultipartFile multipartFile = new MockMultipartFile(fileName,
                 file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setPersonalCardFile(savePersonalCardFile(multipartFile,memberEntity.getUuid()));
+        memberEntity.setPersonalCardFile(savePersonalCardFile(multipartFile, memberEntity.getUuid()));
         memberRepository.saveAndFlush(memberEntity);
         file.delete();
 
@@ -260,7 +341,7 @@ public class FilesService {
         return filesRepository.findById(fileUUID);
     }
 
-    private FilesEntity saveContributionFile(MultipartFile file,UUID memberUUID) throws IOException {
+    private FilesEntity saveContributionFile(MultipartFile file, UUID memberUUID) throws IOException {
         String docName = file.getOriginalFilename();
         FilesEntity filesEntity = memberRepository.findById(memberUUID).get().getContributionFile();
         filesEntity.setName(docName);
@@ -282,6 +363,19 @@ public class FilesService {
         File file = new File(path);
         return Files.readAllBytes(file.toPath());
 
+    }
+
+    private LocalDate birthDay(String pesel) {
+
+        int year = Integer.parseInt(pesel.substring(0, 2));
+        year += (year < 5) ? 2000 : 1900;
+        int month = Integer.parseInt(pesel.substring(2, 4));
+        if (month > 12) {
+            month -= 20;
+        }
+        int day = Integer.parseInt(pesel.substring(4, 6));
+
+        return LocalDate.of(year, month, day);
     }
 
 }

@@ -7,27 +7,25 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.UUID;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoEvidenceEntity {
+public class PersonalEvidenceEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String label;
-
-    private LocalDate date;
-    @OneToMany
-    private List<CaliberEntity> caliberList = new ArrayList<>();
+    private String[] ammo;
     @OneToOne
     private FilesEntity file;
+
+
+
 
 }

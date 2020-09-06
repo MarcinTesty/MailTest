@@ -47,7 +47,6 @@ public class MemberEntity {
     @Pattern(regexp = "[0-9]*")
     private String pesel;
     @NotBlank
-    @Pattern(regexp = "\\w{3}\\d{6}")
     private String IDCard;
 
     @OneToOne
@@ -68,6 +67,9 @@ public class MemberEntity {
 
     @OneToOne(orphanRemoval = true)
     private MemberPermissionsEntity memberPermissions;
+
+    @OneToOne(orphanRemoval = true)
+    private PersonalEvidenceEntity personalEvidence;
 
     @OneToOne(orphanRemoval = true)
     private FilesEntity contributionFile;

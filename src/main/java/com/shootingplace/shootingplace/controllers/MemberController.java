@@ -120,5 +120,10 @@ public class MemberController {
         return memberService.getAdultMembersEmails(condition);
     }
 
+    @GetMapping("/memberswithpermissions")
+    public List<MemberEntity> getMembersWithPermissions(){
+        return memberService.getMembersWithPermissions();
+    }
+
 
 }
