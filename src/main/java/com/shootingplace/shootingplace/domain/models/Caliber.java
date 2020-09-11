@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,13 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoEvidence {
+public class Caliber {
 
-    private String label;
+    private String name;
 
-    private LocalDate date;
+    private Integer quantity;
+    private Integer[] ammoUsed;
 
-    private List<Caliber> caliberList = new ArrayList<>();
+    private List<Member> members = new ArrayList<>();
 
-    private FilesModel file;
 }

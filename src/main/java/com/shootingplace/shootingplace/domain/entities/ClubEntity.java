@@ -20,7 +20,7 @@ public class ClubEntity {
     @GeneratedValue
     private Integer id;
 
-    private String name = "Klub Strzelecki Dziesiątka LOK Łódź";
-    private String licenseNumber = "1233/2020";
+    private String name;
+    private String licenseNumber;
 
 }

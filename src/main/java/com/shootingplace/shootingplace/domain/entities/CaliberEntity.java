@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -15,19 +14,16 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoEvidenceEntity {
-
+public class CaliberEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String label;
-
-    private LocalDate date;
-    @OneToMany
-    private List<CaliberEntity> caliberList = new ArrayList<>();
-    @OneToOne
-    private FilesEntity file;
+    private String name;
+    private Integer quantity;
+    private Integer[] ammoUsed;
+    @ManyToMany
+    private List<MemberEntity> members = new ArrayList<>();
 
 }

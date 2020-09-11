@@ -4,8 +4,10 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -23,6 +25,8 @@ public class MemberService {
     private final HistoryService historyService;
     private final WeaponPermissionService weaponPermissionService;
     private final MemberPermissionsService memberPermissionsService;
+    private final PersonalEvidenceService personalEvidenceService;
+    private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -31,7 +35,7 @@ public class MemberService {
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
                          ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, PersonalEvidenceService personalEvidenceService, FilesService filesService) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -40,6 +44,8 @@ public class MemberService {
         this.historyService = historyService;
         this.weaponPermissionService = weaponPermissionService;
         this.memberPermissionsService = memberPermissionsService;
+        this.personalEvidenceService = personalEvidenceService;
+        this.filesService = filesService;
     }
 
 
@@ -54,14 +60,6 @@ public class MemberService {
         return map;
     }
 
-    public Map<UUID, Member> getActiveMembers() {
-        Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAllByActive(true).forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("Ilość klubowiczów aktywnych : " + map.size());
-
-        return map;
-    }
-
     public List<MemberEntity> getActiveMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
             if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
@@ -70,13 +68,14 @@ public class MemberService {
                 activateOrDeactivateMember(e.getUuid());
                 memberRepository.save(e);
                 LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && !e.getActive()) {
-                activateOrDeactivateMember(e.getUuid());
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
             }
+//            else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && !e.getActive()) {
+//                activateOrDeactivateMember(e.getUuid());
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+//            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setIsValid(false);
@@ -96,10 +95,17 @@ public class MemberService {
         return list;
     }
 
-    public List<MemberEntity> getNonActiveMembers(Boolean active, Boolean erased) {
-        List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndErased(active, erased));
-        LOG.info("Ilość klubowiczów nieaktywnych : " + list.size());
+    public List<MemberEntity> getMembersWithPermissions() {
+        List<MemberEntity> list = new ArrayList<>();
 
+        memberRepository.findAll().forEach(e -> {
+            if ((e.getMemberPermissions().getShootingLeaderNumber() != null)
+                    || (e.getMemberPermissions().getArbiterNumber() != null)
+                    || (e.getMemberPermissions().getInstructorNumber() != null)) {
+                list.add(e);
+            }
+        });
+        list.sort(Comparator.comparing(MemberEntity::getSecondName));
         return list;
     }
 
@@ -191,10 +197,6 @@ public class MemberService {
     //--------------------------------------------------------------------------
     public UUID addNewMember(Member member) throws Exception {
         MemberEntity memberEntity = null;
-        if (member.getEmail() == null) {
-            member.setEmail("");
-        }
-
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
         }
@@ -206,7 +208,6 @@ public class MemberService {
 //        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
-            throw new Exception();
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
@@ -318,8 +319,34 @@ public class MemberService {
                         .build();
                 memberPermissionsService.addMemberPermissions(memberEntity.getUuid(), memberPermissions);
             }
+            if (memberEntity.getContributionFile() == null) {
+                FilesModel filesModel = FilesModel.builder()
+                        .name("")
+                        .data(null)
+                        .type(String.valueOf(MediaType.APPLICATION_PDF))
+                        .build();
+                filesService.createContributionFileEntity(memberEntity.getUuid(), filesModel);
+                filesService.contributionConfirm(memberEntity.getUuid());
+            }
+            if (memberEntity.getPersonalCardFile() == null) {
+                FilesModel filesModel = FilesModel.builder()
+                        .name("")
+                        .data(null)
+                        .type(String.valueOf(MediaType.APPLICATION_PDF))
+                        .build();
+                filesService.createPersonalCardFileEntity(memberEntity.getUuid(), filesModel);
+                filesService.personalCardFile(memberEntity.getUuid());
+            }
+            if (memberEntity.getPersonalEvidence() == null) {
+                PersonalEvidence personalEvidence = PersonalEvidence.builder()
+                        .ammo(new String[0])
+                        .file(null)
+                        .build();
+                personalEvidenceService.addPersonalEvidence(memberEntity.getUuid(), personalEvidence);
+            }
         }
-        return Objects.requireNonNull(memberEntity).getUuid();
+        assert memberEntity != null;
+        return memberEntity.getUuid();
 
 
     }
@@ -346,7 +373,7 @@ public class MemberService {
         if (memberRepository.existsById(uuid)) {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
             LOG.info("Zmieniono status " + memberEntity.getFirstName());
-            memberEntity.setActive(!memberEntity.getActive());
+            memberEntity.setActive(false);
             memberRepository.saveAndFlush(memberEntity);
             return true;
         } else
@@ -356,82 +383,71 @@ public class MemberService {
 
 
     //--------------------------------------------------------------------------
-    public boolean updateMember(UUID uuid, Member member) {
-        try {
-            MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
+    @SneakyThrows
+    public void updateMember(UUID uuid, Member member) {
+        MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
 
-            if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
-                memberEntity.setFirstName(member.getFirstName());
-                LOG.info(goodMessage() + "Imię");
-            }
-            if (member.getSecondName() != null && !member.getSecondName().isEmpty()) {
-                memberEntity.setSecondName(member.getSecondName());
-                LOG.info(goodMessage() + "Nazwisko");
-
-            }
-            if (member.getJoinDate() != null) {
-                memberEntity.setJoinDate(member.getJoinDate());
-                LOG.info(goodMessage() + "Data przystąpienia do klubu");
-            }
-            if (member.getLegitimationNumber() != null) {
-                if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
-                    LOG.warn("Już ktoś ma taki numer legitymacji");
-                    return false;
-                } else {
-                    memberEntity.setLegitimationNumber(member.getLegitimationNumber());
-                    LOG.info(goodMessage() + "numer legitymacji");
-                }
-            }
-            if (member.getEmail() != null && !member.getEmail().isEmpty()) {
-                if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
-                    LOG.error("Już ktoś ma taki sam e-mail");
-                    return false;
-                } else {
-                    memberEntity.setEmail(member.getEmail().trim());
-                    LOG.info(goodMessage() + "Email");
-                }
-            }
-            if (member.getPesel() != null && !member.getPesel().isEmpty()) {
-                if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
-                    LOG.error("Już ktoś ma taki sam numer PESEL");
-                    return false;
-                } else {
-                    memberEntity.setPesel(member.getPesel());
-                    LOG.info(goodMessage() + "Numer PESEL");
-                }
-            }
-            if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
-                if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9 && !member.getPhoneNumber().isEmpty()) {
-                    LOG.error("Żle podany numer");
-                    return false;
-                }
-                String s = "+48";
-                memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
-                if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
-                    LOG.error("Ktoś już ma taki numer telefonu");
-                    return false;
-                }
-                if (member.getPhoneNumber().equals(memberEntity.getPhoneNumber())) {
-                    memberEntity.setPhoneNumber(member.getPhoneNumber());
-                    LOG.info(goodMessage() + "Numer Telefonu");
-                }
-            }
-            if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
-                if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
-                    LOG.error("Ktoś już ma taki numer dowodu");
-                    return false;
-                }
-                memberEntity.setIDCard(member.getIDCard().toUpperCase());
-                LOG.info(goodMessage() + " Numer Dowodu");
-            }
-
-            memberRepository.saveAndFlush(memberEntity);
-            return true;
-        } catch (
-                EntityNotFoundException ex) {
-            badMessage();
-            return false;
+        if (member.getFirstName() != null && !member.getFirstName().isEmpty()) {
+            memberEntity.setFirstName(member.getFirstName());
+            LOG.info(goodMessage() + "Imię");
         }
+        if (member.getSecondName() != null && !member.getSecondName().isEmpty()) {
+            memberEntity.setSecondName(member.getSecondName());
+            LOG.info(goodMessage() + "Nazwisko");
+
+        }
+        if (member.getJoinDate() != null) {
+            memberEntity.setJoinDate(member.getJoinDate());
+            LOG.info(goodMessage() + "Data przystąpienia do klubu");
+        }
+        if (member.getLegitimationNumber() != null) {
+            if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+                LOG.warn("Już ktoś ma taki numer legitymacji");
+            } else {
+                memberEntity.setLegitimationNumber(member.getLegitimationNumber());
+                LOG.info(goodMessage() + "numer legitymacji");
+            }
+        }
+        if (member.getEmail() != null && !member.getEmail().isEmpty()) {
+            if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
+                LOG.error("Już ktoś ma taki sam e-mail");
+            } else {
+                memberEntity.setEmail(member.getEmail().trim());
+                LOG.info(goodMessage() + "Email");
+            }
+        }
+        if (member.getPesel() != null && !member.getPesel().isEmpty()) {
+            if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
+                LOG.error("Już ktoś ma taki sam numer PESEL");
+            } else {
+                memberEntity.setPesel(member.getPesel());
+                LOG.info(goodMessage() + "Numer PESEL");
+            }
+        }
+        if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
+            if (member.getPhoneNumber().replaceAll("\\s-", "").length() != 9 && !member.getPhoneNumber().isEmpty()) {
+                LOG.error("Żle podany numer");
+            }
+            String s = "+48";
+            memberEntity.setPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", ""));
+            if (memberRepository.findByPhoneNumber((s + member.getPhoneNumber()).replaceAll("\\s", "")).isPresent()) {
+                LOG.error("Ktoś już ma taki numer telefonu");
+            }
+            if (member.getPhoneNumber().equals(memberEntity.getPhoneNumber())) {
+                memberEntity.setPhoneNumber(member.getPhoneNumber());
+                LOG.info(goodMessage() + "Numer Telefonu");
+            }
+        }
+        if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
+            if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
+                LOG.error("Ktoś już ma taki numer dowodu");
+            }
+            memberEntity.setIDCard(member.getIDCard().toUpperCase());
+            LOG.info(goodMessage() + "Numer Dowodu");
+        }
+
+        memberRepository.saveAndFlush(memberEntity);
+        filesService.personalCardFile(memberEntity.getUuid());
     }
 
     public boolean changeWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
@@ -459,7 +475,7 @@ public class MemberService {
     }
 
     public Optional<MemberEntity> getSingleMember(UUID uuid) {
-        LOG.info("Wywołano membera");
+        LOG.info("Wywołano Klubowicza");
         return memberRepository.findById(uuid);
     }
 
@@ -480,5 +496,28 @@ public class MemberService {
 
         memberRepository.saveAndFlush(memberEntity);
         return true;
+    }
+
+    public String getAdultMembersEmails(Boolean condition) {
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().forEach(e -> {
+            if ((e.getEmail() != null && !e.getEmail().isEmpty()) && e.getAdult() == condition) {
+                list.add(e.getEmail().concat(";"));
+            }
+        });
+        return list.toString().replaceAll(",", "");
+    }
+
+    public List<MemberEntity> findMemberByFirstName(String firstName, String secondName) {
+        String name1 = "";
+        if (firstName != null && !firstName.isEmpty()) {
+            String s = firstName.toLowerCase();
+            name1 = firstName.substring(0, 1).toUpperCase().concat(s.substring(1));
+        }
+        String name2 = secondName.toUpperCase();
+        LOG.info("Szukam Imię: "+name1 + " Nazwisko: "+name2 );
+
+        return memberRepository.findAllByFirstNameOrSecondName(name1, name2);
+
     }
 }

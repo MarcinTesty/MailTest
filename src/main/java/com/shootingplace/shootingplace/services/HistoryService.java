@@ -36,7 +36,7 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
         memberEntity.setHistory(historyEntity);
         memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Historia zaostała utworzona");
+        LOG.info("Historia została utworzona");
     }
 
 //    dodawanie ręczne rekordu do historii
@@ -51,6 +51,7 @@ public class HistoryService {
             newState[i] = historyEntity.getContributionRecord()[i];
             newState[i + 1] = LocalDate.now();
         }
+        LOG.info("Dodano rekord w historii składek");
         LocalDate[] sortState = selectionSort(newState);
         historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
@@ -60,12 +61,18 @@ public class HistoryService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
                 .orElseThrow(EntityNotFoundException::new);
+        LocalDate parsedDate = LocalDate.parse(date);
+        if (parsedDate.isAfter(LocalDate.now())) {
+            LOG.info("Nie dodano rekordu w historii składek - data z przyszłości");
+            return false;
+        }
         LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
 
         for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
             newState[i] = historyEntity.getContributionRecord()[i];
             newState[i + 1] = LocalDate.parse(date);
         }
+        LOG.info("Dodano rekord w historii składek");
         LocalDate[] sortState = selectionSort(newState);
         historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
@@ -90,7 +97,7 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
     }
 
-    void addDateToPatentPermissions(UUID memberUUID, int index) {
+    void addDateToPatentPermissions(UUID memberUUID, LocalDate date, int index) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
                 .orElseThrow(EntityNotFoundException::new);
@@ -102,7 +109,7 @@ public class HistoryService {
                     LOG.info("Pobrano datę patentu dla Pistoletu");
                 }
                 if (memberEntity.getHistory().getPatentFirstRecord() && historyEntity.getPatentDay()[0] == null) {
-                    dateTab[0] = LocalDate.now();
+                    dateTab[0] = date;
                     LOG.info("Ustawiono datę patentu Karabinu na domyślną");
                 }
             }
@@ -114,7 +121,7 @@ public class HistoryService {
                     LOG.info("Pobrano datę patentu dla Karabinu");
                 }
                 if (memberEntity.getHistory().getPatentFirstRecord() && historyEntity.getPatentDay()[1] == null) {
-                    dateTab[1] = LocalDate.now();
+                    dateTab[1] = date;
                     LOG.info("Ustawiono datę patentu Karabinu na domyślną");
                 }
             }
@@ -126,7 +133,7 @@ public class HistoryService {
                     LOG.info("Pobrano datę patentu dla Strzelby");
                 }
                 if (memberEntity.getHistory().getPatentFirstRecord() && historyEntity.getPatentDay()[2] == null) {
-                    dateTab[2] = LocalDate.now();
+                    dateTab[2] = date;
                     LOG.info("Ustawiono datę patentu Strzelby na domyślną");
                 }
             }
@@ -165,6 +172,7 @@ public class HistoryService {
         }
         return true;
     }
+
     public Boolean addLicenseHistoryPaymentRecord(UUID memberUUID, LocalDate date) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())

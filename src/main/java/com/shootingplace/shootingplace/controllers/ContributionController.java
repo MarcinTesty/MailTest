@@ -5,7 +5,6 @@ import com.shootingplace.shootingplace.services.ContributionService;
 import com.shootingplace.shootingplace.services.HistoryService;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -22,21 +21,22 @@ public class ContributionController {
     }
 
     @PostMapping("/{memberUUID}")
-    public boolean addContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
-        return contributionService.addContribution(memberUUID, contribution);
+    public void addContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
+        contributionService.addContribution(memberUUID, contribution);
     }
 
     @PutMapping("/{memberUUID}")
-    public boolean updateContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
-        return contributionService.updateContribution(memberUUID, contribution);
+    public void updateContribution(@PathVariable UUID memberUUID, @RequestBody Contribution contribution) {
+        contributionService.updateContribution(memberUUID, contribution);
     }
 
     @PatchMapping("/{memberUUID}")
     public boolean prolongContribution(@PathVariable UUID memberUUID) {
         return contributionService.prolongContribution(memberUUID);
     }
+
     @PutMapping("/history{memberUUID}")
-    public boolean addHistoryContributionRecord(@PathVariable UUID memberUUID,@RequestParam String date){
-        return historyService.addContributionRecord(memberUUID,date);
+    public boolean addHistoryContributionRecord(@PathVariable UUID memberUUID, @RequestParam String date) {
+        return historyService.addContributionRecord(memberUUID, date);
     }
 }

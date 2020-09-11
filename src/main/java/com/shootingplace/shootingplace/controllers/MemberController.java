@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -24,29 +23,14 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("/{uuid}")
-    public Optional<MemberEntity> getSingleMember(@PathVariable UUID uuid) {
-        return memberService.getSingleMember(uuid);
-    }
-
     @GetMapping("/list")
     public Map<UUID, Member> getMembers() {
         return memberService.getMembers();
     }
 
-    @GetMapping("/active")
-    public Map<UUID, Member> getActiveMembers() {
-        return memberService.getActiveMembers();
-    }
-
     @GetMapping("/activelist")
     public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return memberService.getActiveMembersList(active, adult, erase);
-    }
-
-    @GetMapping("/nonactivelist")
-    public List<MemberEntity> getNonActiveList(@RequestParam Boolean active, @RequestParam Boolean erased) {
-        return memberService.getNonActiveMembers(active, erased);
     }
 
     @GetMapping("/erased")
@@ -91,13 +75,18 @@ public class MemberController {
     }
 
     @PostMapping("/")
-    public UUID addMember(@RequestBody @Valid Member member) throws Exception {
-        return memberService.addNewMember(member);
+    public UUID addMember(@RequestBody @Valid Member member) {
+        try {
+            return memberService.addNewMember(member);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @PutMapping("/{uuid}")
-    public boolean updateMember(@PathVariable UUID uuid, @RequestBody Member member) {
-        return memberService.updateMember(uuid, member);
+    public void updateMember(@PathVariable UUID uuid, @RequestBody Member member) {
+        memberService.updateMember(uuid, member);
     }
 
     @DeleteMapping("/{uuid}")
@@ -124,6 +113,21 @@ public class MemberController {
     @PatchMapping("/erase/{uuid}")
     public boolean eraseMember(@PathVariable UUID uuid) {
         return memberService.eraseMember(uuid);
+    }
+
+    @GetMapping("/membersEmails")
+    public String getMembersEmails(@RequestParam Boolean condition){
+        return memberService.getAdultMembersEmails(condition);
+    }
+
+    @GetMapping("/memberswithpermissions")
+    public List<MemberEntity> getMembersWithPermissions(){
+        return memberService.getMembersWithPermissions();
+    }
+
+    @GetMapping("/find")
+    public List<MemberEntity> findMemberByFirstName(@RequestParam String firstName,String secondName){
+        return memberService.findMemberByFirstName(firstName,secondName);
     }
 
 

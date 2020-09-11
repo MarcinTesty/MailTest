@@ -16,6 +16,7 @@ public class LicenseController {
 
     private final LicenseService licenseService;
     private final HistoryService historyService;
+
     public LicenseController(LicenseService licenseService, HistoryService historyService) {
         this.licenseService = licenseService;
         this.historyService = historyService;
@@ -43,15 +44,17 @@ public class LicenseController {
 
     @PatchMapping("/{memberUUID}")
     public boolean renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
-        return licenseService.renewLicenseValid(memberUUID,license);
+        return licenseService.renewLicenseValid(memberUUID, license);
     }
+
     @PutMapping("/history{memberUUID}")
-    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID){
+    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID) {
         return historyService.addLicenseHistoryPayment(memberUUID);
     }
+
     @PutMapping("/historyrec{memberUUID}")
-    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date){
-        return historyService.addLicenseHistoryPaymentRecord(memberUUID,date);
+    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date) {
+        return historyService.addLicenseHistoryPaymentRecord(memberUUID, date);
     }
 
 }

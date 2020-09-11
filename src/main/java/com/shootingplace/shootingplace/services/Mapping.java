@@ -28,6 +28,7 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
+                .personalEvidence(map(e.getPersonalEvidence()))
                 .build();
     }
 
@@ -51,6 +52,7 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
+                .personalEvidence(map(e.getPersonalEvidence()))
                 .build();
     }
 
@@ -185,22 +187,109 @@ class Mapping {
                 .build()).orElse(null);
     }
 
-    static MemberPermissions map(MemberPermissionsEntity m){
-        return Optional.ofNullable(m).map(e->MemberPermissions.builder()
-        .instructorNumber(e.getInstructorNumber())
-        .arbiterNumber(e.getArbiterNumber())
-        .arbiterClass(e.getArbiterClass())
-        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
-        .shootingLeaderNumber(e.getShootingLeaderNumber())
-        .build()).orElse(null);
+    static MemberPermissions map(MemberPermissionsEntity m) {
+        return Optional.ofNullable(m).map(e -> MemberPermissions.builder()
+                .instructorNumber(e.getInstructorNumber())
+                .arbiterNumber(e.getArbiterNumber())
+                .arbiterClass(e.getArbiterClass())
+                .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+                .shootingLeaderNumber(e.getShootingLeaderNumber())
+                .build()).orElse(null);
     }
-    static MemberPermissionsEntity map(MemberPermissions m){
-        return Optional.ofNullable(m).map(e->MemberPermissionsEntity.builder()
-        .instructorNumber(e.getInstructorNumber())
-        .arbiterNumber(e.getArbiterNumber())
-        .arbiterClass(e.getArbiterClass())
-        .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
-        .shootingLeaderNumber(e.getShootingLeaderNumber())
-        .build()).orElse(null);
+
+    static MemberPermissionsEntity map(MemberPermissions m) {
+        return Optional.ofNullable(m).map(e -> MemberPermissionsEntity.builder()
+                .instructorNumber(e.getInstructorNumber())
+                .arbiterNumber(e.getArbiterNumber())
+                .arbiterClass(e.getArbiterClass())
+                .arbiterPermissionValidThru(e.getArbiterPermissionValidThru())
+                .shootingLeaderNumber(e.getShootingLeaderNumber())
+                .build()).orElse(null);
+    }
+
+    static Tournament map(TournamentEntity t) {
+        return Tournament.builder()
+                .name(t.getName())
+                .date(t.getDate())
+                .open(t.getOpen())
+                .build();
+    }
+
+    static TournamentEntity map(Tournament t) {
+        return TournamentEntity.builder()
+                .name(t.getName())
+                .date(t.getDate())
+                .open(t.getOpen())
+                .build();
+    }
+
+    static Competition map(CompetitionEntity c) {
+        return Competition.builder()
+                .name(c.getName())
+                .build();
+    }
+
+    static CompetitionEntity map(Competition c) {
+        return CompetitionEntity.builder()
+                .name(c.getName())
+                .build();
+    }
+
+    public static FilesEntity map(FilesModel f) {
+        return Optional.ofNullable(f).map(e -> FilesEntity.builder()
+                .name(e.getName())
+                .data(e.getData())
+                .type(e.getType())
+                .build()).orElse(null);
+    }
+
+    public static FilesModel map(FilesEntity f) {
+        return Optional.ofNullable(f).map(e -> FilesModel.builder()
+                .name(e.getName())
+                .data(e.getData())
+                .type(e.getType())
+                .build()).orElse(null);
+    }
+
+    public static AmmoEvidenceEntity map(AmmoEvidence a) {
+        return Optional.ofNullable(a).map(e -> AmmoEvidenceEntity.builder()
+                .label(e.getLabel())
+                .date(e.getDate())
+                .build()).orElse(null);
+    }
+
+    public static AmmoEvidence map(AmmoEvidenceEntity a) {
+        return Optional.ofNullable(a).map(e -> AmmoEvidence.builder()
+                .label(e.getLabel())
+                .date(e.getDate())
+                .build()).orElse(null);
+    }
+
+    public static Caliber map(CaliberEntity c) {
+        return Optional.ofNullable(c).map(e -> Caliber.builder()
+                .name(e.getName())
+                .quantity(e.getQuantity())
+                .ammoUsed(e.getAmmoUsed())
+                .build()).orElse(null);
+    }
+
+    public static CaliberEntity map(Caliber c) {
+        return Optional.ofNullable(c).map(e -> CaliberEntity.builder()
+                .name(e.getName())
+                .quantity(e.getQuantity())
+                .ammoUsed(e.getAmmoUsed())
+                .build()).orElse(null);
+    }
+
+    public static PersonalEvidenceEntity map(PersonalEvidence p) {
+        return Optional.ofNullable(p).map(e -> PersonalEvidenceEntity.builder()
+                .ammo(e.getAmmo())
+                .build()).orElse(null);
+    }
+
+    public static PersonalEvidence map(PersonalEvidenceEntity p) {
+        return Optional.ofNullable(p).map(e -> PersonalEvidence.builder()
+                .ammo(e.getAmmo())
+                .build()).orElse(null);
     }
 }

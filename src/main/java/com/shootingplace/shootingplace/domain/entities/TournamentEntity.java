@@ -15,19 +15,21 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoEvidenceEntity {
+public class TournamentEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String label;
-
+    private String name;
     private LocalDate date;
-    @OneToMany
-    private List<CaliberEntity> caliberList = new ArrayList<>();
-    @OneToOne
-    private FilesEntity file;
+
+    @OneToOne(orphanRemoval = true)
+    private MemberEntity commissionRTSArbiter;
+    @OneToOne(orphanRemoval = true)
+    private MemberEntity mainArbiter;
+    private Boolean open;
+
 
 }

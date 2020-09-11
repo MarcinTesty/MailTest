@@ -5,9 +5,10 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Address;
 import com.shootingplace.shootingplace.repositories.AddressRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
-import org.springframework.stereotype.Service;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
@@ -16,32 +17,32 @@ import java.util.UUID;
 public class AddressService {
     private final AddressRepository addressRepository;
     private final MemberRepository memberRepository;
+    private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
-    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository) {
+    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository, FilesService filesService) {
         this.addressRepository = addressRepository;
         this.memberRepository = memberRepository;
+        this.filesService = filesService;
     }
 
 
-    public boolean addAddress(UUID memberUUID, Address address) {
+    public void addAddress(UUID memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getAddress() != null) {
             LOG.error("nie można już dodać adresu");
-            return false;
         }
         AddressEntity addressEntity = Mapping.map(address);
         addressRepository.saveAndFlush(addressEntity);
         memberEntity.setAddress(addressEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Adres został zapisany");
-        return true;
     }
 
     //--------------------------------------------------------------------------
 
-    public boolean updateAddress(UUID memberUUID, Address address) {
-        try {
+    @SneakyThrows
+    public void updateAddress(UUID memberUUID, Address address) {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
             AddressEntity addressEntity = addressRepository.findById(memberEntity
                     .getAddress()
@@ -71,11 +72,7 @@ public class AddressService {
             memberEntity.setAddress(addressEntity);
             memberRepository.saveAndFlush(memberEntity);
             LOG.info("Zaktualizowano adres");
-            return true;
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            return false;
-        }
+            filesService.personalCardFile(memberEntity.getUuid());
 
     }
 }
