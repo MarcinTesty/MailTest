@@ -25,4 +25,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
 
     List<MemberEntity> findAllByErased(Boolean erased);
 
+    List<MemberEntity> findAllByFirstNameOrSecondName(String firstName,String secondName);
+
 }

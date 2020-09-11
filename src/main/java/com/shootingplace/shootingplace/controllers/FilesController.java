@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.FilesEntity;
+import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,10 +16,12 @@ import java.util.UUID;
 public class FilesController {
 
     private final MemberRepository memberRepository;
+    private final AmmoEvidenceRepository ammoEvidenceRepository;
 
 
-    public FilesController( MemberRepository memberRepository) {
+    public FilesController(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository) {
         this.memberRepository = memberRepository;
+        this.ammoEvidenceRepository = ammoEvidenceRepository;
     }
 
     @GetMapping("/downloadContribution/{memberUUID}")
@@ -39,6 +42,15 @@ public class FilesController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
                 .body(filesEntity.getData());
 
+    }
+
+    @GetMapping("/downloadAmmunitionList/{ammoListUUID}")
+    public ResponseEntity<byte[]> getAmmoListFile(@PathVariable UUID ammoListUUID) {
+        FilesEntity filesEntity = ammoEvidenceRepository.findById(ammoListUUID).get().getFile();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                .body(filesEntity.getData());
     }
 
 }

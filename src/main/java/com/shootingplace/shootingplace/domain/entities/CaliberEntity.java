@@ -21,7 +21,6 @@ public class CaliberEntity {
     private UUID uuid;
 
     private String name;
-// do tego pola będę dodawał zużycie
     private Integer quantity;
     private Integer[] ammoUsed;
     @ManyToMany

@@ -68,13 +68,14 @@ public class MemberService {
                 activateOrDeactivateMember(e.getUuid());
                 memberRepository.save(e);
                 LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && !e.getActive()) {
-                activateOrDeactivateMember(e.getUuid());
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
             }
+//            else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && !e.getActive()) {
+//                activateOrDeactivateMember(e.getUuid());
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+//            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setIsValid(false);
@@ -196,10 +197,6 @@ public class MemberService {
     //--------------------------------------------------------------------------
     public UUID addNewMember(Member member) throws Exception {
         MemberEntity memberEntity = null;
-        if (member.getEmail() == null) {
-            member.setEmail("");
-        }
-
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
         }
@@ -211,7 +208,6 @@ public class MemberService {
 //        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
-            throw new Exception();
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
@@ -346,7 +342,7 @@ public class MemberService {
                         .ammo(new String[0])
                         .file(null)
                         .build();
-                personalEvidenceService.addPersonalEvidence(memberEntity.getUuid(),personalEvidence);
+                personalEvidenceService.addPersonalEvidence(memberEntity.getUuid(), personalEvidence);
             }
         }
         assert memberEntity != null;
@@ -377,7 +373,7 @@ public class MemberService {
         if (memberRepository.existsById(uuid)) {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
             LOG.info("Zmieniono status " + memberEntity.getFirstName());
-            memberEntity.setActive(!memberEntity.getActive());
+            memberEntity.setActive(false);
             memberRepository.saveAndFlush(memberEntity);
             return true;
         } else
@@ -479,7 +475,7 @@ public class MemberService {
     }
 
     public Optional<MemberEntity> getSingleMember(UUID uuid) {
-        LOG.info("Wywołano membera");
+        LOG.info("Wywołano Klubowicza");
         return memberRepository.findById(uuid);
     }
 
@@ -510,5 +506,18 @@ public class MemberService {
             }
         });
         return list.toString().replaceAll(",", "");
+    }
+
+    public List<MemberEntity> findMemberByFirstName(String firstName, String secondName) {
+        String name1 = "";
+        if (firstName != null && !firstName.isEmpty()) {
+            String s = firstName.toLowerCase();
+            name1 = firstName.substring(0, 1).toUpperCase().concat(s.substring(1));
+        }
+        String name2 = secondName.toUpperCase();
+        LOG.info("Szukam Imię: "+name1 + " Nazwisko: "+name2 );
+
+        return memberRepository.findAllByFirstNameOrSecondName(name1, name2);
+
     }
 }

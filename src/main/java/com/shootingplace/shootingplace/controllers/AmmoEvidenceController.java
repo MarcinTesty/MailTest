@@ -1,11 +1,13 @@
 package com.shootingplace.shootingplace.controllers;
 
+import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.services.AmmoEvidenceService;
 import com.shootingplace.shootingplace.services.PersonalEvidenceService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,26 +26,29 @@ public class AmmoEvidenceController {
     }
 
     @GetMapping("/")
-    public AmmoEvidenceEntity getAmmoEvidence(){
+    public AmmoEvidenceEntity getAmmoEvidence() throws IOException, DocumentException {
         return ammoEvidenceService.getAmmoEvidence();
     }
+
     @GetMapping("/calibers")
-    public List<CaliberEntity> getCalibersList(){
+    public List<CaliberEntity> getCalibersList() {
         return ammoEvidenceService.getCalibersList();
     }
 
     @PutMapping("/addMember{memberUUID}/{caliberUUID}")
-    public void addMemberToCaliber(@PathVariable UUID memberUUID,@PathVariable UUID caliberUUID,@RequestParam Integer quantity){
-        ammoEvidenceService.addMemberToCaliber(memberUUID,caliberUUID,quantity);
+    public void addMemberToCaliber(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID, @RequestParam Integer quantity) throws IOException, DocumentException {
+        if (quantity > 0) {
+            ammoEvidenceService.addMemberToCaliber(memberUUID, caliberUUID, quantity);
+        }
     }
 
     @GetMapping("/map{memberUUID}/{caliberUUID}")
-    public Map<String,Integer> getMap(@PathVariable UUID memberUUID,@PathVariable UUID caliberUUID){
-        return ammoEvidenceService.getMap(memberUUID,caliberUUID);
+    public Map<String, Integer> getMap(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID) {
+        return ammoEvidenceService.getMap(memberUUID, caliberUUID);
     }
 
     @GetMapping("/personal{memberUUID}")
-    public void collectAmmoData(@PathVariable UUID memberUUID){
+    public void collectAmmoData(@PathVariable UUID memberUUID) {
         personalEvidenceService.collectAmmoData(memberUUID);
     }
 

@@ -65,23 +65,37 @@ public class CaliberService {
     void addAmmoUsedByMemberToCaliber(UUID memberUUID, UUID caliberUUID, Integer quantity) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
-        caliberEntity.getMembers().add(memberEntity);
+        if (caliberEntity.getQuantity() == null) {
+            Integer sum = 0;
+            caliberEntity.setQuantity(sum);
+            caliberRepository.saveAndFlush(caliberEntity);
+        }
         if (caliberEntity.getAmmoUsed() == null) {
             Integer[] integers = new Integer[1];
             integers[0] = quantity;
             caliberEntity.setAmmoUsed(integers);
+            Integer quantity1 = caliberEntity.getQuantity();
+            quantity1 = quantity1 + quantity;
+            caliberEntity.setQuantity(quantity1);
+            caliberEntity.getMembers().add(memberEntity);
             caliberRepository.saveAndFlush(caliberEntity);
         } else {
+            caliberEntity.getMembers().add(memberEntity);
+
             Integer[] ammoUsed = new Integer[caliberEntity.getAmmoUsed().length + 1];
-            for (int i = 0; i < ammoUsed.length - 1; i++) {
-                ammoUsed[i] = caliberEntity.getAmmoUsed()[i];
-                ammoUsed[i + 1] = quantity;
-            }
+
+            System.arraycopy(caliberEntity.getAmmoUsed(), 0, ammoUsed, 0, caliberEntity.getAmmoUsed().length);
+            ammoUsed[caliberEntity.getMembers().size() - 1] = quantity;
+            Integer quantity1 = caliberEntity.getQuantity();
+            quantity1 = quantity1 + quantity;
+            caliberEntity.setQuantity(quantity1);
+
             caliberEntity.setAmmoUsed(ammoUsed);
             caliberRepository.saveAndFlush(caliberEntity);
             LOG.info("Dodano Amunicje do listy");
         }
     }
+
 
     private void addNewCaliber(Caliber caliber) {
         CaliberEntity caliberEntity = Mapping.map(caliber);
@@ -97,8 +111,8 @@ public class CaliberService {
         Integer integer = 0;
         for (int i = 0; i < members.size(); i++) {
             if (members.get(i).equals(memberEntity)) {
-                integer=integer+integers[i];
-                integers[i]=integer;
+                integer = integer + integers[i];
+                integers[i] = integer;
             }
         }
         Map<String, Integer> map1 = new HashMap<>();

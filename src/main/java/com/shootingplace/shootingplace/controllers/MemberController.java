@@ -125,5 +125,10 @@ public class MemberController {
         return memberService.getMembersWithPermissions();
     }
 
+    @GetMapping("/find")
+    public List<MemberEntity> findMemberByFirstName(@RequestParam String firstName,String secondName){
+        return memberService.findMemberByFirstName(firstName,secondName);
+    }
+
 
 }

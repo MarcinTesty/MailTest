@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +42,6 @@ public class PersonalEvidenceService {
             for (int j = 0; j < members.size(); j++) {
                 if (members.get(j).equals(memberEntity)) {
                     ammo = ammo + integers[j];
-                    integers[j] = ammo;
                 }
             }
             evidenceAmmo[i] = String.valueOf(ammo);
@@ -51,7 +49,7 @@ public class PersonalEvidenceService {
             ammo = 0;
 
         }
-        System.out.println(Arrays.toString(evidenceAmmo));
+        LOG.info("Zebrano dane o amunicji");
         personalEvidence.setAmmo(evidenceAmmo);
         personalEvidenceRepository.saveAndFlush(personalEvidence);
     }
