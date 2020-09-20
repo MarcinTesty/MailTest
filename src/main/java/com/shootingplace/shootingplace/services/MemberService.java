@@ -194,26 +194,40 @@ public class MemberService {
         return map;
     }
 
+    public List<String> getMembersNameAndUUID() {
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().forEach(e ->
+                list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
+        list.sort(Comparator.comparing(String::new));
+        LOG.info("Lista nazwisk z identyfikatorem");
+        return list;
+    }
+
     //--------------------------------------------------------------------------
     public UUID addNewMember(Member member) throws Exception {
         MemberEntity memberEntity = null;
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już na taki numer PESEL");
+            throw new Exception();
         }
         if (member.getEmail() == null || member.getEmail().isEmpty()) {
             member.setEmail("");
         }
 //        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
 //            LOG.error("Ktoś już ma taki adres e-mail");
+//        throw new Exception();
 //        }
         if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer legitymacji");
+            throw new Exception();
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
             LOG.error("Ktoś już ma taki numer telefonu");
+            throw new Exception();
         }
         if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
+            throw new Exception();
         } else {
             member.setIDCard(member.getIDCard().toUpperCase());
             if (member.getJoinDate() == null) {
@@ -515,7 +529,7 @@ public class MemberService {
             name1 = firstName.substring(0, 1).toUpperCase().concat(s.substring(1));
         }
         String name2 = secondName.toUpperCase();
-        LOG.info("Szukam Imię: "+name1 + " Nazwisko: "+name2 );
+        LOG.info("Szukam Imię: " + name1 + " Nazwisko: " + name2);
 
         return memberRepository.findAllByFirstNameOrSecondName(name1, name2);
 

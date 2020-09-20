@@ -24,10 +24,10 @@ public class CompetitionService {
 
     public List<CompetitionEntity> getAllCompetitions() {
         if (competitionRepository.findAll().isEmpty()) {
-            System.out.println(competitionRepository.findAll());
             createCompetitions();
             LOG.info("Została utworzone domyślne encje Konkurencji");
         }
+        System.out.println(competitionRepository.findAll());
         LOG.info("Wyświetlono listę Konkurencji");
         return competitionRepository.findAll();
 

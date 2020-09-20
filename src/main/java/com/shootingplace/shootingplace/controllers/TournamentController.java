@@ -33,16 +33,16 @@ public class TournamentController {
         return tournamentService.updateTournament(tournamentUUID,tournament);
     }
     @PutMapping("/addMember{tournamentUUID}")
-    public Boolean addMemberToTournament(@PathVariable UUID tournamentUUID,@RequestParam String memberLegitimation){
-        return tournamentService.addMemberToTournament(tournamentUUID,memberLegitimation);
+    public Boolean addMemberToTournament(@PathVariable UUID tournamentUUID,@RequestParam UUID memberUUID){
+        return tournamentService.addMemberToTournament(tournamentUUID,memberUUID);
     }
     @PatchMapping("/{tournamentUUID}")
     public Boolean closeTournament(@PathVariable UUID tournamentUUID){
         return tournamentService.closeTournament(tournamentUUID);
     }
     @PutMapping("/addMainArbiter{tournamentUUID}")
-    public void addMainArbiter(@PathVariable UUID tournamentUUID,@RequestParam String memberLegitimation){
-        tournamentService.addMainArbiter(tournamentUUID,memberLegitimation);
+    public void addMainArbiter(@PathVariable UUID tournamentUUID,@RequestParam UUID memberUUID){
+        tournamentService.addMainArbiter(tournamentUUID,memberUUID);
     }
     @PutMapping("/addRTSArbiter{tournamentUUID}")
     public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam String memberLegitimation){

@@ -8,7 +8,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -29,6 +31,10 @@ public class TournamentEntity {
     private MemberEntity commissionRTSArbiter;
     @OneToOne(orphanRemoval = true)
     private MemberEntity mainArbiter;
+    @ManyToMany
+    private List<MemberEntity> members  = new ArrayList<>();
+    @ManyToMany
+    private List<CompetitionEntity> competitions = new ArrayList<>();
     private Boolean open;
 
 

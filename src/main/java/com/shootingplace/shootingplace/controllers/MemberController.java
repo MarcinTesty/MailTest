@@ -73,6 +73,10 @@ public class MemberController {
         return memberService.getMembersWhoHaveValidLicenseAndNotValidContribution();
 
     }
+    @GetMapping("/getMembersNames")
+    public List<String> getMembersNames(){
+        return memberService.getMembersNameAndUUID();
+    }
 
     @PostMapping("/")
     public UUID addMember(@RequestBody @Valid Member member) {

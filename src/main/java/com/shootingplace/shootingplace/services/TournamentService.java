@@ -35,7 +35,7 @@ public class TournamentService {
     public UUID createNewTournament(Tournament tournament) {
         TournamentEntity tournamentEntity = Mapping.map(tournament);
 
-        if (tournament.getMainArbiter() == null) {
+        if (tournament.getMainArbiter() != null) {
             tournamentEntity.setMainArbiter(null);
         }
         if (tournament.getCommissionRTSArbiter() == null) {
@@ -44,10 +44,6 @@ public class TournamentService {
         if (tournament.getDate() == null) {
             tournamentEntity.setDate(LocalDate.now());
         }
-//        if (tournament.getCompetitionList() == null){
-//            List<CompetitionEntity> competitionEntities = competitionRepository.findAll();
-//            tournamentEntity.setCompetitionList(competitionEntities);
-//        }
 
         tournamentRepository.saveAndFlush(tournamentEntity);
         LOG.info("Stworzono nowe zawody z identyfikatorem : " + tournamentEntity.getUuid());
@@ -103,8 +99,8 @@ public class TournamentService {
         return true;
     }
 
-    public void addMainArbiter(UUID tournamentUUID, String memberLegitimation) {
-        MemberEntity memberEntity = memberRepository.findByLegitimationNumber(Integer.valueOf(memberLegitimation)).orElseThrow(EntityNotFoundException::new);
+    public void addMainArbiter(UUID tournamentUUID, UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
             Tournament tournament = Tournament.builder().mainArbiter(Mapping.map(memberEntity)).build();
             tournament.setMainArbiter(Mapping.map(memberEntity));
@@ -119,15 +115,15 @@ public class TournamentService {
         return list;
     }
 
-    public Boolean addMemberToTournament(UUID tournamentUUID, String memberLegitimation) {
+    public Boolean addMemberToTournament(UUID tournamentUUID, UUID memberUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID)
                 .orElseThrow(EntityNotFoundException::new);
-        MemberEntity memberEntity = memberRepository.findByLegitimationNumber(Integer.valueOf(memberLegitimation)).orElseThrow(EntityNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
 
-//        Set<MemberEntity> set = tournamentEntity.getMembers();
-//        set.add(memberEntity);
-//        tournamentEntity.setMembers(set);
+        List<MemberEntity> list = tournamentEntity.getMembers();
+        list.add(memberEntity);
+        tournamentEntity.setMembers(list);
 
         tournamentRepository.saveAndFlush(tournamentEntity);
 
