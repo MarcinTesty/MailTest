@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TournamentEntity {
+public class CompetitionMembersListEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -25,15 +24,8 @@ public class TournamentEntity {
     private UUID uuid;
 
     private String name;
-    private LocalDate date;
-
-    @OneToOne(orphanRemoval = true)
-    private MemberEntity commissionRTSArbiter;
-    @OneToOne(orphanRemoval = true)
-    private MemberEntity mainArbiter;
-    @OneToMany
-    private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
-    private Boolean open;
+    @ManyToMany
+    private List<MemberEntity> membersList = new ArrayList<>();
 
 
 }
