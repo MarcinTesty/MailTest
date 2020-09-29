@@ -153,20 +153,29 @@ public class TournamentService {
     }
 
     public void addNewCompetitionListToTournament(UUID tournamentUUID, UUID competitionUUID) {
-        System.out.println("jestem");
         if (competitionUUID != null) {
             TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
-
             CompetitionEntity competition = competitionRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
+            boolean exist = false;
+            if (!tournamentEntity.getCompetitionsList().isEmpty()) {
+                for (int i = 0; i < tournamentEntity.getCompetitionsList().size(); i++) {
+                    if (tournamentEntity.getCompetitionsList().get(i).getName().equals(competition.getName())) {
+                        exist = true;
+                    }
+                }
+            }
+// teraz walka tutaj by nie było możliwości dodania 2 razy tej samej konkurencji do zawodów
+            if (!exist) {
+                CompetitionMembersListEntity competitionMembersList = CompetitionMembersListEntity.builder()
+                        .name(competition.getName())
+                        .build();
+                competitionMembersListRepository.saveAndFlush(competitionMembersList);
+                List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();
+                competitionsList.add(competitionMembersList);
+                tournamentRepository.saveAndFlush(tournamentEntity);
+                LOG.info("Dodano konkurencję do zawodów");
+            }
 
-            CompetitionMembersListEntity competitionMembersList = CompetitionMembersListEntity.builder()
-                    .name(competition.getName())
-                    .build();
-            competitionMembersListRepository.saveAndFlush(competitionMembersList);
-            List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();
-            competitionsList.add(competitionMembersList);
-            tournamentRepository.saveAndFlush(tournamentEntity);
-            System.out.println("dodano");
         }
     }
 }
