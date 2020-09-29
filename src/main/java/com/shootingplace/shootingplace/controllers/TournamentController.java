@@ -44,14 +44,14 @@ public class TournamentController {
         return tournamentService.closeTournament(tournamentUUID);
     }
 
-    @PutMapping("/addMainArbiter{tournamentUUID}")
+    @PutMapping("/addMainArbiter/{tournamentUUID}")
     public void addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
         tournamentService.addMainArbiter(tournamentUUID, memberUUID);
     }
 
-    @PutMapping("/addRTSArbiter{tournamentUUID}")
-    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam String memberLegitimation) {
-        tournamentService.addRTSArbiter(tournamentUUID, memberLegitimation);
+    @PutMapping("/addRTSArbiter/{tournamentUUID}")
+    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        tournamentService.addRTSArbiter(tournamentUUID, memberUUID);
     }
 
     @PutMapping("/addCompetition{tournamentUUID}")

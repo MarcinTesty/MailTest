@@ -534,4 +534,17 @@ public class MemberService {
         return memberRepository.findAllByFirstNameOrSecondName(name1, name2);
 
     }
+
+    public List<String> getMembersNamesWithPermissions(Boolean arbiter) {
+
+        List<String> list = new ArrayList<>();
+        if (arbiter) {
+            memberRepository.findAll().forEach(e -> {
+                if (e.getMemberPermissions().getArbiterNumber() != null) {
+                    list.add(e.getFirstName().concat(" " + e.getSecondName() + " " + e.getMemberPermissions().getArbiterClass() + " " + e.getUuid()));
+                }
+            });
+        }
+        return list;
+    }
 }

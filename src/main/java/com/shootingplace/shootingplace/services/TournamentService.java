@@ -37,7 +37,7 @@ public class TournamentService {
     public UUID createNewTournament(Tournament tournament) {
         TournamentEntity tournamentEntity = Mapping.map(tournament);
 
-        if (tournament.getMainArbiter() != null) {
+        if (tournament.getMainArbiter() == null) {
             tournamentEntity.setMainArbiter(null);
         }
         if (tournament.getCommissionRTSArbiter() == null) {
@@ -74,41 +74,18 @@ public class TournamentService {
                 LOG.info("Ustawiono sędziego głównego");
             }
             if (tournament.getCommissionRTSArbiter() != null) {
-                MemberEntity memberEntity = memberRepository.findByLegitimationNumber(tournament.getMainArbiter().getLegitimationNumber()).orElseThrow(EntityNotFoundException::new);
+                MemberEntity memberEntity = memberRepository.findByLegitimationNumber(tournament.getCommissionRTSArbiter().getLegitimationNumber()).orElseThrow(EntityNotFoundException::new);
                 tournamentEntity.setCommissionRTSArbiter(memberEntity);
                 LOG.info("Ustawiono sędziego RTS");
             }
-//            if (tournament.getMap() !=null){
-//
-//            }
             tournamentRepository.saveAndFlush(tournamentEntity);
             return true;
         }
-//        if (){}
-//        private String name;
-//        private LocalDate date;
-//
-//        private String[] competitionList;
-//
-//        private Set<Member> members = new HashSet<>();
-//
-//        private Set<Member> lineArbiters = new HashSet<>();
-//
-//        private Member commissionRTSArbiter;
-//
-//        private Member mainArbiter;
-        LOG.warn("Zadody są już zamknięte i nie można już nic zrobić");
+
+        LOG.warn("Zawody są już zamknięte i nie można już nic zrobić");
         return true;
     }
 
-    public void addMainArbiter(UUID tournamentUUID, UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
-            Tournament tournament = Tournament.builder().mainArbiter(Mapping.map(memberEntity)).build();
-            tournament.setMainArbiter(Mapping.map(memberEntity));
-            updateTournament(tournamentUUID, tournament);
-        }
-    }
 
     public List<TournamentEntity> getListOfTournaments() {
         LOG.info("Wyświetlono listę zawodów");
@@ -142,12 +119,20 @@ public class TournamentService {
         }
         return false;
     }
+    public void addMainArbiter(UUID tournamentUUID, UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
+            Tournament tournament = Tournament.builder().mainArbiter(Mapping.map(memberEntity)).build();
+            tournament.setMainArbiter(Mapping.map(memberEntity));
+            updateTournament(tournamentUUID, tournament);
+        }
+    }
 
-    public void addRTSArbiter(UUID tournamentUUID, String memberLegitimation) {
-        MemberEntity memberEntity = memberRepository.findByLegitimationNumber(Integer.valueOf(memberLegitimation)).orElseThrow(EntityNotFoundException::new);
+    public void addRTSArbiter(UUID tournamentUUID, UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
             Tournament tournament = Tournament.builder().commissionRTSArbiter(Mapping.map(memberEntity)).build();
-            tournament.setMainArbiter(Mapping.map(memberEntity));
+            tournament.setCommissionRTSArbiter(Mapping.map(memberEntity));
             updateTournament(tournamentUUID, tournament);
         }
     }
@@ -164,7 +149,6 @@ public class TournamentService {
                     }
                 }
             }
-// teraz walka tutaj by nie było możliwości dodania 2 razy tej samej konkurencji do zawodów
             if (!exist) {
                 CompetitionMembersListEntity competitionMembersList = CompetitionMembersListEntity.builder()
                         .name(competition.getName())
