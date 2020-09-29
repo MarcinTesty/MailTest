@@ -292,4 +292,15 @@ class Mapping {
                 .ammo(e.getAmmo())
                 .build()).orElse(null);
     }
+
+    public static CompetitionMembersList map(CompetitionMembersListEntity c) {
+        return Optional.ofNullable(c).map(e -> CompetitionMembersList.builder()
+                .name(e.getName())
+                .build()).orElse(null);
+    }
+    public static CompetitionMembersListEntity map(CompetitionMembersList c) {
+        return Optional.ofNullable(c).map(e -> CompetitionMembersListEntity.builder()
+                .name(e.getName())
+                .build()).orElse(null);
+    }
 }

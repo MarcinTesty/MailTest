@@ -77,6 +77,15 @@ public class MemberController {
     public List<String> getMembersNames(){
         return memberService.getMembersNameAndUUID();
     }
+    @GetMapping("/getMembersWithPermissions")
+    public List<String> getMembersNamesWithPermissions(@RequestParam Boolean arbiter){
+        return memberService.getMembersNamesWithPermissions(arbiter);
+    }
+
+    @GetMapping("/memberswithpermissions")
+    public List<MemberEntity> getMembersWithPermissions(){
+        return memberService.getMembersWithPermissions();
+    }
 
     @PostMapping("/")
     public UUID addMember(@RequestBody @Valid Member member) {
@@ -122,11 +131,6 @@ public class MemberController {
     @GetMapping("/membersEmails")
     public String getMembersEmails(@RequestParam Boolean condition){
         return memberService.getAdultMembersEmails(condition);
-    }
-
-    @GetMapping("/memberswithpermissions")
-    public List<MemberEntity> getMembersWithPermissions(){
-        return memberService.getMembersWithPermissions();
     }
 
     @GetMapping("/find")

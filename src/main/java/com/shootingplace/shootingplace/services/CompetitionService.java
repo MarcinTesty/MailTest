@@ -27,7 +27,6 @@ public class CompetitionService {
             createCompetitions();
             LOG.info("Została utworzone domyślne encje Konkurencji");
         }
-        System.out.println(competitionRepository.findAll());
         LOG.info("Wyświetlono listę Konkurencji");
         return competitionRepository.findAll();
 

@@ -20,32 +20,42 @@ public class TournamentController {
     }
 
     @GetMapping("/list")
-    public List<TournamentEntity> getListOfTournaments(){
+    public List<TournamentEntity> getListOfTournaments() {
         return tournamentService.getListOfTournaments();
     }
 
     @PostMapping("/")
-    public UUID addNewTournament(@RequestBody Tournament tournament){
+    public UUID addNewTournament(@RequestBody Tournament tournament) {
         return tournamentService.createNewTournament(tournament);
     }
+
     @PutMapping("/{tournamentUUID}")
-    public Boolean updateTournament(@PathVariable UUID tournamentUUID,@RequestBody Tournament tournament){
-        return tournamentService.updateTournament(tournamentUUID,tournament);
+    public Boolean updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
+        return tournamentService.updateTournament(tournamentUUID, tournament);
     }
+
     @PutMapping("/addMember{tournamentUUID}")
-    public Boolean addMemberToTournament(@PathVariable UUID tournamentUUID,@RequestParam UUID memberUUID){
-        return tournamentService.addMemberToTournament(tournamentUUID,memberUUID);
+    public Boolean addMemberToCompetitionsMembersList(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        return tournamentService.addMemberToCompetitionMembersList(tournamentUUID, memberUUID);
     }
+
     @PatchMapping("/{tournamentUUID}")
-    public Boolean closeTournament(@PathVariable UUID tournamentUUID){
+    public Boolean closeTournament(@PathVariable UUID tournamentUUID) {
         return tournamentService.closeTournament(tournamentUUID);
     }
-    @PutMapping("/addMainArbiter{tournamentUUID}")
-    public void addMainArbiter(@PathVariable UUID tournamentUUID,@RequestParam UUID memberUUID){
-        tournamentService.addMainArbiter(tournamentUUID,memberUUID);
+
+    @PutMapping("/addMainArbiter/{tournamentUUID}")
+    public void addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        tournamentService.addMainArbiter(tournamentUUID, memberUUID);
     }
-    @PutMapping("/addRTSArbiter{tournamentUUID}")
-    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam String memberLegitimation){
-        tournamentService.addRTSArbiter(tournamentUUID,memberLegitimation);
+
+    @PutMapping("/addRTSArbiter/{tournamentUUID}")
+    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        tournamentService.addRTSArbiter(tournamentUUID, memberUUID);
+    }
+
+    @PutMapping("/addCompetition{tournamentUUID}")
+    public void addNewCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
+        tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID);
     }
 }
