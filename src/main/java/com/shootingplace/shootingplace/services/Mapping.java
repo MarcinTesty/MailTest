@@ -88,6 +88,7 @@ class Mapping {
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
                         .isValid(e.getIsValid())
+                        .canProlong(e.getCanProlong())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -101,6 +102,7 @@ class Mapping {
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
                         .isValid(e.getIsValid())
+                        .canProlong(e.getCanProlong())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -148,6 +150,9 @@ class Mapping {
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
                 .licensePaymentHistory(e.getLicensePaymentHistory())
+                .pistolCounter(e.getPistolCounter())
+                .rifleCounter(e.getRifleCounter())
+                .shotgunCounter(e.getShotgunCounter())
                 .build()).orElse(null);
     }
 
@@ -158,6 +163,9 @@ class Mapping {
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
                 .licensePaymentHistory(e.getLicensePaymentHistory())
+                .pistolCounter(e.getPistolCounter())
+                .rifleCounter(e.getRifleCounter())
+                .shotgunCounter(e.getShotgunCounter())
                 .build()).orElse(null);
     }
 
@@ -298,6 +306,7 @@ class Mapping {
                 .name(e.getName())
                 .build()).orElse(null);
     }
+
     public static CompetitionMembersListEntity map(CompetitionMembersList c) {
         return Optional.ofNullable(c).map(e -> CompetitionMembersListEntity.builder()
                 .name(e.getName())

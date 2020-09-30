@@ -183,6 +183,8 @@ public class LicenseService {
                         LOG.info("Dodano dyscyplinę : strzelba");
                     }
                 }
+                licenseEntity.setCanProlong(false);
+
                 licenseRepository.saveAndFlush(licenseEntity);
                 LOG.info("Przedłużono licencję");
                 return true;

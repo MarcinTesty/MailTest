@@ -94,21 +94,6 @@ public class TournamentService {
         return list;
     }
 
-    public Boolean addMemberToCompetitionMembersList(UUID tournamentUUID, UUID memberUUID) {
-        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID)
-                .orElseThrow(EntityNotFoundException::new);
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-
-
-//        List<MemberEntity> list = tournamentEntity.getMembers();
-//        list.add(memberEntity);
-//        tournamentEntity.setMembers(list);
-
-        tournamentRepository.saveAndFlush(tournamentEntity);
-
-        return true;
-    }
-
     public Boolean closeTournament(UUID tournamentUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.getOpen()) {
@@ -119,6 +104,7 @@ public class TournamentService {
         }
         return false;
     }
+
     public void addMainArbiter(UUID tournamentUUID, UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
@@ -148,10 +134,12 @@ public class TournamentService {
                         exist = true;
                     }
                 }
+                LOG.info("Nie można dodać konkurencji bo taka już istnieje w zawodach");
             }
             if (!exist) {
                 CompetitionMembersListEntity competitionMembersList = CompetitionMembersListEntity.builder()
                         .name(competition.getName())
+                        .attachedTo(tournamentEntity.getDate().toString().concat(" " + tournamentEntity.getName()))
                         .build();
                 competitionMembersListRepository.saveAndFlush(competitionMembersList);
                 List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();
