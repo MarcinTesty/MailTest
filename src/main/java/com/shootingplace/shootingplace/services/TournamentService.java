@@ -139,7 +139,8 @@ public class TournamentService {
             if (!exist) {
                 CompetitionMembersListEntity competitionMembersList = CompetitionMembersListEntity.builder()
                         .name(competition.getName())
-                        .attachedTo(tournamentEntity.getDate().toString().concat(" " + tournamentEntity.getName()))
+                        .attachedTo(tournamentEntity.getName())
+                        .date(tournamentEntity.getDate())
                         .build();
                 competitionMembersListRepository.saveAndFlush(competitionMembersList);
                 List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();
