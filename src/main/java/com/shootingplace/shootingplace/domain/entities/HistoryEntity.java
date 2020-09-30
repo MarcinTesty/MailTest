@@ -1,12 +1,14 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,5 +32,6 @@ public class HistoryEntity {
     private Integer pistolCounter = 0;
     private Integer rifleCounter = 0;
     private Integer shotgunCounter = 0;
-    private String[] competitionHistory;
+    @OneToMany
+    private List<CompetitionHistoryEntity> competitionHistory;
 }

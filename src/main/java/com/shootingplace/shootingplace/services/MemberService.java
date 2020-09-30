@@ -65,17 +65,16 @@ public class MemberService {
             if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
                     || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
                     && e.getActive()) {
-                activateOrDeactivateMember(e.getUuid());
+                e.setActive(false);
                 memberRepository.save(e);
                 LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+                    && !e.getActive()) {
+                e.setActive(true);
+                memberRepository.save(e);
+                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
             }
-//            else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && !e.getActive()) {
-//                activateOrDeactivateMember(e.getUuid());
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-//            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setIsValid(false);
@@ -84,12 +83,14 @@ public class MemberService {
                 }
             }
 //            reset startów po nowym roku
-            if (e.getLicense().getNumber() != null) {
-                if (!e.getLicense().getCanProlong() && LocalDate.now().isAfter(e.getLicense().getValidThru())) {
-                    e.getHistory().setPistolCounter(0);
-                    e.getHistory().setRifleCounter(0);
-                    e.getHistory().setShotgunCounter(0);
-                }
+            LocalDate date = LocalDate.of(2020, 12, 31);
+            if (LocalDate.now().isAfter(date)) {
+                e.getHistory().setPistolCounter(0);
+                e.getHistory().setRifleCounter(0);
+                e.getHistory().setShotgunCounter(0);
+                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
+                LOG.info("zresetowano licznik zawodów");
+
             }
         });
         List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase));
@@ -396,7 +397,7 @@ public class MemberService {
         if (memberRepository.existsById(uuid)) {
             MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
             LOG.info("Zmieniono status " + memberEntity.getFirstName());
-            memberEntity.setActive(false);
+            memberEntity.setActive(!memberEntity.getActive());
             memberRepository.saveAndFlush(memberEntity);
             return true;
         } else

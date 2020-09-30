@@ -6,16 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CompetitionMembersList {
+public class CompetitionHistory {
 
     private String name;
-    private String attachedTo;
+
+    private String discipline;
+
     private LocalDate date;
-
-
 }
