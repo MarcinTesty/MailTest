@@ -3,7 +3,6 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.CompetitionMembersListEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.repositories.CompetitionMembersListRepository;
-import com.shootingplace.shootingplace.repositories.CompetitionRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,14 +17,14 @@ public class CompetitionMembersListService {
 
     private final MemberRepository memberRepository;
     private final CompetitionMembersListRepository competitionMembersListRepository;
-    private final CompetitionRepository competitionRepository;
+    private final HistoryService historyService;
     private final Logger LOG = LogManager.getLogger();
 
 
-    public CompetitionMembersListService(MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, CompetitionRepository competitionRepository) {
+    public CompetitionMembersListService(MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, HistoryService historyService) {
         this.memberRepository = memberRepository;
         this.competitionMembersListRepository = competitionMembersListRepository;
-        this.competitionRepository = competitionRepository;
+        this.historyService = historyService;
     }
 
     public void addMemberToCompetitionList(UUID competitionUUID, UUID memberUUID) {
@@ -36,6 +35,7 @@ public class CompetitionMembersListService {
             membersList.add(member);
             competitionMembersListRepository.saveAndFlush(list);
             LOG.info("Dodano Klubowicza do Listy");
+            historyService.addCompetitionRecord(memberUUID,list);
         } else {
             LOG.info("Nie można dodać bo klubowicz już się znajduje na liście");
         }

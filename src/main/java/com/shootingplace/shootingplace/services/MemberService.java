@@ -83,6 +83,14 @@ public class MemberService {
                     LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
                 }
             }
+//            reset startów po nowym roku
+            if (e.getLicense().getNumber() != null) {
+                if (!e.getLicense().getCanProlong() && LocalDate.now().isAfter(e.getLicense().getValidThru())) {
+                    e.getHistory().setPistolCounter(0);
+                    e.getHistory().setRifleCounter(0);
+                    e.getHistory().setShotgunCounter(0);
+                }
+            }
         });
         List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase));
         String c = "aktywnych";
@@ -277,6 +285,7 @@ public class MemberService {
                         .riflePermission(false)
                         .shotgunPermission(false)
                         .isValid(false)
+                        .canProlong(false)
                         .club("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build();
                 licenseService.addLicenseToMember(memberEntity.getUuid(), license);

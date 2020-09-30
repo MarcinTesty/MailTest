@@ -33,6 +33,8 @@ public class LicenseEntity {
 
     private Boolean isValid;
 
+    private Boolean canProlong = false;
+
 
     private String club;
 }

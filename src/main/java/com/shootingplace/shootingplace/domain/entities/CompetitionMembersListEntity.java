@@ -24,6 +24,7 @@ public class CompetitionMembersListEntity {
     private UUID uuid;
 
     private String name;
+    private String attachedTo;
     @ManyToMany
     private List<MemberEntity> membersList = new ArrayList<>();
 

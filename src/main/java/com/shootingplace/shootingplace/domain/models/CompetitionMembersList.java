@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class CompetitionMembersList {
 
     private String name;
+    private String attachedTo;
+
 }

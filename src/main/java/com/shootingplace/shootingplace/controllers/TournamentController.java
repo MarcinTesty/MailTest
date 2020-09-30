@@ -34,11 +34,6 @@ public class TournamentController {
         return tournamentService.updateTournament(tournamentUUID, tournament);
     }
 
-    @PutMapping("/addMember{tournamentUUID}")
-    public Boolean addMemberToCompetitionsMembersList(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        return tournamentService.addMemberToCompetitionMembersList(tournamentUUID, memberUUID);
-    }
-
     @PatchMapping("/{tournamentUUID}")
     public Boolean closeTournament(@PathVariable UUID tournamentUUID) {
         return tournamentService.closeTournament(tournamentUUID);
