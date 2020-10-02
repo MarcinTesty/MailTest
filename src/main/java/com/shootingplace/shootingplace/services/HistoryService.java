@@ -222,9 +222,9 @@ public class HistoryService {
             competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
             competitionHistory.add(competitionHistoryEntity);
             competitionHistory.sort(Comparator.comparing(CompetitionHistoryEntity::getDate));
+            reverse(competitionHistory);
             historyEntity.setCompetitionHistory(competitionHistory);
 
-//            if (memberEntity.getLicense().getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 12, 31))) {
             if (list.getName().toUpperCase().startsWith("P")) {
                 Integer pistolCounter = historyEntity.getPistolCounter() + 1;
                 historyEntity.setPistolCounter(pistolCounter);
@@ -236,54 +236,29 @@ public class HistoryService {
             if (list.getName().toUpperCase().startsWith("S")) {
                 Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
                 historyEntity.setShotgunCounter(shotgunCounter);
-//                }
             }
 
             LOG.info("Dodano wpis w historii startów");
             historyRepository.saveAndFlush(historyEntity);
-//        } else {
-//            List<CompetitionHistoryEntity> competitionHistory = new ArrayList<>();
-//            CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedTo(), list.getDate(), list.getName().toUpperCase().substring(0, 1));
-//            competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
-//            competitionHistory.add(competitionHistoryEntity);
-//            historyEntity.setCompetitionHistory(competitionHistory);
-
-//            String[] newState = new String[1];
-//            newState[0] = list.getAttachedTo().concat(" " + list.getName().toUpperCase().substring(0, 1));
-//            sort(newState);
-//            reverse(newState);
-//            historyEntity.setCompetitionHistory(newState);
-//            if (memberEntity.getLicense().getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 12, 31))) {
-//            if (list.getName().toUpperCase().startsWith("P")) {
-//                Integer pistolCounter = historyEntity.getPistolCounter() + 1;
-//                historyEntity.setPistolCounter(pistolCounter);
-//            }
-//            if (list.getName().toUpperCase().startsWith("K")) {
-//                Integer rifleCounter = historyEntity.getRifleCounter() + 1;
-//                historyEntity.setRifleCounter(rifleCounter);
-//            }
-//            if (list.getName().toUpperCase().startsWith("S")) {
-//                Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
-//                historyEntity.setShotgunCounter(shotgunCounter);
-////                }
-//            }
-//
-//            LOG.info("Dodano wpis w historii startów");
-//            historyRepository.saveAndFlush(historyEntity);
         }
 
-        if (!memberEntity.getLicense().getCanProlong() && (historyEntity.getPistolCounter() >= 4 || historyEntity.getRifleCounter() >= 4 || historyEntity.getShotgunCounter() >= 4)) {
-            if (historyEntity.getPistolCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 && historyEntity.getShotgunCounter() >= 2)) {
+        if (historyEntity.getPistolCounter() >= 4 || historyEntity.getRifleCounter() >= 4 || historyEntity.getShotgunCounter() >= 4) {
+            if (historyEntity.getPistolCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
+                System.out.println("może przedłużyć licencję");
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
             }
-            if (historyEntity.getRifleCounter() >= 4 && (historyEntity.getPistolCounter() >= 2 && historyEntity.getShotgunCounter() >= 2)) {
+            if (historyEntity.getRifleCounter() >= 4 && (historyEntity.getPistolCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
+                System.out.println("może przedłużyć licencję");
+
             }
-            if (historyEntity.getShotgunCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 && historyEntity.getPistolCounter() >= 2)) {
+            if (historyEntity.getShotgunCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getPistolCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
+                System.out.println("może przedłużyć licencję");
+
             }
         }
     }
@@ -311,7 +286,7 @@ public class HistoryService {
         Arrays.sort(array);
     }
 
-    private void reverse(String[] array) {
-        Collections.reverse(Arrays.asList(array));
+    private void reverse(List array) {
+        Collections.reverse(array);
     }
 }

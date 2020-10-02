@@ -119,8 +119,6 @@ public class LicenseService {
                 LOG.info("Dodano dyscyplinę : strzelba");
             }
         }
-        LocalDate localDate = license.getValidThru();
-        System.out.println(localDate);
         if (license.getValidThru() != null) {
             licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
             LOG.info("zaktualizowano datę licencji");
