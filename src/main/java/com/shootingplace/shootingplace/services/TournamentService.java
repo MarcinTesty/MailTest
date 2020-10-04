@@ -5,10 +5,7 @@ import com.shootingplace.shootingplace.domain.entities.CompetitionMembersListEnt
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
-import com.shootingplace.shootingplace.repositories.CompetitionMembersListRepository;
-import com.shootingplace.shootingplace.repositories.CompetitionRepository;
-import com.shootingplace.shootingplace.repositories.MemberRepository;
-import com.shootingplace.shootingplace.repositories.TournamentRepository;
+import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -24,14 +21,16 @@ public class TournamentService {
     private final MemberRepository memberRepository;
     private final CompetitionMembersListRepository competitionMembersListRepository;
     private final CompetitionRepository competitionRepository;
+    private final HistoryService historyService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public TournamentService(TournamentRepository tournamentRepository, MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, CompetitionRepository competitionRepository) {
+    public TournamentService(TournamentRepository tournamentRepository, MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, CompetitionRepository competitionRepository, HistoryService historyService) {
         this.tournamentRepository = tournamentRepository;
         this.memberRepository = memberRepository;
         this.competitionMembersListRepository = competitionMembersListRepository;
         this.competitionRepository = competitionRepository;
+        this.historyService = historyService;
     }
 
     public UUID createNewTournament(Tournament tournament) {
@@ -111,6 +110,8 @@ public class TournamentService {
             Tournament tournament = Tournament.builder().mainArbiter(Mapping.map(memberEntity)).build();
             tournament.setMainArbiter(Mapping.map(memberEntity));
             updateTournament(tournamentUUID, tournament);
+            LOG.info("Ustawiono sędziego głównego zawodów");
+            historyService.addJudgingRecord(memberUUID, tournamentUUID);
         }
     }
 
@@ -120,6 +121,21 @@ public class TournamentService {
             Tournament tournament = Tournament.builder().commissionRTSArbiter(Mapping.map(memberEntity)).build();
             tournament.setCommissionRTSArbiter(Mapping.map(memberEntity));
             updateTournament(tournamentUUID, tournament);
+            LOG.info("Ustawiono sędziego komisji obliczeniowej");
+            historyService.addJudgingRecord(memberUUID, tournamentUUID);
+        }
+    }
+
+    public void addOthersArbiters(UUID tournamentUUID, UUID memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
+            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+            Set<MemberEntity> arbitersList = tournamentEntity.getArbitersList();
+            arbitersList.add(memberEntity);
+            tournamentEntity.setArbitersList(arbitersList);
+            tournamentRepository.saveAndFlush(tournamentEntity);
+            LOG.info("ustawiono sędziego z pozostałymi funkcjami");
+            historyService.addJudgingRecord(memberUUID, tournamentUUID);
         }
     }
 

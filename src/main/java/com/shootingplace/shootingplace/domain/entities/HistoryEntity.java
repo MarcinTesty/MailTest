@@ -34,4 +34,7 @@ public class HistoryEntity {
     private Integer shotgunCounter = 0;
     @OneToMany
     private List<CompetitionHistoryEntity> competitionHistory;
+
+    @ManyToMany
+    private List<JudgingHistoryEntity> judgingHistory;
 }

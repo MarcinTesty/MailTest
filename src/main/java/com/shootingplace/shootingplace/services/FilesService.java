@@ -269,8 +269,7 @@ public class FilesService {
         if (memberEntity.getAdult()) {
             p12.add("Numer Dowodu Osobistego : ");
         } else {
-            p12.add("Numer Legitymacji Szkolnej / Numer Dowodu Osobistego : ")
-            ;
+            p12.add("Numer Legitymacji Szkolnej / Numer Dowodu Osobistego : ");
         }
         p12.add(p13);
         p12.add("\n\n\n");

@@ -48,6 +48,10 @@ public class TournamentController {
     public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
         tournamentService.addRTSArbiter(tournamentUUID, memberUUID);
     }
+    @PutMapping("/addOthersArbiters/{tournamentUUID}")
+    public void addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID){
+        tournamentService.addOthersArbiters(tournamentUUID, memberUUID);
+    }
 
     @PutMapping("/addCompetition{tournamentUUID}")
     public void addNewCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {

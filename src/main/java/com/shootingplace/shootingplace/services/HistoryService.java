@@ -1,14 +1,8 @@
 package com.shootingplace.shootingplace.services;
 
-import com.shootingplace.shootingplace.domain.entities.CompetitionHistoryEntity;
-import com.shootingplace.shootingplace.domain.entities.CompetitionMembersListEntity;
-import com.shootingplace.shootingplace.domain.entities.HistoryEntity;
-import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.History;
-import com.shootingplace.shootingplace.repositories.CompetitionHistoryRepository;
-import com.shootingplace.shootingplace.repositories.HistoryRepository;
-import com.shootingplace.shootingplace.repositories.LicenseRepository;
-import com.shootingplace.shootingplace.repositories.MemberRepository;
+import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -24,14 +18,18 @@ public class HistoryService {
     private final MemberRepository memberRepository;
     private final LicenseRepository licenseRepository;
     private final CompetitionHistoryRepository competitionHistoryRepository;
+    private final TournamentRepository tournamentRepository;
+    private final JudgingHistoryRepository judgingHistoryRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository) {
+    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository, TournamentRepository tournamentRepository, JudgingHistoryRepository judgingHistoryRepository) {
         this.historyRepository = historyRepository;
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
         this.competitionHistoryRepository = competitionHistoryRepository;
+        this.tournamentRepository = tournamentRepository;
+        this.judgingHistoryRepository = judgingHistoryRepository;
     }
 
     void createHistory(UUID memberUUID, History history) {
@@ -51,15 +49,13 @@ public class HistoryService {
     }
 
 
-    CompetitionHistoryEntity createCompetitionHistoryEntity(String name,LocalDate date,String discipline) {
+    private CompetitionHistoryEntity createCompetitionHistoryEntity(String name, LocalDate date, String discipline) {
 
-
-        CompetitionHistoryEntity competitionHistoryEntity = CompetitionHistoryEntity.builder()
+        return CompetitionHistoryEntity.builder()
                 .name(name)
                 .date(date)
                 .discipline(discipline)
                 .build();
-        return competitionHistoryEntity;
 
     }
 
@@ -261,6 +257,77 @@ public class HistoryService {
 
             }
         }
+    }
+
+    void addJudgingRecord(UUID memberUUID, UUID tournamentUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid()).orElseThrow(EntityNotFoundException::new);
+        List<JudgingHistoryEntity> judgingHistory = historyEntity.getJudgingHistory();
+        JudgingHistoryEntity judgingHistoryEntity = JudgingHistoryEntity.builder()
+                .date(tournamentEntity.getDate())
+                .name(tournamentEntity.getName())
+                .function(null)
+                .tournamentUUID(tournamentUUID)
+                .build();
+        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getCommissionRTSArbiter().equals(memberEntity)) {
+            boolean isExist = false;
+            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
+                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
+                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Komisji Obliczeniowej")){
+                        isExist=true;
+                    }
+                }
+            }
+            if (isExist==false) {
+                judgingHistoryEntity.setFunction("Sędzia Komisji Obliczeniowej");
+                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
+                judgingHistory.add(judgingHistoryEntity);
+                LOG.info("Dodano Sędziego Komisji Obliczeniowej");
+            } else{
+                LOG.info("nie można już dodać");
+            }
+        }
+        if (tournamentEntity.getMainArbiter() != null && tournamentEntity.getMainArbiter().equals(memberEntity)) {
+            boolean isExist = false;
+            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
+                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
+                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Główny zawodów")){
+                        isExist=true;
+                    }
+                }
+            }
+            if (isExist==false) {
+                judgingHistoryEntity.setFunction("Sędzia Główny zawodów");
+                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
+                judgingHistory.add(judgingHistoryEntity);
+                LOG.info("Dodano Sędziego Głównego");
+            } else{
+                LOG.info("nie można już dodać");
+            }
+        }
+        if (tournamentEntity.getArbitersList().contains(memberEntity)) {
+            boolean isExist = false;
+            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
+                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
+                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Inna funkcja sędziowska")){
+                        isExist=true;
+                    }
+                }
+            }
+            if (isExist==false) {
+                judgingHistoryEntity.setFunction("Inna funkcja sędziowska");
+                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
+                judgingHistory.add(judgingHistoryEntity);
+                LOG.info("Dodano sędziego z inną funkcją");
+            } else{
+                LOG.info("nie można już dodać");
+            }
+        }
+        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate));
+        Collections.reverse(judgingHistory);
+        historyRepository.saveAndFlush(historyEntity);
+
     }
 
     private LocalDate[] selectionSort(LocalDate[] array) {
