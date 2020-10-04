@@ -245,14 +245,15 @@ public class MemberService {
             }
             if (member.getLegitimationNumber() == null) {
                 List<MemberEntity> numberList = new ArrayList<>(memberRepository.findAll());
-                numberList.sort(Comparator.comparing(MemberEntity::getSecondName));
+                numberList.sort(Comparator.comparing(MemberEntity::getLegitimationNumber));
+                Collections.reverse(numberList);
                 Integer number = numberList.get(0).getLegitimationNumber() + 1;
-                member.setLegitimationNumber(number);
                 if (memberRepository.findByLegitimationNumber(number).isPresent()) {
                     LOG.error("Ktoś już ma taki numer legitymacji");
-                    throw new Exception();
+                } else {
+                    member.setLegitimationNumber(number);
+                    LOG.info("ustawiono domyślny numer legitymacji : " + member.getLegitimationNumber());
                 }
-                LOG.info("ustawiono domyślny numer legitymacji : " + member.getLegitimationNumber());
             }
             String s = "+48";
             if (member.getPhoneNumber() != null) {

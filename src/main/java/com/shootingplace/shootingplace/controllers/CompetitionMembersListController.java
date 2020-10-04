@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.controllers;
 
-import com.shootingplace.shootingplace.repositories.CompetitionRepository;
 import com.shootingplace.shootingplace.services.CompetitionMembersListService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +11,9 @@ import java.util.UUID;
 public class CompetitionMembersListController {
 
     private final CompetitionMembersListService competitionMembersListService;
-    private final CompetitionRepository competitionRepository;
 
-    public CompetitionMembersListController(CompetitionMembersListService competitionMembersListService, CompetitionRepository competitionRepository) {
+    public CompetitionMembersListController(CompetitionMembersListService competitionMembersListService) {
         this.competitionMembersListService = competitionMembersListService;
-        this.competitionRepository = competitionRepository;
     }
 
     @PutMapping("/addMember")
