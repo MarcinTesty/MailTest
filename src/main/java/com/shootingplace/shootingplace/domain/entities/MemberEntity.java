@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace.domain.entities;
 
+import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.repository.query.Param;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,7 +21,6 @@ import java.util.UUID;
 
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -58,7 +59,7 @@ public class MemberEntity {
     private WeaponPermissionEntity weaponPermission;
     @OneToOne(orphanRemoval = true)
     private ContributionEntity contribution;
-    private Boolean active = false;
+    private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
 
@@ -76,4 +77,184 @@ public class MemberEntity {
 
     @OneToOne(orphanRemoval = true)
     private FilesEntity personalCardFile;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public LocalDate getJoinDate() {
+        return joinDate;
+    }
+
+    public void setJoinDate(LocalDate joinDate) {
+        this.joinDate = joinDate;
+    }
+
+    public Integer getLegitimationNumber() {
+        return legitimationNumber;
+    }
+
+    public void setLegitimationNumber(Integer legitimationNumber) {
+        this.legitimationNumber = legitimationNumber;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getSecondName() {
+        return secondName;
+    }
+
+    public void setSecondName(String secondName) {
+        this.secondName = secondName;
+    }
+
+    public LicenseEntity getLicense() {
+        return license;
+    }
+
+    public void setLicense(LicenseEntity license) {
+        this.license = license;
+    }
+
+    public ShootingPatentEntity getShootingPatent() {
+        return shootingPatent;
+    }
+
+    public void setShootingPatent(ShootingPatentEntity shootingPatent) {
+        this.shootingPatent = shootingPatent;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPesel() {
+        return pesel;
+    }
+
+    public void setPesel(String pesel) {
+        this.pesel = pesel;
+    }
+
+    public String getIDCard() {
+        return IDCard;
+    }
+
+    public void setIDCard(String IDCard) {
+        this.IDCard = IDCard;
+    }
+
+    public AddressEntity getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressEntity address) {
+        this.address = address;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public WeaponPermissionEntity getWeaponPermission() {
+        return weaponPermission;
+    }
+
+    public void setWeaponPermission(WeaponPermissionEntity weaponPermission) {
+        this.weaponPermission = weaponPermission;
+    }
+
+    public ContributionEntity getContribution() {
+        return contribution;
+    }
+
+    public void setContribution(ContributionEntity contribution) {
+        this.contribution = contribution;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+    public void setActive(boolean active){
+        this.active = active;
+    }
+
+    public void toggleActive() {
+        this.active = !this.active;
+    }
+
+    public Boolean getAdult() {
+        return adult;
+    }
+
+    public void toggleAdult() {
+        this.adult = true;
+    }
+
+    public Boolean getErased() {
+        return erased;
+    }
+
+    public void toggleErase() {
+        this.erased = !this.erased;
+    }
+
+    public HistoryEntity getHistory() {
+        return history;
+    }
+
+    public void setHistory(HistoryEntity history) {
+        this.history = history;
+    }
+
+    public MemberPermissionsEntity getMemberPermissions() {
+        return memberPermissions;
+    }
+
+    public void setMemberPermissions(MemberPermissionsEntity memberPermissions) {
+        this.memberPermissions = memberPermissions;
+    }
+
+    public PersonalEvidenceEntity getPersonalEvidence() {
+        return personalEvidence;
+    }
+
+    public void setPersonalEvidence(PersonalEvidenceEntity personalEvidence) {
+        this.personalEvidence = personalEvidence;
+    }
+
+    public FilesEntity getContributionFile() {
+        return contributionFile;
+    }
+
+    public void setContributionFile(FilesEntity contributionFile) {
+        this.contributionFile = contributionFile;
+    }
+
+    public FilesEntity getPersonalCardFile() {
+        return personalCardFile;
+    }
+
+    public void setPersonalCardFile(FilesEntity personalCardFile) {
+        this.personalCardFile = personalCardFile;
+    }
+
 }

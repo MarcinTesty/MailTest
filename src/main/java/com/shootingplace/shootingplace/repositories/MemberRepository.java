@@ -23,7 +23,7 @@ public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
 
     Optional<MemberEntity> findByIDCard(String IDCard);
 
-    List<MemberEntity> findAllByErased(Boolean erased);
+    List<MemberEntity> findAllByErasedIsTrue();
 
     List<MemberEntity> findAllByFirstNameOrSecondName(String firstName,String secondName);
 

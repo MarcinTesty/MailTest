@@ -1,13 +1,23 @@
 package com.shootingplace.shootingplace.controllers;
 
 
+import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,83 +33,52 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("/list")
-    public Map<UUID, Member> getMembers() {
-        return memberService.getMembers();
-    }
-
     @GetMapping("/activelist")
-    public List<MemberEntity> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
-        return memberService.getActiveMembersList(active, adult, erase);
+    public ResponseEntity<List<MemberEntity>> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
+        return ResponseEntity.ok(memberService.getMembersList(active, adult, erase));
     }
 
     @GetMapping("/erased")
-    public List<MemberEntity> getErasedMembers(@RequestParam Boolean erased) {
-        return memberService.getErasedMembers(erased);
+    public ResponseEntity<List<MemberEntity>> getErasedMembers() {
+        return ResponseEntity.ok(memberService.getErasedMembers());
     }
 
     @GetMapping("/license")
-    public Map<String, String> getMemberWithLicenseNumberEqualsNotNull() {
-        return memberService.getMembersNamesWithLicenseNumberEqualsNotNull();
+    public ResponseEntity<List<String>> getMemberWithLicense(@RequestParam Boolean license) {
+        return ResponseEntity.ok(memberService.getMembersWithLicense(license));
     }
 
-    @GetMapping("/licensebefore")
-    public Map<String, String> getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore() {
-        return memberService.getMembersNamesWithLicenseNumberEqualsNotNullAndValidThruIsBefore();
-    }
-
-    @GetMapping("/licensenone")
-    public List<String> getMembersNamesWithoutLicense() {
-        return memberService.getMembersNamesWithoutLicense();
-    }
-
-    @GetMapping("/contribution")
-    public Map<String, String> getMembersAndTheirsContribution() {
-        return memberService.getMembersAndTheirsContribution();
-    }
-
-    @GetMapping("/contributionafter")
-    public Map<String, String> getMembersAndTheirsContributionIsValid() {
-        return memberService.getMembersAndTheirsContributionIsValid();
-    }
-
-    @GetMapping("/contributionbefore")
-    public Map<String, String> getMembersAndTheirsContributionIsNotValid() {
-        return memberService.getMembersAndTheirsContributionIsNotValid();
-    }
-
-    @GetMapping("/licensewithoutcontribution")
-    public Map<String, String> getMembersWhoHaveValidLicenseAndNotValidContribution() {
-        return memberService.getMembersWhoHaveValidLicenseAndNotValidContribution();
-
-    }
     @GetMapping("/getMembersNames")
-    public List<String> getMembersNames(){
-        return memberService.getMembersNameAndUUID();
-    }
-    @GetMapping("/getMembersWithPermissions")
-    public List<String> getMembersNamesWithPermissions(@RequestParam Boolean arbiter){
-        return memberService.getMembersNamesWithPermissions(arbiter);
+    public List<String> getMembersNames(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
+        return memberService.getMembersNameAndUUID(active, adult, erase);
     }
 
     @GetMapping("/memberswithpermissions")
-    public List<MemberEntity> getMembersWithPermissions(){
+    public List<Member> getMembersWithPermissions() {
         return memberService.getMembersWithPermissions();
     }
 
+    @Transactional
     @PostMapping("/")
-    public UUID addMember(@RequestBody @Valid Member member) {
+    public ResponseEntity<?> addMember(@RequestBody @Valid Member member) {
+        ResponseEntity<?> result;
         try {
-            return memberService.addNewMember(member);
-        } catch (Exception e) {
-            e.printStackTrace();
+            result = memberService.addNewMember(member);
+        } catch (IOException | DocumentException | IllegalArgumentException e) {
+            result = ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        return null;
+        return result;
     }
 
     @PutMapping("/{uuid}")
-    public void updateMember(@PathVariable UUID uuid, @RequestBody Member member) {
-        memberService.updateMember(uuid, member);
+    ResponseEntity<?> updateMember(@PathVariable UUID uuid, @RequestBody @Valid Member member) {
+        return memberService.updateMember(uuid, member);
+    }
+
+    @Transactional
+    @PutMapping("/date/{uuid}")
+    ResponseEntity<?> updateJoinDate(@PathVariable UUID uuid, @RequestParam String date) {
+        return memberService.updateJoinDate(uuid, date);
     }
 
     @DeleteMapping("/{uuid}")
@@ -108,9 +87,9 @@ public class MemberController {
         return memberService.deleteMember(uuid);
     }
 
-    @PatchMapping("/{uuid}")
-    public boolean activateOrDeactivateMember(@PathVariable UUID uuid) {
-        return memberService.activateOrDeactivateMember(uuid);
+    @DeleteMapping("/hard/{uuid}")
+    public String hardDeleteMember(@PathVariable UUID uuid) {
+        return memberService.hardDelete(uuid);
     }
 
     @PutMapping("/weapon/{uuid}")
@@ -118,24 +97,25 @@ public class MemberController {
         return memberService.changeWeaponPermission(uuid, weaponPermission);
     }
 
+    @Transactional
     @PatchMapping("/adult/{uuid}")
-    public boolean changeAdult(@PathVariable UUID uuid) {
+    ResponseEntity<?> changeAdult(@PathVariable UUID uuid) {
         return memberService.changeAdult(uuid);
     }
 
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<?> activateOrDeactivateMember(@PathVariable UUID uuid) {
+        return memberService.activateOrDeactivateMember(uuid);
+    }
+
     @PatchMapping("/erase/{uuid}")
-    public boolean eraseMember(@PathVariable UUID uuid) {
+    ResponseEntity<?> eraseMember(@PathVariable UUID uuid) {
         return memberService.eraseMember(uuid);
     }
 
     @GetMapping("/membersEmails")
-    public String getMembersEmails(@RequestParam Boolean condition){
+    public String getMembersEmails(@RequestParam Boolean condition) {
         return memberService.getAdultMembersEmails(condition);
-    }
-
-    @GetMapping("/find")
-    public List<MemberEntity> findMemberByFirstName(@RequestParam String firstName,String secondName){
-        return memberService.findMemberByFirstName(firstName,secondName);
     }
 
 
