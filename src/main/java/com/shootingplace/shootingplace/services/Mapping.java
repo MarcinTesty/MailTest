@@ -28,7 +28,6 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
-                .personalEvidence(map(e.getPersonalEvidence()))
                 .build();
     }
 
@@ -52,7 +51,6 @@ class Mapping {
                 .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
-                .personalEvidence(map(e.getPersonalEvidence()))
                 .build();
     }
 

@@ -58,6 +58,11 @@ public class MemberController {
         return memberService.getMembersWithPermissions();
     }
 
+    @GetMapping("/membersEmails")
+    public String getMembersEmails(@RequestParam Boolean condition) {
+        return memberService.getAdultMembersEmails(condition);
+    }
+
     @Transactional
     @PostMapping("/")
     public ResponseEntity<?> addMember(@RequestBody @Valid Member member) {
@@ -81,6 +86,11 @@ public class MemberController {
         return memberService.updateJoinDate(uuid, date);
     }
 
+    @PutMapping("/weapon/{uuid}")
+    public boolean changeWeaponPermission(@PathVariable UUID uuid, @RequestBody WeaponPermission weaponPermission) {
+        return memberService.changeWeaponPermission(uuid, weaponPermission);
+    }
+
     @DeleteMapping("/{uuid}")
     public boolean deleteMember(@PathVariable UUID uuid) {
 
@@ -92,10 +102,6 @@ public class MemberController {
         return memberService.hardDelete(uuid);
     }
 
-    @PutMapping("/weapon/{uuid}")
-    public boolean changeWeaponPermission(@PathVariable UUID uuid, @RequestBody WeaponPermission weaponPermission) {
-        return memberService.changeWeaponPermission(uuid, weaponPermission);
-    }
 
     @Transactional
     @PatchMapping("/adult/{uuid}")
@@ -111,11 +117,6 @@ public class MemberController {
     @PatchMapping("/erase/{uuid}")
     ResponseEntity<?> eraseMember(@PathVariable UUID uuid) {
         return memberService.eraseMember(uuid);
-    }
-
-    @GetMapping("/membersEmails")
-    public String getMembersEmails(@RequestParam Boolean condition) {
-        return memberService.getAdultMembersEmails(condition);
     }
 
 
