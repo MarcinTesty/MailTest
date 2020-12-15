@@ -67,16 +67,6 @@ public class TournamentService {
                 tournamentEntity.setDate(tournament.getDate());
                 LOG.info("Zmieniono datę zawodów");
             }
-            if (tournament.getMainArbiter() != null) {
-                MemberEntity memberEntity = memberRepository.findByLegitimationNumber(tournament.getMainArbiter().getLegitimationNumber()).orElseThrow(EntityNotFoundException::new);
-                tournamentEntity.setMainArbiter(memberEntity);
-                LOG.info("Ustawiono sędziego głównego");
-            }
-            if (tournament.getCommissionRTSArbiter() != null) {
-                MemberEntity memberEntity = memberRepository.findByLegitimationNumber(tournament.getCommissionRTSArbiter().getLegitimationNumber()).orElseThrow(EntityNotFoundException::new);
-                tournamentEntity.setCommissionRTSArbiter(memberEntity);
-                LOG.info("Ustawiono sędziego RTS");
-            }
             tournamentRepository.saveAndFlush(tournamentEntity);
             return true;
         }
@@ -104,40 +94,65 @@ public class TournamentService {
         return false;
     }
 
+    public void removeArbiterFromTournament(UUID tournamentUUID, UUID memberUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+        tournamentEntity.setMainArbiter(null);
+        tournamentRepository.saveAndFlush(tournamentEntity);
+        System.out.println("ustawiono Sędziego na null");
+
+        historyService.removeJudgingRecord(memberUUID, tournamentUUID);
+    }
+
     public void addMainArbiter(UUID tournamentUUID, UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
-            Tournament tournament = Tournament.builder().mainArbiter(Mapping.map(memberEntity)).build();
-            tournament.setMainArbiter(Mapping.map(memberEntity));
-            updateTournament(tournamentUUID, tournament);
-            LOG.info("Ustawiono sędziego głównego zawodów");
-            historyService.addJudgingRecord(memberUUID, tournamentUUID);
+            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+            if (tournamentEntity.getMainArbiter() == null || tournamentEntity.getMainArbiter() != memberEntity) {
+                if (tournamentEntity.getMainArbiter() == null) {
+                    tournamentEntity.setMainArbiter(memberEntity);
+                } else {
+                    historyService.removeJudgingRecord(tournamentEntity.getMainArbiter().getUuid(), tournamentUUID);
+                    tournamentEntity.setMainArbiter(memberEntity);
+                }
+                tournamentRepository.saveAndFlush(tournamentEntity);
+                LOG.info("Ustawiono sędziego głównego zawodów");
+                String function = "Sędzia Główny Zawodów";
+                historyService.addJudgingRecord(memberUUID, tournamentUUID, function);
+            } else {
+                System.out.println("nic się nie zmieniło");
+            }
         }
     }
 
     public void addRTSArbiter(UUID tournamentUUID, UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
-            Tournament tournament = Tournament.builder().commissionRTSArbiter(Mapping.map(memberEntity)).build();
-            tournament.setCommissionRTSArbiter(Mapping.map(memberEntity));
-            updateTournament(tournamentUUID, tournament);
+            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                historyService.removeJudgingRecord(memberUUID, tournamentUUID);
+                tournamentEntity.setMainArbiter(null);
+            }
+            tournamentEntity.setCommissionRTSArbiter(memberEntity);
+            tournamentRepository.saveAndFlush(tournamentEntity);
             LOG.info("Ustawiono sędziego komisji obliczeniowej");
-            historyService.addJudgingRecord(memberUUID, tournamentUUID);
+            String function = "Sędzia Klasyfikacji";
+            historyService.addJudgingRecord(memberUUID, tournamentUUID, function);
         }
     }
 
-    public void addOthersArbiters(UUID tournamentUUID, UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
-            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
-            Set<MemberEntity> arbitersList = tournamentEntity.getArbitersList();
-            arbitersList.add(memberEntity);
-            tournamentEntity.setArbitersList(arbitersList);
-            tournamentRepository.saveAndFlush(tournamentEntity);
-            LOG.info("ustawiono sędziego z pozostałymi funkcjami");
-            historyService.addJudgingRecord(memberUUID, tournamentUUID);
-        }
-    }
+//    public void addOthersArbiters(UUID tournamentUUID, UUID memberUUID) {
+//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
+//            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+//            Set<MemberEntity> arbitersList = tournamentEntity.getArbitersList();
+//            arbitersList.add(memberEntity);
+//            tournamentEntity.setArbitersList(arbitersList);
+//            tournamentRepository.saveAndFlush(tournamentEntity);
+//            LOG.info("ustawiono sędziego z pozostałymi funkcjami");
+//            historyService.addJudgingRecord(memberUUID, tournamentUUID, function);
+//        }
+//    }
 
     public void addNewCompetitionListToTournament(UUID tournamentUUID, UUID competitionUUID) {
         if (competitionUUID != null) {

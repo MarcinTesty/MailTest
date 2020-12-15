@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -26,4 +25,27 @@ public class ContributionEntity {
     private LocalDate contribution;
     private LocalDate paymentDay;
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public LocalDate getContribution() {
+        return contribution;
+    }
+
+    public void setContribution(LocalDate contribution) {
+        this.contribution = contribution;
+    }
+
+    public LocalDate getPaymentDay() {
+        return paymentDay;
+    }
+
+    public void setPaymentDay(LocalDate paymentDay) {
+        this.paymentDay = paymentDay;
+    }
 }

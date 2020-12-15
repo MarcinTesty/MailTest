@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -28,15 +27,77 @@ public class TournamentEntity {
     private String name;
     private LocalDate date;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne
     private MemberEntity commissionRTSArbiter;
-    @OneToOne(orphanRemoval = true)
+    @OneToOne
     private MemberEntity mainArbiter;
     @OneToMany
     private Set<MemberEntity> arbitersList;
-    @OneToMany(orphanRemoval = true)
+    @OneToMany
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private Boolean open;
 
+    public UUID getUuid() {
+        return uuid;
+    }
 
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public MemberEntity getCommissionRTSArbiter() {
+        return commissionRTSArbiter;
+    }
+
+    public void setCommissionRTSArbiter(MemberEntity commissionRTSArbiter) {
+        this.commissionRTSArbiter = commissionRTSArbiter;
+    }
+
+    public MemberEntity getMainArbiter() {
+        return mainArbiter;
+    }
+
+    public void setMainArbiter(MemberEntity mainArbiter) {
+        this.mainArbiter = mainArbiter;
+    }
+
+    public Set<MemberEntity> getArbitersList() {
+        return arbitersList;
+    }
+
+    public void setArbitersList(Set<MemberEntity> arbitersList) {
+        this.arbitersList = arbitersList;
+    }
+
+    public List<CompetitionMembersListEntity> getCompetitionsList() {
+        return competitionsList;
+    }
+
+    public void setCompetitionsList(List<CompetitionMembersListEntity> competitionsList) {
+        this.competitionsList = competitionsList;
+    }
+
+    public Boolean getOpen() {
+        return open;
+    }
+
+    public void setOpen(Boolean open) {
+        this.open = open;
+    }
 }

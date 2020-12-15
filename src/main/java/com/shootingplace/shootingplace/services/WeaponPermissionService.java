@@ -49,13 +49,13 @@ public class WeaponPermissionService {
                 LOG.error("ktoś już ma taki numer pozwolenia");
             } else {
                 weaponPermissionEntity.setNumber(weaponPermission.getNumber());
-                weaponPermissionEntity.setIsExist(!weaponPermissionEntity.getIsExist());
+                weaponPermissionEntity.setExist(!weaponPermissionEntity.getExist());
                 LOG.info("Wprowadzono numer pozwolenia");
             }
         }
         if ((weaponPermission.getNumber() == null||weaponPermission.getNumber().equals("")) && !weaponPermission.getIsExist()) {
             weaponPermissionEntity.setNumber("");
-            weaponPermissionEntity.setIsExist(false);
+            weaponPermissionEntity.setExist(false);
             LOG.info("Usunięto pozwolenie");
         }
         weaponPermissionRepository.saveAndFlush(weaponPermissionEntity);

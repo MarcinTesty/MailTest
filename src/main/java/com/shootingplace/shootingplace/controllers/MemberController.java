@@ -101,18 +101,6 @@ public class MemberController {
         return memberService.changeWeaponPermission(uuid, weaponPermission);
     }
 
-    @DeleteMapping("/{uuid}")
-    public boolean deleteMember(@PathVariable UUID uuid) {
-
-        return memberService.deleteMember(uuid);
-    }
-
-    @DeleteMapping("/hard/{uuid}")
-    public String hardDeleteMember(@PathVariable UUID uuid) {
-        return memberService.hardDelete(uuid);
-    }
-
-
     @Transactional
     @PatchMapping("/adult/{uuid}")
     ResponseEntity<?> changeAdult(@PathVariable UUID uuid) {

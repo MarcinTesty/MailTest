@@ -85,7 +85,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
-                        .isValid(e.getIsValid())
+                        .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
                         .club(e.getClub())
                         .build()).orElse(null);
@@ -182,7 +182,7 @@ class Mapping {
     static WeaponPermission map(WeaponPermissionEntity w) {
         return Optional.ofNullable(w).map(e -> WeaponPermission.builder()
                 .number(e.getNumber())
-                .isExist(e.getIsExist())
+                .isExist(e.getExist())
                 .build()).orElse(null);
     }
 

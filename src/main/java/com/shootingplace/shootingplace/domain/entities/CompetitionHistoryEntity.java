@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -30,4 +29,44 @@ public class CompetitionHistoryEntity {
     private String discipline;
 
     private LocalDate date;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public UUID getAttachedTo() {
+        return attachedTo;
+    }
+
+    public void setAttachedTo(UUID attachedTo) {
+        this.attachedTo = attachedTo;
+    }
+
+    public String getDiscipline() {
+        return discipline;
+    }
+
+    public void setDiscipline(String discipline) {
+        this.discipline = discipline;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 }

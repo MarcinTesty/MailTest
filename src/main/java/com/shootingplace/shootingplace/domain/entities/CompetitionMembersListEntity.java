@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -30,5 +29,43 @@ public class CompetitionMembersListEntity {
     @ManyToMany
     private List<MemberEntity> membersList = new ArrayList<>();
 
+    public UUID getUuid() {
+        return uuid;
+    }
 
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAttachedTo() {
+        return attachedTo;
+    }
+
+    public void setAttachedTo(String attachedTo) {
+        this.attachedTo = attachedTo;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public List<MemberEntity> getMembersList() {
+        return membersList;
+    }
+
+    public void setMembersList(List<MemberEntity> membersList) {
+        this.membersList = membersList;
+    }
 }

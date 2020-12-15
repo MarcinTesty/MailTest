@@ -84,7 +84,7 @@ public class MemberService {
             }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-                    e.getLicense().setIsValid(false);
+                    e.getLicense().setValid(false);
                     licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
                     LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
                 }
@@ -529,12 +529,12 @@ public class MemberService {
         if (license) {
             memberRepository.findAll()
                     .stream()
-                    .filter(e -> e.getLicense().getNumber() != null && e.getLicense().getIsValid())
+                    .filter(e -> e.getLicense().getNumber() != null && e.getLicense().getValid())
                     .forEach(e -> list.add(e.getFirstName() + " " + e.getSecondName() + " " + e.getLicense().getNumber()));
         } else {
             memberRepository.findAll()
                     .stream()
-                    .filter(e -> e.getLicense().getNumber() != null && !e.getLicense().getIsValid())
+                    .filter(e -> e.getLicense().getNumber() != null && !e.getLicense().getValid())
                     .forEach(e -> list.add(e.getFirstName() + " " + e.getSecondName() + " " + e.getLicense().getNumber()));
         }
         return list;

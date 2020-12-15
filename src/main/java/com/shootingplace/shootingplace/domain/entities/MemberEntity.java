@@ -72,10 +72,10 @@ public class MemberEntity {
     @OneToOne(orphanRemoval = true)
     private PersonalEvidenceEntity personalEvidence;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne
     private FilesEntity contributionFile;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne
     private FilesEntity personalCardFile;
 
     public UUID getUuid() {

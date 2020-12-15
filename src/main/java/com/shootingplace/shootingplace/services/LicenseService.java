@@ -124,7 +124,7 @@ public class LicenseService {
             LOG.info("zaktualizowano datę licencji");
         } else {
             licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));
-            licenseEntity.setIsValid(true);
+            licenseEntity.setValid(true);
             LOG.info("Brak ręcznego ustawienia daty, ustawiono na koniec bieżącego roku " + licenseEntity.getValidThru());
         }
         licenseRepository.saveAndFlush(licenseEntity);
@@ -144,7 +144,7 @@ public class LicenseService {
                 && licenseEntity.getNumber() != null) {
             if (LocalDate.now().isAfter(LocalDate.of(LocalDate.now().getYear(), 10, 1))) {
                 licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
-                licenseEntity.setIsValid(true);
+                licenseEntity.setValid(true);
                 if (license.getPistolPermission() != null) {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");

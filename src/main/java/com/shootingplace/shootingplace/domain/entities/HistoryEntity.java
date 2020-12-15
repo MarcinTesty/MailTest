@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -39,4 +38,92 @@ public class HistoryEntity {
 
     @ManyToMany
     private List<JudgingHistoryEntity> judgingHistory;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public LocalDate[] getContributionRecord() {
+        return contributionRecord;
+    }
+
+    public void setContributionRecord(LocalDate[] contributionRecord) {
+        this.contributionRecord = contributionRecord;
+    }
+
+    public String[] getLicenseHistory() {
+        return licenseHistory;
+    }
+
+    public void setLicenseHistory(String[] licenseHistory) {
+        this.licenseHistory = licenseHistory;
+    }
+
+    public LocalDate[] getLicensePaymentHistory() {
+        return licensePaymentHistory;
+    }
+
+    public void setLicensePaymentHistory(LocalDate[] licensePaymentHistory) {
+        this.licensePaymentHistory = licensePaymentHistory;
+    }
+
+    public Boolean getPatentFirstRecord() {
+        return patentFirstRecord;
+    }
+
+    public void setPatentFirstRecord(Boolean patentFirstRecord) {
+        this.patentFirstRecord = patentFirstRecord;
+    }
+
+    public LocalDate[] getPatentDay() {
+        return patentDay;
+    }
+
+    public void setPatentDay(LocalDate[] patentDay) {
+        this.patentDay = patentDay;
+    }
+
+    public Integer getPistolCounter() {
+        return pistolCounter;
+    }
+
+    public void setPistolCounter(Integer pistolCounter) {
+        this.pistolCounter = pistolCounter;
+    }
+
+    public Integer getRifleCounter() {
+        return rifleCounter;
+    }
+
+    public void setRifleCounter(Integer rifleCounter) {
+        this.rifleCounter = rifleCounter;
+    }
+
+    public Integer getShotgunCounter() {
+        return shotgunCounter;
+    }
+
+    public void setShotgunCounter(Integer shotgunCounter) {
+        this.shotgunCounter = shotgunCounter;
+    }
+
+    public List<CompetitionHistoryEntity> getCompetitionHistory() {
+        return competitionHistory;
+    }
+
+    public void setCompetitionHistory(List<CompetitionHistoryEntity> competitionHistory) {
+        this.competitionHistory = competitionHistory;
+    }
+
+    public List<JudgingHistoryEntity> getJudgingHistory() {
+        return judgingHistory;
+    }
+
+    public void setJudgingHistory(List<JudgingHistoryEntity> judgingHistory) {
+        this.judgingHistory = judgingHistory;
+    }
 }

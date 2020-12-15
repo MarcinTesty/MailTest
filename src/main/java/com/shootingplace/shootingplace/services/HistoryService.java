@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class HistoryService {
@@ -52,7 +53,6 @@ public class HistoryService {
 
 
     private CompetitionHistoryEntity createCompetitionHistoryEntity(String name, LocalDate date, String discipline, UUID attachedTo) {
-        System.out.println("wszedłem");
         return CompetitionHistoryEntity.builder()
                 .name(name)
                 .date(date)
@@ -211,77 +211,6 @@ public class HistoryService {
     }
 
 
-    void addJudgingRecord(UUID memberUUID, UUID tournamentUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid()).orElseThrow(EntityNotFoundException::new);
-        List<JudgingHistoryEntity> judgingHistory = historyEntity.getJudgingHistory();
-        JudgingHistoryEntity judgingHistoryEntity = JudgingHistoryEntity.builder()
-                .date(tournamentEntity.getDate())
-                .name(tournamentEntity.getName())
-                .function(null)
-                .tournamentUUID(tournamentUUID)
-                .build();
-        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getCommissionRTSArbiter().equals(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if (historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Komisji Obliczeniowej")) {
-                        isExist = true;
-                    }
-                }
-            }
-            if (!isExist) {
-                judgingHistoryEntity.setFunction("Sędzia Komisji Obliczeniowej");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano Sędziego Komisji Obliczeniowej");
-            } else {
-                LOG.info("nie można już dodać");
-            }
-        }
-        if (tournamentEntity.getMainArbiter() != null && tournamentEntity.getMainArbiter().equals(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if (historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Główny zawodów")) {
-                        isExist = true;
-                    }
-                }
-            }
-            if (!isExist) {
-                judgingHistoryEntity.setFunction("Sędzia Główny zawodów");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano Sędziego Głównego");
-            } else {
-                LOG.info("nie można już dodać");
-            }
-        }
-        if (tournamentEntity.getArbitersList().contains(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if (historyEntity.getJudgingHistory().get(i).getFunction().equals("Inna funkcja sędziowska")) {
-                        isExist = true;
-                    }
-                }
-            }
-            if (!isExist) {
-                judgingHistoryEntity.setFunction("Inna funkcja sędziowska");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano sędziego z inną funkcją");
-            } else {
-                LOG.info("nie można już dodać");
-            }
-        }
-        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate));
-        Collections.reverse(judgingHistory);
-        historyRepository.saveAndFlush(historyEntity);
-
-    }
-
     private LocalDate[] selectionSort(LocalDate[] array) {
 
         int n = array.length;
@@ -326,6 +255,7 @@ public class HistoryService {
         HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
+        competitionHistoryEntityList.sort(Comparator.comparing(CompetitionHistoryEntity::getDate).reversed());
         historyEntity.setCompetitionHistory(competitionHistoryEntityList);
 
         if (list.getName().toUpperCase().startsWith("P")) {
@@ -370,7 +300,7 @@ public class HistoryService {
         HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
-            CompetitionHistoryEntity competitionHistoryEntity = new CompetitionHistoryEntity();
+        CompetitionHistoryEntity competitionHistoryEntity = new CompetitionHistoryEntity();
         for (CompetitionHistoryEntity e : historyEntity.getCompetitionHistory()) {
             if (e.getAttachedTo().equals(list.getUuid())) {
                 competitionHistoryEntity = competitionHistoryRepository.findById(e.getUuid()).orElseThrow(EntityNotFoundException::new);
@@ -396,5 +326,59 @@ public class HistoryService {
 
         LOG.info("Zaktualizowano wpis w historii startów");
         historyRepository.saveAndFlush(historyEntity);
+    }
+
+
+    void addJudgingRecord(UUID memberUUID, UUID tournamentUUID, String function) {
+
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+
+        JudgingHistoryEntity judgingHistoryEntity = createJudgingHistoryEntity(tournamentEntity.getDate(), tournamentEntity.getName(), tournamentEntity.getUuid(), function);
+
+        List<JudgingHistoryEntity> judgingHistory = historyEntity.getJudgingHistory();
+
+        judgingHistory.add(judgingHistoryEntity);
+        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate).reversed());
+        judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
+        historyEntity.setJudgingHistory(judgingHistory);
+
+        historyRepository.saveAndFlush(historyEntity);
+    }
+
+
+    void removeJudgingRecord(UUID memberUUID, UUID tournamentUUID) {
+
+        List<JudgingHistoryEntity> judgingHistoryEntityList = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory().getJudgingHistory();
+
+        JudgingHistoryEntity any = judgingHistoryEntityList
+                .stream()
+                .filter(e -> e.getTournamentUUID().equals(tournamentUUID))
+                .findAny().orElseThrow(EntityNotFoundException::new);
+        judgingHistoryEntityList.remove(any);
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        historyEntity.setJudgingHistory(judgingHistoryEntityList);
+        historyRepository.saveAndFlush(historyEntity);
+
+        System.out.println("usunięto rekord z historii sędziowania");
+
+    }
+
+    private JudgingHistoryEntity createJudgingHistoryEntity(LocalDate date, String name, UUID tournamentUUID, String function) {
+        return JudgingHistoryEntity.builder()
+                .date(date)
+                .name(name)
+                .function(function)
+                .tournamentUUID(tournamentUUID)
+                .build();
     }
 }
