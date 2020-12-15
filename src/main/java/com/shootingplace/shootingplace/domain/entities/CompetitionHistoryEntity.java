@@ -25,6 +25,8 @@ public class CompetitionHistoryEntity {
 
     private String name;
 
+    private UUID attachedTo;
+
     private String discipline;
 
     private LocalDate date;

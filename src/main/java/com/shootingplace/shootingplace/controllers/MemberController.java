@@ -33,6 +33,11 @@ public class MemberController {
         this.memberService = memberService;
     }
 
+    @GetMapping("/{memberUUID}")
+    public ResponseEntity<MemberEntity> getMember(@PathVariable UUID memberUUID) {
+        return ResponseEntity.ok(memberService.getMember(memberUUID));
+    }
+
     @GetMapping("/activelist")
     public ResponseEntity<List<MemberEntity>> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return ResponseEntity.ok(memberService.getMembersList(active, adult, erase));
@@ -56,6 +61,11 @@ public class MemberController {
     @GetMapping("/memberswithpermissions")
     public List<Member> getMembersWithPermissions() {
         return memberService.getMembersWithPermissions();
+    }
+
+    @GetMapping("/getArbiters")
+    public List<String> getArbiters() {
+        return memberService.getArbiters();
     }
 
     @GetMapping("/membersEmails")

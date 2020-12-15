@@ -34,7 +34,7 @@ public class TournamentEntity {
     private MemberEntity mainArbiter;
     @OneToMany
     private Set<MemberEntity> arbitersList;
-    @OneToMany
+    @OneToMany(orphanRemoval = true)
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private Boolean open;
 

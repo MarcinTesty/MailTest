@@ -21,9 +21,11 @@ public class HistoryEntity {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
+    // do zrobienia
     private LocalDate[] contributionRecord;
-
+    // do zrobienia
     private String[] licenseHistory;
+    // do zrobienia
     private LocalDate[] licensePaymentHistory;
 
     private Boolean patentFirstRecord = false;
@@ -32,7 +34,7 @@ public class HistoryEntity {
     private Integer pistolCounter = 0;
     private Integer rifleCounter = 0;
     private Integer shotgunCounter = 0;
-    @OneToMany
+    @OneToMany(orphanRemoval = true)
     private List<CompetitionHistoryEntity> competitionHistory;
 
     @ManyToMany

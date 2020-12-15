@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace.services;
 
+import com.shootingplace.shootingplace.domain.entities.CompetitionHistoryEntity;
 import com.shootingplace.shootingplace.domain.entities.CompetitionMembersListEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.repositories.CompetitionMembersListRepository;
@@ -27,7 +28,7 @@ public class CompetitionMembersListService {
         this.historyService = historyService;
     }
 
-    public void addMemberToCompetitionList(UUID competitionUUID, UUID memberUUID) {
+    public boolean addMemberToCompetitionList(UUID competitionUUID, UUID memberUUID) {
         CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
         MemberEntity member = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         List<MemberEntity> membersList = list.getMembersList();
@@ -36,11 +37,28 @@ public class CompetitionMembersListService {
             competitionMembersListRepository.saveAndFlush(list);
             LOG.info("Dodano Klubowicza do Listy");
             historyService.addCompetitionRecord(memberUUID,list);
+            return true;
         } else {
             LOG.info("Nie można dodać bo klubowicz już się znajduje na liście");
+            return false;
         }
 
     }
 
 
+    public boolean removeMemberFromList(UUID competitionUUID, UUID memberUUID) {
+        CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
+        MemberEntity member = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        List<MemberEntity> membersList = list.getMembersList();
+
+        if (membersList.contains(member)) {
+            membersList.remove(member);
+            competitionMembersListRepository.saveAndFlush(list);
+            LOG.info("Usunięto Klubowicza do Listy");
+//            do zrobienia na cito
+            historyService.removeCompetitionRecord(memberUUID,list);
+            return true;
+        }
+        return false;
+    }
 }

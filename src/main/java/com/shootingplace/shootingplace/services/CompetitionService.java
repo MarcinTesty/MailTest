@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ public class CompetitionService {
     public List<CompetitionEntity> getAllCompetitions() {
         if (competitionRepository.findAll().isEmpty()) {
             createCompetitions();
-            LOG.info("Została utworzone domyślne encje Konkurencji");
+            LOG.info("Zostały utworzone domyślne encje Konkurencji");
         }
         LOG.info("Wyświetlono listę Konkurencji");
         return competitionRepository.findAll();
@@ -70,9 +71,21 @@ public class CompetitionService {
     }
 
     public boolean createNewCompetition(Competition competition) {
-
+        List<String> list = new ArrayList<>();
+        competitionRepository.findAll().forEach(e-> list.add(e.getName()));
+        String s = competition.getName().substring(0,1).toUpperCase();
+        String s1 = competition.getName().substring(1).toLowerCase();
+        if (list.isEmpty()){
+            createCompetitions();
+        }
+        if (list.contains(s+s1)){
+            LOG.info("Taka konkurencja już istnieje");
+            return false;
+        }
+        competition.setName(s+s1);
         CompetitionEntity competitionEntity = Mapping.map(competition);
         competitionRepository.saveAndFlush(competitionEntity);
+        LOG.info("Utworzono nową konkurencję " + competition.getName());
         return true;
     }
 

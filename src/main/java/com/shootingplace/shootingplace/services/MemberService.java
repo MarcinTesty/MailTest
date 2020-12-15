@@ -95,7 +95,7 @@ public class MemberService {
                 e.getHistory().setPistolCounter(0);
                 e.getHistory().setRifleCounter(0);
                 e.getHistory().setShotgunCounter(0);
-                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
+//                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
                 LOG.info("zresetowano licznik zawodów");
 
             }
@@ -125,6 +125,15 @@ public class MemberService {
         return list;
     }
 
+    public List<String> getArbiters(){
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().stream()
+                .filter(e-> e.getMemberPermissions().getArbiterNumber()!= null)
+                .forEach(e-> list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
+        list.sort(Comparator.comparing(String::new));
+        return list;
+    }
+
     public List<String> getMembersNameAndUUID(Boolean active, Boolean adult, Boolean erase) {
         List<String> list = new ArrayList<>();
         memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase)
@@ -137,7 +146,7 @@ public class MemberService {
 
     //--------------------------------------------------------------------------
     public ResponseEntity<?> addNewMember(Member member) throws IOException, DocumentException {
-        MemberEntity memberEntity = null;
+        MemberEntity memberEntity;
         member.setActive(true);
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już ma taki numer PESEL");
@@ -330,7 +339,7 @@ public class MemberService {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).get();
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         memberEntity.toggleActive();
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Zmieniono status");
@@ -343,11 +352,11 @@ public class MemberService {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
-        if (memberRepository.findById(memberUUID).get().getAdult()) {
+        if (memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new).getAdult()) {
             LOG.info("Klubowicz należy już do grupy powszechnej");
             return ResponseEntity.badRequest().build();
         }
-        memberRepository.findById(memberUUID).get().toggleAdult();
+        memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new).toggleAdult();
         LOG.info("Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
 
         return ResponseEntity.noContent().build();
@@ -358,7 +367,7 @@ public class MemberService {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).get();
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         memberEntity.toggleErase();
         if (memberEntity.getErased()) {
             LOG.info("Klubowicz skreślony : " + LocalDate.now());
@@ -457,9 +466,9 @@ public class MemberService {
     }
 
 
-    public Optional<MemberEntity> getMember(UUID uuid) {
+    public MemberEntity getMember(UUID uuid) {
         LOG.info("Wywołano Klubowicza");
-        return memberRepository.findById(uuid);
+        return memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
     }
 
     public List<MemberEntity> getErasedMembers() {
@@ -497,7 +506,7 @@ public class MemberService {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
-        MemberEntity toUpdate = memberRepository.findById(memberUUID).get();
+        MemberEntity toUpdate = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LocalDate newDate = LocalDate.parse(date);
         toUpdate.setJoinDate(newDate);
         memberRepository.saveAndFlush(toUpdate);

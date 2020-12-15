@@ -3,6 +3,7 @@ package com.shootingplace.shootingplace.controllers;
 import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
 import com.shootingplace.shootingplace.services.TournamentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,13 +21,13 @@ public class TournamentController {
     }
 
     @GetMapping("/list")
-    public List<TournamentEntity> getListOfTournaments() {
-        return tournamentService.getListOfTournaments();
+    public ResponseEntity<List<TournamentEntity>> getListOfTournaments() {
+        return ResponseEntity.ok(tournamentService.getListOfTournaments());
     }
 
     @PostMapping("/")
-    public UUID addNewTournament(@RequestBody Tournament tournament) {
-        return tournamentService.createNewTournament(tournament);
+    public ResponseEntity<UUID> addNewTournament(@RequestBody Tournament tournament) {
+        return ResponseEntity.status(201).body(tournamentService.createNewTournament(tournament));
     }
 
     @PutMapping("/{tournamentUUID}")
