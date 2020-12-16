@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -24,7 +23,7 @@ public class CompetitionMembersListEntity {
     private UUID uuid;
 
     private String name;
-    private String attachedTo;
+    private UUID attachedToTournament;
     private LocalDate date;
     @ManyToMany
     private List<MemberEntity> membersList = new ArrayList<>();
@@ -45,12 +44,12 @@ public class CompetitionMembersListEntity {
         this.name = name;
     }
 
-    public String getAttachedTo() {
-        return attachedTo;
+    public UUID getAttachedToTournament() {
+        return attachedToTournament;
     }
 
-    public void setAttachedTo(String attachedTo) {
-        this.attachedTo = attachedTo;
+    public void setAttachedToTournament(UUID attachedToTournament) {
+        this.attachedToTournament = attachedToTournament;
     }
 
     public LocalDate getDate() {

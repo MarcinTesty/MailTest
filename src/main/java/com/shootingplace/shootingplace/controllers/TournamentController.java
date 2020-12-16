@@ -4,7 +4,6 @@ import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
 import com.shootingplace.shootingplace.services.TournamentService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,40 +30,64 @@ public class TournamentController {
         return ResponseEntity.status(201).body(tournamentService.createNewTournament(tournament));
     }
 
-    @Transactional
     @PostMapping("/removeArbiter/{tournamentUUID}")
     public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        tournamentService.removeArbiterFromTournament(tournamentUUID, memberUUID);
-        return ResponseEntity.ok().build();
-    }
+        if (tournamentService.removeArbiterFromTournament(tournamentUUID, memberUUID)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(418).body("I'm a teapot");
 
-    @PutMapping("/{tournamentUUID}")
-    public Boolean updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
-        return tournamentService.updateTournament(tournamentUUID, tournament);
     }
 
     @PatchMapping("/{tournamentUUID}")
-    public Boolean closeTournament(@PathVariable UUID tournamentUUID) {
-        return tournamentService.closeTournament(tournamentUUID);
+    public ResponseEntity<?> closeTournament(@PathVariable UUID tournamentUUID) {
+        if (tournamentService.closeTournament(tournamentUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(418).body("I'm a teapot");
+        }
+    }
+
+    @PutMapping("/{tournamentUUID}")
+    public ResponseEntity<?> updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
+        if (tournamentService.updateTournament(tournamentUUID, tournament)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/addMainArbiter/{tournamentUUID}")
     public ResponseEntity<?> addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        tournamentService.addMainArbiter(tournamentUUID, memberUUID);
-        return ResponseEntity.ok().build();
+        if (tournamentService.addMainArbiter(tournamentUUID, memberUUID)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/addRTSArbiter/{tournamentUUID}")
-    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        tournamentService.addRTSArbiter(tournamentUUID, memberUUID);
+    public ResponseEntity<?> addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        if (tournamentService.addRTSArbiter(tournamentUUID, memberUUID)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
-//    @PutMapping("/addOthersArbiters/{tournamentUUID}")
-//    public void addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID){
-//        tournamentService.addOthersArbiters(tournamentUUID, memberUUID);
-//    }
 
-    @PutMapping("/addCompetition{tournamentUUID}")
-    public void addNewCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
-        tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID);
+    @PutMapping("/addOthersArbiters/{tournamentUUID}")
+    public ResponseEntity<?> addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
+        if (tournamentService.addOthersArbiters(tournamentUUID, memberUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/addCompetition/{tournamentUUID}")
+    public ResponseEntity<?> addCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
+        if (tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

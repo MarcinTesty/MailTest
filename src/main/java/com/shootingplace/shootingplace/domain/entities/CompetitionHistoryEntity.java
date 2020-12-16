@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -24,7 +23,7 @@ public class CompetitionHistoryEntity {
 
     private String name;
 
-    private UUID attachedTo;
+    private UUID attachedToList;
 
     private String discipline;
 
@@ -46,12 +45,12 @@ public class CompetitionHistoryEntity {
         this.name = name;
     }
 
-    public UUID getAttachedTo() {
-        return attachedTo;
+    public UUID getAttachedToList() {
+        return attachedToList;
     }
 
-    public void setAttachedTo(UUID attachedTo) {
-        this.attachedTo = attachedTo;
+    public void setAttachedToList(UUID attachedToList) {
+        this.attachedToList = attachedToList;
     }
 
     public String getDiscipline() {
