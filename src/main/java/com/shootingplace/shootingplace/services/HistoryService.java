@@ -396,4 +396,42 @@ public class HistoryService {
                             competitionHistoryRepository.saveAndFlush(f);
                         })));
     }
+
+    void updateTournamentInJudgingHistory(UUID tournamentUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        tournamentEntity
+                .getArbitersList()
+                .forEach(member -> member
+                        .getHistory()
+                        .getJudgingHistory()
+                        .stream()
+                        .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                        .forEach(f -> {
+                            f.setName(tournamentEntity.getName());
+                            f.setDate(tournamentEntity.getDate());
+                            judgingHistoryRepository.saveAndFlush(f);
+                        })
+                );
+        tournamentEntity.getMainArbiter()
+                .getHistory()
+                .getJudgingHistory()
+                .stream()
+                .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                .forEach(f -> {
+                    f.setName(tournamentEntity.getName());
+                    f.setDate(tournamentEntity.getDate());
+                    judgingHistoryRepository.saveAndFlush(f);
+                });
+        tournamentEntity.getCommissionRTSArbiter()
+                .getHistory()
+                .getJudgingHistory()
+                .stream()
+                .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                .forEach(f -> {
+                    f.setName(tournamentEntity.getName());
+                    f.setDate(tournamentEntity.getDate());
+                    judgingHistoryRepository.saveAndFlush(f);
+                });
+
+    }
 }

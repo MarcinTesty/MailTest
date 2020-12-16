@@ -92,7 +92,7 @@ public class MemberController {
 
     @Transactional
     @PutMapping("/date/{uuid}")
-    ResponseEntity<?> updateJoinDate(@PathVariable UUID uuid, @RequestParam String date) {
+    public ResponseEntity<?> updateJoinDate(@PathVariable UUID uuid, @RequestParam String date) {
         return memberService.updateJoinDate(uuid, date);
     }
 
@@ -103,7 +103,7 @@ public class MemberController {
 
     @Transactional
     @PatchMapping("/adult/{uuid}")
-    ResponseEntity<?> changeAdult(@PathVariable UUID uuid) {
+    public ResponseEntity<?> changeAdult(@PathVariable UUID uuid) {
         return memberService.changeAdult(uuid);
     }
 

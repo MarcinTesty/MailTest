@@ -27,11 +27,11 @@ public class TournamentEntity {
     private String name;
     private LocalDate date;
 
-    @OneToOne
+    @ManyToOne
     private MemberEntity commissionRTSArbiter;
-    @OneToOne
+    @ManyToOne
     private MemberEntity mainArbiter;
-    @OneToMany
+    @ManyToMany
     private Set<MemberEntity> arbitersList;
     @OneToMany
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
