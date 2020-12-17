@@ -25,7 +25,6 @@ class Mapping {
                 .adult(e.getAdult())
                 .erased(e.getErased())
                 .address(map(e.getAddress()))
-                .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
                 .build();
@@ -48,7 +47,6 @@ class Mapping {
                 .adult(e.getAdult())
                 .erased(e.getErased())
                 .address(map(e.getAddress()))
-                .contribution(map(e.getContribution()))
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
                 .build();
@@ -99,7 +97,7 @@ class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
-                        .isValid(e.getIsValid())
+                        .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
                         .club(e.getClub())
                         .build()).orElse(null);
@@ -129,21 +127,20 @@ class Mapping {
 
     static ContributionEntity map(Contribution c) {
         return Optional.ofNullable(c).map(e -> ContributionEntity.builder()
-                .contribution(e.getContribution())
+                .validThru(e.getValidThru())
                 .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
 
     static Contribution map(ContributionEntity c) {
         return Optional.ofNullable(c).map(e -> Contribution.builder()
-                .contribution(e.getContribution())
+                .validThru(e.getValidThru())
                 .paymentDay(e.getPaymentDay())
                 .build()).orElse(null);
     }
 
     static History map(HistoryEntity r) {
         return Optional.ofNullable(r).map(e -> History.builder()
-                .contributionRecord(e.getContributionRecord())
                 .licenseHistory(e.getLicenseHistory())
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
@@ -156,7 +153,6 @@ class Mapping {
 
     static HistoryEntity map(History r) {
         return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
-                .contributionRecord(e.getContributionRecord())
                 .licenseHistory(e.getLicenseHistory())
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
@@ -189,7 +185,7 @@ class Mapping {
     static WeaponPermissionEntity map(WeaponPermission w) {
         return Optional.ofNullable(w).map(e -> WeaponPermissionEntity.builder()
                 .number(e.getNumber())
-                .isExist(e.getIsExist())
+                .isExist(e.getExist())
                 .build()).orElse(null);
     }
 

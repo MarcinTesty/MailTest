@@ -9,15 +9,36 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ElectronicEvidence {
 
+    private String others;
     private LocalDate date;
-
     private Set<Member> members = new HashSet<>();
 
+    public String getOthers() {
+        return others;
+    }
 
+    public void setOthers(String others) {
+        this.others = others;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public Set<Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<Member> members) {
+        this.members = members;
+    }
 }

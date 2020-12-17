@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -20,8 +19,8 @@ public class HistoryEntity {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
-    // do zrobienia
-    private LocalDate[] contributionRecord;
+    @OneToMany
+    private List<ContributionEntity> contributionList;
     // do zrobienia
     private String[] licenseHistory;
     // do zrobienia
@@ -47,12 +46,12 @@ public class HistoryEntity {
         this.uuid = uuid;
     }
 
-    public LocalDate[] getContributionRecord() {
-        return contributionRecord;
+    public List<ContributionEntity> getContributionList() {
+        return contributionList;
     }
 
-    public void setContributionRecord(LocalDate[] contributionRecord) {
-        this.contributionRecord = contributionRecord;
+    public void setContributionsList(List<ContributionEntity> contributionsList) {
+        this.contributionList = contributionsList;
     }
 
     public String[] getLicenseHistory() {

@@ -7,14 +7,27 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Contribution {
 
-    private LocalDate contribution;
     private LocalDate paymentDay;
-    private History history;
+    private LocalDate validThru;
 
+    public LocalDate getPaymentDay() {
+        return paymentDay;
+    }
+
+    public void setPaymentDay(LocalDate paymentDay) {
+        this.paymentDay = paymentDay;
+    }
+
+    public LocalDate getValidThru() {
+        return validThru;
+    }
+
+    public void setValidThru(LocalDate validThru) {
+        this.validThru = validThru;
+    }
 }

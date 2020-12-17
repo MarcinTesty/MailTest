@@ -53,7 +53,7 @@ public class WeaponPermissionService {
                 LOG.info("Wprowadzono numer pozwolenia");
             }
         }
-        if ((weaponPermission.getNumber() == null||weaponPermission.getNumber().equals("")) && !weaponPermission.getIsExist()) {
+        if ((weaponPermission.getNumber() == null||weaponPermission.getNumber().equals("")) && !weaponPermission.getExist()) {
             weaponPermissionEntity.setNumber("");
             weaponPermissionEntity.setExist(false);
             LOG.info("Usunięto pozwolenie");

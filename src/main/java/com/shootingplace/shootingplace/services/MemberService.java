@@ -1,7 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.itextpdf.text.DocumentException;
-import com.shootingplace.shootingplace.domain.entities.LicenseEntity;
+import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.*;
@@ -13,11 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -69,19 +67,19 @@ public class MemberService {
 
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
-            if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && e.getActive()) {
-                e.setActive(false);
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && !e.getActive()) {
-                e.setActive(true);
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-            }
+//            if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && e.getActive()) {
+//                e.setActive(false);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+//            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && !e.getActive()) {
+//                e.setActive(true);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+//            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setValid(false);
@@ -125,11 +123,11 @@ public class MemberService {
         return list;
     }
 
-    public List<String> getArbiters(){
+    public List<String> getArbiters() {
         List<String> list = new ArrayList<>();
         memberRepository.findAll().stream()
-                .filter(e-> e.getMemberPermissions().getArbiterNumber()!= null)
-                .forEach(e-> list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
+                .filter(e -> e.getMemberPermissions().getArbiterNumber() != null)
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
@@ -242,30 +240,16 @@ public class MemberService {
                         .build();
                 shootingPatentService.addPatent(memberEntity.getUuid(), shootingPatent);
             }
-            if (memberEntity.getContribution() == null) {
-                LocalDate localDate = LocalDate.now();
-                int year = LocalDate.now().getYear();
-                if (localDate.isBefore(LocalDate.of(year, 6, 30))) {
-                    localDate = LocalDate.of(year, 6, 30);
-                } else {
-                    localDate = LocalDate.of(year, 12, 31);
-                }
-                Contribution contribution = Contribution.builder()
-                        .contribution(localDate)
-                        .paymentDay(LocalDate.now())
-                        .build();
-                contributionService.addContribution(memberEntity.getUuid(), contribution);
-
-            }
             if (memberEntity.getHistory() == null) {
-                LocalDate localDate = LocalDate.now();
                 History history = History.builder()
-                        .contributionRecord(new LocalDate[]{localDate})
                         .licenseHistory(new String[]{})
                         .patentDay(new LocalDate[3])
                         .licensePaymentHistory(null)
                         .patentFirstRecord(false).build();
                 historyService.createHistory(memberEntity.getUuid(), history);
+                ContributionEntity contributionEntity = contributionService.addFirstContribution(memberEntity.getUuid(), LocalDate.now());
+                System.out.println(contributionEntity.getUuid());
+                historyService.addContributionRecord(memberEntity.getUuid(), contributionEntity);
             }
             if (memberEntity.getWeaponPermission() == null) {
                 WeaponPermission weaponPermission = WeaponPermission.builder()

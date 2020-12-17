@@ -32,11 +32,12 @@ public class HistoryService {
         this.judgingHistoryRepository = judgingHistoryRepository;
     }
 
+    //  Basic
     void createHistory(UUID memberUUID, History history) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = Mapping.map(history);
-        historyEntity.setContributionRecord(new LocalDate[]{LocalDate.now()});
+        historyEntity.setContributionsList(new ArrayList<>());
         historyEntity.setLicenseHistory(new String[3]);
         historyEntity.setPatentDay(new LocalDate[3]);
         historyEntity.setPistolCounter(0);
@@ -50,54 +51,22 @@ public class HistoryService {
         LOG.info("Historia została utworzona");
     }
 
+    // Contribution
+    void addContributionRecord(UUID memberUUID, ContributionEntity contribution) {
+        System.out.println(contribution.getUuid());
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
 
-    private CompetitionHistoryEntity createCompetitionHistoryEntity(UUID tournamentUUID, LocalDate date, String discipline, UUID attachedTo) {
-        String name = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new).getName();
-        return CompetitionHistoryEntity.builder()
-                .name(name)
-                .date(date)
-                .discipline(discipline)
-                .attachedToList(attachedTo)
-                .build();
+        historyEntity
+                .getContributionList()
+                .add(contribution);
 
-    }
+        historyEntity.getContributionList().sort(Comparator.comparing(ContributionEntity::getValidThru));
 
-    void addContributionRecord(UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
-
-        for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
-            newState[i] = historyEntity.getContributionRecord()[i];
-            newState[i + 1] = LocalDate.now();
-        }
         LOG.info("Dodano rekord w historii składek");
-        LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
-    }
-
-    public Boolean addContributionRecord(UUID memberUUID, String date) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate parsedDate = LocalDate.parse(date);
-        if (parsedDate.isAfter(LocalDate.now())) {
-            LOG.info("Nie dodano rekordu w historii składek - data z przyszłości");
-            return false;
-        }
-        LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
-
-        for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
-            newState[i] = historyEntity.getContributionRecord()[i];
-            newState[i + 1] = LocalDate.parse(date);
-        }
-        LOG.info("Dodano rekord w historii składek");
-        LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
-        historyRepository.saveAndFlush(historyEntity);
-        return true;
     }
 
     void addLicenseHistoryRecord(UUID memberUUID, int index) {
@@ -205,7 +174,7 @@ public class HistoryService {
             newState[i + 1] = date;
         }
         LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
+//        historyEntity.setContributionsList(sortState);
         historyRepository.saveAndFlush(historyEntity);
         return true;
     }
@@ -238,6 +207,17 @@ public class HistoryService {
         Collections.reverse(array);
     }
 
+    //  Tournament
+    private CompetitionHistoryEntity createCompetitionHistoryEntity(UUID tournamentUUID, LocalDate date, String discipline, UUID attachedTo) {
+        String name = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new).getName();
+        return CompetitionHistoryEntity.builder()
+                .name(name)
+                .date(date)
+                .discipline(discipline)
+                .attachedToList(attachedTo)
+                .build();
+
+    }
 
     void addCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
 
@@ -328,7 +308,6 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
     }
 
-
     void addJudgingRecord(UUID memberUUID, UUID tournamentUUID, String function) {
 
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
@@ -349,7 +328,6 @@ public class HistoryService {
 
         historyRepository.saveAndFlush(historyEntity);
     }
-
 
     void removeJudgingRecord(UUID memberUUID, UUID tournamentUUID, String function) {
 

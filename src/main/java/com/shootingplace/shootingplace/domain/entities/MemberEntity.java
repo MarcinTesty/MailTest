@@ -1,15 +1,12 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.validators.ValidPESEL;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.repository.query.Param;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -57,8 +54,7 @@ public class MemberEntity {
     private String phoneNumber;
     @OneToOne(orphanRemoval = true)
     private WeaponPermissionEntity weaponPermission;
-    @OneToOne(orphanRemoval = true)
-    private ContributionEntity contribution;
+
     private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
@@ -182,18 +178,11 @@ public class MemberEntity {
         this.weaponPermission = weaponPermission;
     }
 
-    public ContributionEntity getContribution() {
-        return contribution;
-    }
-
-    public void setContribution(ContributionEntity contribution) {
-        this.contribution = contribution;
-    }
-
     public Boolean getActive() {
         return active;
     }
-    public void setActive(boolean active){
+
+    public void setActive(boolean active) {
         this.active = active;
     }
 

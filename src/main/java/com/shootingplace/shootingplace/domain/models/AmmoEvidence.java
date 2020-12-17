@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -22,4 +21,36 @@ public class AmmoEvidence {
     private List<Caliber> caliberList = new ArrayList<>();
 
     private FilesModel file;
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public List<Caliber> getCaliberList() {
+        return caliberList;
+    }
+
+    public void setCaliberList(List<Caliber> caliberList) {
+        this.caliberList = caliberList;
+    }
+
+    public FilesModel getFile() {
+        return file;
+    }
+
+    public void setFile(FilesModel file) {
+        this.file = file;
+    }
 }

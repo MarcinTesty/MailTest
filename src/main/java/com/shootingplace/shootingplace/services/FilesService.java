@@ -85,7 +85,7 @@ public class FilesService {
 
     void contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        LocalDate contribution = memberEntity.getContribution().getContribution();
+//        LocalDate contribution = memberEntity.getContribution().getContribution();
         String fileName = "Składka_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + "_" + LocalDate.now() + ".pdf";
 
         Document document = new Document(PageSize.A4);
@@ -130,13 +130,13 @@ public class FilesService {
         Phrase p4 = new Phrase("Numer Legitymacji : ", new Font(czcionka, 11));
         Phrase p5 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), new Font(czcionka, 18, Font.BOLD));
         Paragraph p6 = new Paragraph("\n\n\nData opłacenia składki : ", new Font(czcionka, 11));
-        Phrase p7 = new Phrase(String.valueOf(memberEntity.getContribution().getPaymentDay()), new Font(czcionka, 11, Font.BOLD));
+//        Phrase p7 = new Phrase(String.valueOf(memberEntity.getContribution().getPaymentDay()), new Font(czcionka, 11, Font.BOLD));
         Paragraph p8 = new Paragraph("\n\nSkładka ważna do : ", new Font(czcionka, 11));
-        Phrase p9 = new Phrase(String.valueOf(contribution), new Font(czcionka, 11, Font.BOLD));
+//        Phrase p9 = new Phrase(String.valueOf(contribution), new Font(czcionka, 11, Font.BOLD));
         Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", new Font(czcionka, 11));
-        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + memberEntity.getContribution().getPaymentDay() + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
+//        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + memberEntity.getContribution().getPaymentDay() + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
         Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", new Font(czcionka, 11));
-        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
+//        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
         Paragraph p14 = new Paragraph("", new Font(czcionka, 11));
         Phrase p15 = new Phrase("\n\nSkładki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
                 "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
@@ -155,9 +155,9 @@ public class FilesService {
         p2.add("                                        ");
         p4.add(p5);
         p2.add(p4);
-        p6.add(p7);
-        p8.add(p9);
-        p10.add(p11);
+//        p6.add(p7);
+//        p8.add(p9);
+//        p10.add(p11);
         p14.add(p15);
 
         p20.add(p21);
@@ -174,7 +174,7 @@ public class FilesService {
         document.add(p8);
         document.add(p10);
         document.add(p12);
-        document.add(p13);
+//        document.add(p13);
         document.add(p14);
         document.add(p16);
         document.add(p19);
