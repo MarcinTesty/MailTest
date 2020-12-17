@@ -249,7 +249,7 @@ public class MemberService {
                 historyService.createHistory(memberEntity.getUuid(), history);
                 ContributionEntity contributionEntity = contributionService.addFirstContribution(memberEntity.getUuid(), LocalDate.now());
                 System.out.println(contributionEntity.getUuid());
-                historyService.addContributionRecord(memberEntity.getUuid(), contributionEntity);
+                historyService.addContribution(memberEntity.getUuid(), contributionEntity);
             }
             if (memberEntity.getWeaponPermission() == null) {
                 WeaponPermission weaponPermission = WeaponPermission.builder()

@@ -52,8 +52,7 @@ public class HistoryService {
     }
 
     // Contribution
-    void addContributionRecord(UUID memberUUID, ContributionEntity contribution) {
-        System.out.println(contribution.getUuid());
+    void addContribution(UUID memberUUID, ContributionEntity contribution) {
         HistoryEntity historyEntity = memberRepository
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
@@ -63,9 +62,20 @@ public class HistoryService {
                 .getContributionList()
                 .add(contribution);
 
-        historyEntity.getContributionList().sort(Comparator.comparing(ContributionEntity::getValidThru));
+        historyEntity.getContributionList().sort(Comparator.comparing(ContributionEntity::getValidThru).reversed());
 
         LOG.info("Dodano rekord w historii składek");
+        historyRepository.saveAndFlush(historyEntity);
+    }
+
+    void removeContribution(UUID memberUUID,ContributionEntity contribution) {
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        historyEntity
+                .getContributionList()
+                .remove(contribution);
         historyRepository.saveAndFlush(historyEntity);
     }
 
@@ -377,39 +387,47 @@ public class HistoryService {
 
     void updateTournamentInJudgingHistory(UUID tournamentUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
-        tournamentEntity
-                .getArbitersList()
-                .forEach(member -> member
-                        .getHistory()
-                        .getJudgingHistory()
-                        .stream()
-                        .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
-                        .forEach(f -> {
-                            f.setName(tournamentEntity.getName());
-                            f.setDate(tournamentEntity.getDate());
-                            judgingHistoryRepository.saveAndFlush(f);
-                        })
-                );
-        tournamentEntity.getMainArbiter()
-                .getHistory()
-                .getJudgingHistory()
-                .stream()
-                .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
-                .forEach(f -> {
-                    f.setName(tournamentEntity.getName());
-                    f.setDate(tournamentEntity.getDate());
-                    judgingHistoryRepository.saveAndFlush(f);
-                });
-        tournamentEntity.getCommissionRTSArbiter()
-                .getHistory()
-                .getJudgingHistory()
-                .stream()
-                .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
-                .forEach(f -> {
-                    f.setName(tournamentEntity.getName());
-                    f.setDate(tournamentEntity.getDate());
-                    judgingHistoryRepository.saveAndFlush(f);
-                });
+        if (tournamentEntity.getArbitersList() != null) {
+            tournamentEntity
+                    .getArbitersList()
+                    .forEach(member -> member
+                            .getHistory()
+                            .getJudgingHistory()
+                            .stream()
+                            .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                            .forEach(f -> {
+                                f.setName(tournamentEntity.getName());
+                                f.setDate(tournamentEntity.getDate());
+                                judgingHistoryRepository.saveAndFlush(f);
+                            })
+                    );
+        }
+        if (tournamentEntity.getMainArbiter() != null) {
+            tournamentEntity.getMainArbiter()
+                    .getHistory()
+                    .getJudgingHistory()
+                    .stream()
+                    .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                    .forEach(f -> {
+                        f.setName(tournamentEntity.getName());
+                        f.setDate(tournamentEntity.getDate());
+                        judgingHistoryRepository.saveAndFlush(f);
+                    });
+        }
+        if (tournamentEntity.getCommissionRTSArbiter() != null) {
+            tournamentEntity.getCommissionRTSArbiter()
+                    .getHistory()
+                    .getJudgingHistory()
+                    .stream()
+                    .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                    .forEach(f -> {
+                        f.setName(tournamentEntity.getName());
+                        f.setDate(tournamentEntity.getDate());
+                        judgingHistoryRepository.saveAndFlush(f);
+                    });
+        }
 
     }
+
+
 }

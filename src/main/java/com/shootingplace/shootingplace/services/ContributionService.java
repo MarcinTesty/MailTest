@@ -7,11 +7,14 @@ import com.shootingplace.shootingplace.repositories.ContributionRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ContributionService {
@@ -30,24 +33,59 @@ public class ContributionService {
         this.filesService = filesService;
     }
 
-//    void addContribution(UUID memberUUID, Contribution contribution) {
-//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-//        if (memberEntity.getContribution() != null) {
-//            LOG.error("nie można już dodać pola ze składką");
-//        }
-//        ContributionEntity contributionEntity = Mapping.map(contribution);
-//        contributionRepository.saveAndFlush(contributionEntity);
-//        memberEntity.setContribution(contributionEntity);
-//        memberRepository.saveAndFlush(memberEntity);
-//        LOG.info("Składka została zapisana");
-//    }
+    public boolean addContribution(UUID memberUUID, LocalDate contributionPaymentDay) {
 
-    void addContribution(UUID memberUUID, LocalDate contributionPaymentDay) {
+        List<ContributionEntity> contributionEntityList = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory()
+                .getContributionList();
 
-        ContributionEntity contributionEntity = getContributionEntity(memberUUID, contributionPaymentDay);
+        LocalDate validThru = getDate(contributionPaymentDay);
 
+        ContributionEntity contributionEntity = ContributionEntity.builder()
+                .paymentDay(null)
+                .validThru(null)
+                .build();
+        if (contributionEntityList.size()<1) {
+            contributionEntity.setPaymentDay(contributionPaymentDay);
+            contributionEntity.setValidThru(validThru.plusMonths(6));
+        } else {
+            contributionEntity.setPaymentDay(contributionPaymentDay);
+            contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
+        }
         contributionRepository.saveAndFlush(contributionEntity);
-        historyService.addContributionRecord(memberUUID, contributionEntity);
+        historyService.addContribution(memberUUID, contributionEntity);
+        return true;
+    }
+
+    @NotNull
+    private LocalDate getDate(LocalDate contributionPaymentDay) {
+        LocalDate validThru;
+        if (contributionPaymentDay.isBefore(LocalDate.of(contributionPaymentDay.getYear(), 6, 30))) {
+            validThru = LocalDate.of(contributionPaymentDay.getYear(), 6, 30);
+        } else {
+            validThru = LocalDate.of(contributionPaymentDay.getYear(), 12, 31);
+        }
+        return validThru;
+    }
+
+
+    public boolean addContributionRecord(UUID memberUUID, LocalDate paymentDate) {
+        List<ContributionEntity> contributionEntityList = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory()
+                .getContributionList();
+
+        LocalDate validThru = getDate(paymentDate);
+
+        ContributionEntity contributionEntity = ContributionEntity.builder()
+                .paymentDay(paymentDate)
+                .validThru(validThru)
+                .build();
+        contributionRepository.saveAndFlush(contributionEntity);
+        historyService.addContribution(memberUUID, contributionEntity);
+
+        return true;
     }
 
 
@@ -108,7 +146,7 @@ public class ContributionService {
 //            contributionEntity.setContribution(prolong);
 //            contributionEntity.setPaymentDay(LocalDate.now());
 //
-//            historyService.addContributionRecord(memberEntity.getUuid());
+//            historyService.addContribution(memberEntity.getUuid());
 //            contributionRepository.saveAndFlush(contributionEntity);
 //            memberEntity.setContribution(contributionEntity);
 //            memberRepository.saveAndFlush(memberEntity);
@@ -143,5 +181,20 @@ public class ContributionService {
                 .paymentDay(contributionPaymentDay)
                 .validThru(validThru)
                 .build();
+    }
+
+    public boolean removeContribution(UUID memberUUID, UUID contributionUUID) {
+        ContributionEntity contributionEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory()
+                .getContributionList()
+                .stream()
+                .filter(f -> f.getUuid().equals(contributionUUID))
+                .collect(Collectors.toList()).get(0);
+
+
+        historyService.removeContribution(memberUUID, contributionEntity);
+        return true;
     }
 }
