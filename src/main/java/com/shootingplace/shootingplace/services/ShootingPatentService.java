@@ -34,18 +34,16 @@ public class ShootingPatentService {
     }
 
 
-    public boolean addPatent(UUID memberUUID, ShootingPatent shootingPatent) {
+    void addPatent(UUID memberUUID, ShootingPatent shootingPatent) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getShootingPatent() != null) {
             LOG.error("nie można już dodać patentu");
-            return false;
         }
         ShootingPatentEntity shootingPatentEntity = Mapping.map(shootingPatent);
         shootingPatentRepository.saveAndFlush(shootingPatentEntity);
         memberEntity.setShootingPatent(shootingPatentEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Patent został zapisany");
-        return true;
     }
 
     public boolean updatePatent(UUID memberUUID, ShootingPatent shootingPatent) {
