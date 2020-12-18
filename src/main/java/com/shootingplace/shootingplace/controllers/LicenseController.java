@@ -3,9 +3,9 @@ package com.shootingplace.shootingplace.controllers;
 import com.shootingplace.shootingplace.domain.models.License;
 import com.shootingplace.shootingplace.services.HistoryService;
 import com.shootingplace.shootingplace.services.LicenseService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,29 +32,31 @@ public class LicenseController {
         return licenseService.getMembersNamesAndLicense();
     }
 
-    @PostMapping("/{memberUUID}")
-    public boolean addLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
-        return licenseService.addLicenseToMember(memberUUID, license);
-    }
-
     @PutMapping("/{memberUUID}")
-    public boolean updateLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
-        return licenseService.updateLicense(memberUUID, license);
+    public ResponseEntity<?> updateLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
+        if (licenseService.updateLicense(memberUUID, license)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PatchMapping("/{memberUUID}")
-    public boolean renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
-        return licenseService.renewLicenseValid(memberUUID, license);
+    public ResponseEntity<?> renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
+        if (licenseService.renewLicenseValid(memberUUID, license)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/history{memberUUID}")
-    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID) {
-        return historyService.addLicenseHistoryPayment(memberUUID);
-    }
-
-    @PutMapping("/historyrec{memberUUID}")
-    public Boolean addLicensePaymentHistory(@PathVariable UUID memberUUID, @RequestParam LocalDate date) {
-        return historyService.addLicenseHistoryPaymentRecord(memberUUID, date);
+    @PutMapping("/history/{memberUUID}")
+    public ResponseEntity<?> addLicensePaymentHistory(@PathVariable UUID memberUUID) {
+        if (historyService.addLicenseHistoryPayment(memberUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }

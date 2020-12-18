@@ -49,19 +49,16 @@ public class LicenseService {
         return map;
     }
 
-
-    public boolean addLicenseToMember(UUID memberUUID, License license) {
+    void addLicenseToMember(UUID memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getLicense() != null) {
             LOG.error("nie można już dodać licencji");
-            return false;
         }
         LicenseEntity licenseEntity = Mapping.map(license);
         licenseRepository.saveAndFlush(licenseEntity);
         memberEntity.setLicense(licenseEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Licencja została zapisana");
-        return true;
     }
 
     public boolean updateLicense(UUID memberUUID, License license) {
@@ -149,7 +146,7 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getPistolPermission() != null&&memberEntity.getShootingPatent().getPistolPermission()) {
+                    if (license.getPistolPermission() != null && memberEntity.getShootingPatent().getPistolPermission()) {
                         if (!license.getPistolPermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 0);
                         }
@@ -161,7 +158,7 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getRiflePermission() != null&&memberEntity.getShootingPatent().getRiflePermission()) {
+                    if (license.getRiflePermission() != null && memberEntity.getShootingPatent().getRiflePermission()) {
                         if (!license.getRiflePermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 1);
                         }
@@ -173,7 +170,7 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getShotgunPermission() != null&&memberEntity.getShootingPatent().getShotgunPermission()) {
+                    if (license.getShotgunPermission() != null && memberEntity.getShootingPatent().getShotgunPermission()) {
                         if (!license.getShotgunPermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 2);
                         }

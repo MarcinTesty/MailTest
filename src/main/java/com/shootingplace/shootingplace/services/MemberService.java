@@ -67,19 +67,18 @@ public class MemberService {
 
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
-//            if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && e.getActive()) {
-//                e.setActive(false);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-//            } else if ((e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-//                    || e.getContribution().getContribution().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && !e.getActive()) {
-//                e.setActive(true);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-//            }
+            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+                    && e.getActive()) {
+                e.setActive(false);
+                memberRepository.save(e);
+                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+                    && !e.getActive()) {
+                e.setActive(true);
+                memberRepository.save(e);
+                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setValid(false);

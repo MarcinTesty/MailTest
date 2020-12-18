@@ -21,9 +21,7 @@ public class HistoryEntity {
     private UUID uuid;
     @OneToMany
     private List<ContributionEntity> contributionList;
-    // do zrobienia
     private String[] licenseHistory;
-    // do zrobienia
     private LocalDate[] licensePaymentHistory;
 
     private Boolean patentFirstRecord = false;

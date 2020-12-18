@@ -68,7 +68,7 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
     }
 
-    void removeContribution(UUID memberUUID,ContributionEntity contribution) {
+    void removeContribution(UUID memberUUID, ContributionEntity contribution) {
         HistoryEntity historyEntity = memberRepository
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
@@ -79,10 +79,13 @@ public class HistoryService {
         historyRepository.saveAndFlush(historyEntity);
     }
 
+    // license
     void addLicenseHistoryRecord(UUID memberUUID, int index) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+
         String[] licenseTab = historyEntity.getLicenseHistory().clone();
         if (index == 0) {
             licenseTab[0] = "Pistolet";
@@ -147,47 +150,53 @@ public class HistoryService {
     }
 
     public Boolean addLicenseHistoryPayment(UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        if (historyEntity.getLicensePaymentHistory() != null) {
-            LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
 
-            for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-                newState[i] = historyEntity.getLicensePaymentHistory()[i];
-                newState[i + 1] = LocalDate.now();
+        try {
+            HistoryEntity historyEntity = memberRepository.findById(memberUUID)
+                    .orElseThrow(EntityNotFoundException::new)
+                    .getHistory();
+
+            if (historyEntity.getLicensePaymentHistory() != null) {
+                LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+
+                for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+                    newState[i] = historyEntity.getLicensePaymentHistory()[i];
+                    newState[i + 1] = LocalDate.now();
+                }
+                LocalDate[] sortState = selectionSort(newState);
+                historyEntity.setLicensePaymentHistory(sortState);
+                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+                historyRepository.saveAndFlush(historyEntity);
+
+            } else {
+
+                LocalDate[] newState = new LocalDate[1];
+                newState[0] = LocalDate.now();
+                historyEntity.setLicensePaymentHistory(newState);
+                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+                historyRepository.saveAndFlush(historyEntity);
             }
-            LocalDate[] sortState = selectionSort(newState);
-            historyEntity.setLicensePaymentHistory(sortState);
-            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-            historyRepository.saveAndFlush(historyEntity);
-
-        } else {
-
-            LocalDate[] newState = new LocalDate[1];
-            newState[0] = LocalDate.now();
-            historyEntity.setLicensePaymentHistory(newState);
-            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-            historyRepository.saveAndFlush(historyEntity);
+        } catch (EntityNotFoundException e) {
+            return false;
         }
         return true;
     }
 
-    public Boolean addLicenseHistoryPaymentRecord(UUID memberUUID, LocalDate date) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
-
-        for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-            newState[i] = historyEntity.getLicensePaymentHistory()[i];
-            newState[i + 1] = date;
-        }
-        LocalDate[] sortState = selectionSort(newState);
-//        historyEntity.setContributionsList(sortState);
-        historyRepository.saveAndFlush(historyEntity);
-        return true;
-    }
+//    public Boolean addLicenseHistoryPaymentRecord(UUID memberUUID, LocalDate date) {
+//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
+//                .orElseThrow(EntityNotFoundException::new);
+//        LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+//
+//        for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+//            newState[i] = historyEntity.getLicensePaymentHistory()[i];
+//            newState[i + 1] = date;
+//        }
+//        LocalDate[] sortState = selectionSort(newState);
+////        historyEntity.setContributionsList(sortState);
+//        historyRepository.saveAndFlush(historyEntity);
+//        return true;
+//    }
 
 
     private LocalDate[] selectionSort(LocalDate[] array) {
