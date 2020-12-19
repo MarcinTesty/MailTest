@@ -91,8 +91,6 @@ public class MemberPermissionsService {
             LOG.info("Zmieniono datę ważności licencji sędziowskiej");
         }
         memberPermissionsRepository.saveAndFlush(memberPermissionsEntity);
-        memberEntity.setMemberPermissions(memberPermissionsEntity);
-        memberRepository.saveAndFlush(memberEntity);
 
         return true;
     }

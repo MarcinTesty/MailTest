@@ -85,6 +85,7 @@ class Mapping {
                         .validThru(e.getValidThru())
                         .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
+                        .isPaid(e.getPaid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }
@@ -99,6 +100,7 @@ class Mapping {
                         .validThru(e.getValidThru())
                         .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
+                        .isPaid(e.getPaid())
                         .club(e.getClub())
                         .build()).orElse(null);
     }

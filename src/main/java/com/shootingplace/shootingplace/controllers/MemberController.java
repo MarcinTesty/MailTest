@@ -6,20 +6,14 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -86,7 +80,7 @@ public class MemberController {
     }
 
     @PutMapping("/{uuid}")
-    ResponseEntity<?> updateMember(@PathVariable UUID uuid, @RequestBody @Valid Member member) {
+    public ResponseEntity<?> updateMember(@PathVariable UUID uuid, @RequestBody @Valid Member member) {
         return memberService.updateMember(uuid, member);
     }
 
@@ -96,9 +90,13 @@ public class MemberController {
         return memberService.updateJoinDate(uuid, date);
     }
 
-    @PutMapping("/weapon/{uuid}")
-    public boolean changeWeaponPermission(@PathVariable UUID uuid, @RequestBody WeaponPermission weaponPermission) {
-        return memberService.changeWeaponPermission(uuid, weaponPermission);
+    @PutMapping("/weapon/{memberUUID}")
+    public ResponseEntity<?> changeWeaponPermission(@PathVariable UUID memberUUID, @RequestBody WeaponPermission weaponPermission) {
+        if (memberService.changeWeaponPermission(memberUUID, weaponPermission)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Transactional
@@ -113,7 +111,7 @@ public class MemberController {
     }
 
     @PatchMapping("/erase/{uuid}")
-    ResponseEntity<?> eraseMember(@PathVariable UUID uuid) {
+    public ResponseEntity<?> eraseMember(@PathVariable UUID uuid) {
         return memberService.eraseMember(uuid);
     }
 

@@ -30,6 +30,18 @@ public class PersonalEvidenceService {
         this.memberRepository = memberRepository;
     }
 
+    void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (memberEntity.getPersonalEvidence() != null) {
+            LOG.error("nie można już dodać pola");
+        }
+        PersonalEvidenceEntity personalEvidenceEntity = Mapping.map(personalEvidence);
+        personalEvidenceRepository.saveAndFlush(personalEvidenceEntity);
+        memberEntity.setPersonalEvidence(personalEvidenceEntity);
+        memberRepository.saveAndFlush(memberEntity);
+        LOG.info("Osobista Ewidencja została zapisana");
+    }
+
     public void collectAmmoData(UUID memberUUID) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         List<CaliberEntity> caliberEntities = caliberRepository.findAll();
@@ -45,24 +57,12 @@ public class PersonalEvidenceService {
                 }
             }
             evidenceAmmo[i] = String.valueOf(ammo);
-            evidenceAmmo[i] = evidenceAmmo[i] +" szt. "+ caliberEntities.get(i).getName();
+            evidenceAmmo[i] = evidenceAmmo[i] + " szt. " + caliberEntities.get(i).getName();
             ammo = 0;
 
         }
         LOG.info("Zebrano dane o amunicji");
         personalEvidence.setAmmo(evidenceAmmo);
         personalEvidenceRepository.saveAndFlush(personalEvidence);
-    }
-
-    void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getPersonalEvidence() != null) {
-            LOG.error("nie można już dodać pola");
-        }
-        PersonalEvidenceEntity personalEvidenceEntity = Mapping.map(personalEvidence);
-        personalEvidenceRepository.saveAndFlush(personalEvidenceEntity);
-        memberEntity.setPersonalEvidence(personalEvidenceEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Osobista Ewidencja została zapisana");
     }
 }

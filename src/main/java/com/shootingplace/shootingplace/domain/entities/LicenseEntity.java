@@ -2,11 +2,12 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -33,6 +34,8 @@ public class LicenseEntity {
     private Boolean isValid;
 
     private Boolean canProlong = false;
+
+    private Boolean isPaid;
 
 
     private String club;
@@ -107,5 +110,13 @@ public class LicenseEntity {
 
     public void setClub(String club) {
         this.club = club;
+    }
+
+    public Boolean getPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(Boolean paid) {
+        isPaid = paid;
     }
 }

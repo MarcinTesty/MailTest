@@ -35,7 +35,7 @@ public class AmmoEvidenceController {
         return ammoEvidenceService.getCalibersList();
     }
 
-    @PutMapping("/addMember{memberUUID}/{caliberUUID}")
+    @PutMapping("/addMember/{memberUUID}/{caliberUUID}")
     public void addMemberToCaliber(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID, @RequestParam Integer quantity) throws IOException, DocumentException {
         if (quantity > 0) {
             ammoEvidenceService.addMemberToCaliber(memberUUID, caliberUUID, quantity);
@@ -47,7 +47,7 @@ public class AmmoEvidenceController {
         return ammoEvidenceService.getMap(memberUUID, caliberUUID);
     }
 
-    @GetMapping("/personal{memberUUID}")
+    @GetMapping("/personal/{memberUUID}")
     public void collectAmmoData(@PathVariable UUID memberUUID) {
         personalEvidenceService.collectAmmoData(memberUUID);
     }

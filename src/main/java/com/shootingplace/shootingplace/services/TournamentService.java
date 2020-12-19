@@ -48,7 +48,7 @@ public class TournamentService {
         }
 
         tournamentRepository.saveAndFlush(tournamentEntity);
-        LOG.info("Stworzono nowe zawody z identyfikatorem : " + tournamentEntity.getUuid());
+        LOG.info("Stworzono nowe zawody " + tournamentEntity.getName());
 
         return tournamentEntity.getUuid();
     }

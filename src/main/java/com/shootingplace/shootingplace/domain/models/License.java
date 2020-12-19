@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -24,6 +23,8 @@ public class License {
     private Boolean isValid;
 
     private Boolean canProlong = false;
+
+    private Boolean isPaid;
 
 
     private String club;
@@ -90,5 +91,12 @@ public class License {
 
     public void setClub(String club) {
         this.club = club;
+    }
+    public Boolean getPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(Boolean paid) {
+        isPaid = paid;
     }
 }

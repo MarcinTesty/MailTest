@@ -28,7 +28,7 @@ public class WeaponPermissionService {
     void addWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getWeaponPermission() != null) {
-            LOG.error("nie można już dodać patentu");
+            LOG.error("nie można już dodać pozwolenia");
         }
         WeaponPermissionEntity weaponPermissionEntity = Mapping.map(weaponPermission);
         weaponPermissionRepository.saveAndFlush(weaponPermissionEntity);
@@ -39,17 +39,14 @@ public class WeaponPermissionService {
 
     boolean updateWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        WeaponPermissionEntity weaponPermissionEntity = weaponPermissionRepository.findById(memberEntity
-                .getWeaponPermission()
-                .getUuid())
-                .orElseThrow(EntityNotFoundException::new);
+        WeaponPermissionEntity weaponPermissionEntity = memberEntity.getWeaponPermission();
         if (weaponPermission.getNumber() != null && !weaponPermission.getNumber().isEmpty()) {
             if (weaponPermissionRepository.findByNumber(weaponPermission.getNumber()).isPresent()
                     && !memberEntity.getWeaponPermission().getNumber().equals(weaponPermission.getNumber())) {
                 LOG.error("ktoś już ma taki numer pozwolenia");
             } else {
                 weaponPermissionEntity.setNumber(weaponPermission.getNumber());
-                weaponPermissionEntity.setExist(!weaponPermissionEntity.getExist());
+                weaponPermissionEntity.setExist(true);
                 LOG.info("Wprowadzono numer pozwolenia");
             }
         }

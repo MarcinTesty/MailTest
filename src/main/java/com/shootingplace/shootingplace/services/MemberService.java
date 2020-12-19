@@ -67,18 +67,21 @@ public class MemberService {
 
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
-            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && e.getActive()) {
-                e.setActive(false);
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-                    && !e.getActive()) {
-                e.setActive(true);
-                memberRepository.save(e);
-                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-            }
+
+//            BARDZO WAŻNE BY ZROBIĆ TO ŚWIEŻM UMYSŁEM
+
+//            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && e.getActive()) {
+//                e.setActive(false);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+//            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && !e.getActive()) {
+//                e.setActive(true);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+//            }
             if (e.getLicense().getValidThru() != null) {
                 if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
                     e.getLicense().setValid(false);
@@ -145,6 +148,9 @@ public class MemberService {
     public ResponseEntity<?> addNewMember(Member member) throws IOException, DocumentException {
         MemberEntity memberEntity;
         member.setActive(true);
+
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+
         if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
             LOG.error("Ktoś już ma taki numer PESEL");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer PESEL\"");
@@ -152,19 +158,18 @@ public class MemberService {
         if (member.getEmail() == null || member.getEmail().isEmpty()) {
             member.setEmail("");
         }
-//        if (memberRepository.findByEmail(member.getEmail()).isPresent() && !member.getEmail().isEmpty()) {
-//            LOG.error("Ktoś już ma taki adres e-mail");
-//        throw new Exception();
-//        }
-        if (memberRepository.findByLegitimationNumber(member.getLegitimationNumber()).isPresent()) {
+        if (memberEntityList.stream().filter(f -> f.getEmail().equals(" ") || f.getEmail() == null).anyMatch(e -> e.getEmail().equals(member.getEmail()))) {
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki e-mail\"" + member.getEmail());
+        }
+        if (memberEntityList.stream().anyMatch(e -> e.getLegitimationNumber().equals(member.getLegitimationNumber()))) {
             LOG.error("Ktoś już ma taki numer legitymacji");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
         }
-        if (memberRepository.findByPhoneNumber("+48".concat(member.getPhoneNumber())).isPresent()) {
+        if (memberEntityList.stream().anyMatch(e -> "+48".concat(e.getPhoneNumber().replaceAll("\\s", "")).equals(member.getPhoneNumber()))) {
             LOG.error("Ktoś już ma taki numer telefonu");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer telefonu\"");
         }
-        if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
+        if (memberEntityList.stream().anyMatch(e -> e.getIDCard().toUpperCase().equals(member.getIDCard()))) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer dowodu osobistego\"");
         } else {
@@ -174,17 +179,16 @@ public class MemberService {
                 LOG.info("ustawiono domyślną datę zapisu " + member.getJoinDate());
             }
             if (member.getLegitimationNumber() == null) {
-                List<MemberEntity> numberList = new ArrayList<>(memberRepository.findAll());
-                Integer number;
-                if (numberList.isEmpty()) {
+                int number;
+                if (memberEntityList.isEmpty()) {
                     member.setLegitimationNumber(1);
                     number = 1;
                 } else {
-                    numberList.sort(Comparator.comparing(MemberEntity::getLegitimationNumber));
-                    Collections.reverse(numberList);
-                    number = numberList.get(0).getLegitimationNumber() + 1;
+                    memberEntityList.sort(Comparator.comparing(MemberEntity::getLegitimationNumber));
+                    Collections.reverse(memberEntityList);
+                    number = memberEntityList.get(0).getLegitimationNumber() + 1;
                 }
-                if (memberRepository.findByLegitimationNumber(number).isPresent()) {
+                if (memberEntityList.stream().anyMatch(e -> e.getLegitimationNumber().equals(member.getLegitimationNumber()))) {
                     LOG.error("Ktoś już ma taki numer legitymacji");
                     return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
                 } else {
@@ -225,6 +229,7 @@ public class MemberService {
                         .shotgunPermission(false)
                         .isValid(false)
                         .canProlong(false)
+                        .isPaid(false)
                         .club("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build();
                 licenseService.addLicenseToMember(memberEntity.getUuid(), license);
@@ -247,7 +252,6 @@ public class MemberService {
                         .patentFirstRecord(false).build();
                 historyService.createHistory(memberEntity.getUuid(), history);
                 ContributionEntity contributionEntity = contributionService.addFirstContribution(memberEntity.getUuid(), LocalDate.now());
-                System.out.println(contributionEntity.getUuid());
                 historyService.addContribution(memberEntity.getUuid(), contributionEntity);
             }
             if (memberEntity.getWeaponPermission() == null) {
@@ -428,15 +432,16 @@ public class MemberService {
         if (member.getIDCard() != null && !member.getIDCard().isEmpty()) {
             if (memberRepository.findByIDCard(member.getIDCard()).isPresent()) {
                 LOG.error("Ktoś już ma taki numer dowodu");
+            } else {
+                memberEntity.setIDCard(member.getIDCard().toUpperCase());
+                LOG.info(goodMessage() + "Numer Dowodu");
             }
-            memberEntity.setIDCard(member.getIDCard().toUpperCase());
-            LOG.info(goodMessage() + "Numer Dowodu");
         }
 
         memberRepository.saveAndFlush(memberEntity);
         filesService.personalCardFile(memberEntity.getUuid());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     public boolean changeWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
