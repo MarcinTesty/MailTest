@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,13 +25,15 @@ public class CompetitionService {
     }
 
     public List<CompetitionEntity> getAllCompetitions() {
-        if (competitionRepository.findAll().isEmpty()) {
+        List<CompetitionEntity> competitionEntityList = competitionRepository.findAll();
+
+        if (competitionEntityList.isEmpty()) {
             createCompetitions();
             LOG.info("Zostały utworzone domyślne encje Konkurencji");
         }
         LOG.info("Wyświetlono listę Konkurencji");
-        return competitionRepository.findAll();
-
+        competitionEntityList.sort(Comparator.comparing(CompetitionEntity::getName));
+        return competitionEntityList;
     }
 
     private void createCompetitions() {

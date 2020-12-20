@@ -2,11 +2,11 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -23,6 +23,8 @@ public class PersonalEvidenceEntity {
     private String[] ammo;
     @OneToOne
     private FilesEntity file;
+    @OneToMany
+    private List<AmmoUsedEntity> ammoList;
 
     public UUID getUuid() {
         return uuid;
@@ -46,5 +48,13 @@ public class PersonalEvidenceEntity {
 
     public void setFile(FilesEntity file) {
         this.file = file;
+    }
+
+    public List<AmmoUsedEntity> getAmmoList() {
+        return ammoList;
+    }
+
+    public void setAmmoList(List<AmmoUsedEntity> ammoList) {
+        this.ammoList = ammoList;
     }
 }

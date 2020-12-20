@@ -26,12 +26,13 @@ public class CaliberService {
     }
 
     List<CaliberEntity> getCalibersList() {
-        if (caliberRepository.findAll().isEmpty()) {
+        List<CaliberEntity> caliberEntityList = caliberRepository.findAll();
+        if (caliberEntityList.isEmpty()) {
             createAllCalibersEntities();
         }
-
+        caliberEntityList.sort(Comparator.comparing(CaliberEntity::getName));
         LOG.info("Wyświetlono listę kalibrów");
-        return caliberRepository.findAll();
+        return caliberEntityList;
     }
 
     private void createAllCalibersEntities() {

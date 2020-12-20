@@ -24,7 +24,6 @@ public class AddressController {
         if (addressService.updateAddress(memberUUID, address)) {
             return ResponseEntity.ok().build();
         } else
-
-        return ResponseEntity.status(418).body("I'm a teapot");
+            return ResponseEntity.status(418).body("I'm a teapot");
     }
 }

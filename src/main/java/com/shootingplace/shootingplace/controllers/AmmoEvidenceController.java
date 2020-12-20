@@ -2,9 +2,12 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.AmmoUsedEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.services.AmmoEvidenceService;
+import com.shootingplace.shootingplace.services.AmmoUsedService;
 import com.shootingplace.shootingplace.services.PersonalEvidenceService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -19,10 +22,12 @@ public class AmmoEvidenceController {
 
     private final AmmoEvidenceService ammoEvidenceService;
     private final PersonalEvidenceService personalEvidenceService;
+    private final AmmoUsedService ammoUsedService;
 
-    public AmmoEvidenceController(AmmoEvidenceService ammoEvidenceService, PersonalEvidenceService personalEvidenceService) {
+    public AmmoEvidenceController(AmmoEvidenceService ammoEvidenceService, PersonalEvidenceService personalEvidenceService, AmmoUsedService ammoUsedService) {
         this.ammoEvidenceService = ammoEvidenceService;
         this.personalEvidenceService = personalEvidenceService;
+        this.ammoUsedService = ammoUsedService;
     }
 
     @GetMapping("/")
@@ -31,8 +36,8 @@ public class AmmoEvidenceController {
     }
 
     @GetMapping("/calibers")
-    public List<CaliberEntity> getCalibersList() {
-        return ammoEvidenceService.getCalibersList();
+    public ResponseEntity<List<CaliberEntity>> getCalibersList() {
+        return ResponseEntity.ok(ammoEvidenceService.getCalibersList());
     }
 
     @PutMapping("/addMember/{memberUUID}/{caliberUUID}")
@@ -50,6 +55,24 @@ public class AmmoEvidenceController {
     @GetMapping("/personal/{memberUUID}")
     public void collectAmmoData(@PathVariable UUID memberUUID) {
         personalEvidenceService.collectAmmoData(memberUUID);
+    }
+
+    // New ammo used by Member
+
+
+    @GetMapping("/ammo")
+    public ResponseEntity<List<AmmoUsedEntity>> getAllAmmoUsed() {
+        return ResponseEntity.ok(ammoUsedService.getAllAmmoUsed());
+    }
+
+    @PostMapping("/ammo")
+    public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam UUID memberUUID, @RequestParam Integer counter) {
+        if (ammoUsedService.addAmmoUsedEntity(caliberUUID, memberUUID, counter)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 }

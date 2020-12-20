@@ -2,13 +2,15 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -21,11 +23,10 @@ public class AmmoEvidenceEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String label;
-
     private LocalDate date;
-    @OneToMany
-    private List<CaliberEntity> caliberList = new ArrayList<>();
+
+    private String number;
+
     @OneToOne
     private FilesEntity file;
 
@@ -37,13 +38,6 @@ public class AmmoEvidenceEntity {
         this.uuid = uuid;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
 
     public LocalDate getDate() {
         return date;
@@ -51,14 +45,6 @@ public class AmmoEvidenceEntity {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public List<CaliberEntity> getCaliberList() {
-        return caliberList;
-    }
-
-    public void setCaliberList(List<CaliberEntity> caliberList) {
-        this.caliberList = caliberList;
     }
 
     public FilesEntity getFile() {

@@ -308,4 +308,13 @@ class Mapping {
                 .name(e.getName())
                 .build()).orElse(null);
     }
+
+    public static AmmoUsedEntity map(AmmoUsed a) {
+        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
+        .caliberName(a.getCaliberName())
+        .counter(a.getCounter())
+        .member(a.getMember())
+        .caliberUUID(a.getCaliberUUID())
+        .build()).orElse(null);
+    }
 }

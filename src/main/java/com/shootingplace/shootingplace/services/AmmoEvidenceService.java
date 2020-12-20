@@ -35,8 +35,6 @@ public class AmmoEvidenceService {
     private void addAmmoEvidenceEntity() {
         AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
                 .date(LocalDate.now())
-                .label("Ewidencja zużycia amunicji")
-                .caliberList(null)
                 .file(null)
                 .build();
 
@@ -49,7 +47,6 @@ public class AmmoEvidenceService {
                     .build();
             filesService.createAmmoListFileEntity(ammoEvidenceEntity.getUuid(), filesModel);
             List<CaliberEntity> caliberEntities = caliberService.getCalibersList();
-            ammoEvidenceEntity.setCaliberList(caliberEntities);
             ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
             LOG.info("Lista została utworzona");
 
@@ -83,5 +80,14 @@ public class AmmoEvidenceService {
 
     public Map<String, Integer> getMap(UUID memberUUID, UUID caliberUUID) {
         return caliberService.returnMap(memberUUID, caliberUUID);
+    }
+
+    public void createAmmoEvidence(LocalDate date){
+
+        AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
+                .date(date)
+                .number("1/01/2021")
+                .build();
+
     }
 }

@@ -43,7 +43,7 @@ public class FilesService {
         this.filesRepository = filesRepository;
     }
 
-    public void createContributionFileEntity(UUID memberUUID, FilesModel filesModel) {
+    void createContributionFileEntity(UUID memberUUID, FilesModel filesModel) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getContributionFile() != null) {
             LOG.error("nie można już dodać pola z plikiem");
