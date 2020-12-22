@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoUsedEntity {
+public class AmmoUsedToEvidenceEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -33,7 +33,6 @@ public class AmmoUsedEntity {
         return uuid;
     }
 
-
     public String getCaliberName() {
         return caliberName;
     }
@@ -42,8 +41,12 @@ public class AmmoUsedEntity {
         this.caliberName = caliberName;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public UUID getCaliberUUID() {
+        return caliberUUID;
+    }
+
+    public void setCaliberUUID(UUID caliberUUID) {
+        this.caliberUUID = caliberUUID;
     }
 
     public UUID getMemberUUID() {
@@ -56,14 +59,6 @@ public class AmmoUsedEntity {
 
     public Integer getCounter() {
         return counter;
-    }
-
-    public UUID getCaliberUUID() {
-        return caliberUUID;
-    }
-
-    public void setCaliberUUID(UUID caliberUUID) {
-        this.caliberUUID = caliberUUID;
     }
 
     public void setCounter(Integer counter) {

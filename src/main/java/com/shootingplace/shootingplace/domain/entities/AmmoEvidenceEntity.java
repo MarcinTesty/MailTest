@@ -5,11 +5,9 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,6 +24,10 @@ public class AmmoEvidenceEntity {
     private LocalDate date;
 
     private String number;
+    @ManyToMany
+    private List<AmmoInEvidenceEntity> ammoInEvidenceEntityList;
+
+    private boolean open;
 
     @OneToOne
     private FilesEntity file;
@@ -53,5 +55,29 @@ public class AmmoEvidenceEntity {
 
     public void setFile(FilesEntity file) {
         this.file = file;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public List<AmmoInEvidenceEntity> getAmmoInEvidenceEntityList() {
+        return ammoInEvidenceEntityList;
+    }
+
+    public void setAmmoInEvidenceEntityList(List<AmmoInEvidenceEntity> ammoInEvidenceEntityList) {
+        this.ammoInEvidenceEntityList = ammoInEvidenceEntityList;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 }

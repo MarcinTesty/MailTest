@@ -351,15 +351,15 @@ public class FilesService {
 
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
 
-        String fileName = ammoEvidenceEntity.getLabel().concat(" " + ammoEvidenceEntity.getDate() + ".pdf");
+//        String fileName = ammoEvidenceEntity.getLabel().concat(" " + ammoEvidenceEntity.getDate() + ".pdf");
 
         Document document = new Document(PageSize.A4);
-        PdfWriter.getInstance(document,
-                new FileOutputStream(fileName));
-
-        document.open();
-        document.addTitle(fileName);
-        document.addCreationDate();
+//        PdfWriter.getInstance(document,
+//                new FileOutputStream(fileName));
+//
+//        document.open();
+//        document.addTitle(fileName);
+//        document.addCreationDate();
 
         try {
             czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
@@ -388,16 +388,16 @@ public class FilesService {
         document.close();
 
 
-        byte[] data = convertToByteArray(fileName);
+//        byte[] data = convertToByteArray(fileName);
 
         FilesEntity filesEntity = ammoEvidenceEntity.getFile();
-        filesEntity.setName(fileName);
+//        filesEntity.setName(fileName);
         filesEntity.setType(String.valueOf(MediaType.APPLICATION_PDF));
-        filesEntity.setData(data);
-        File file = new File(fileName);
-        MultipartFile multipartFile = new MockMultipartFile(fileName,
-                file.getName(), filesEntity.getType(), filesEntity.getData());
-        ammoEvidenceEntity.setFile(saveAmmunitionListFile(multipartFile, ammoEvidenceEntity.getUuid()));
+//        filesEntity.setData(data);
+//        File file = new File(fileName);
+//        MultipartFile multipartFile = new MockMultipartFile(fileName,
+//                file.getName(), filesEntity.getType(), filesEntity.getData());
+//        ammoEvidenceEntity.setFile(saveAmmunitionListFile(multipartFile, ammoEvidenceEntity.getUuid()));
         ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
 
     }

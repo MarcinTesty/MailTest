@@ -11,7 +11,7 @@ import java.util.UUID;
 public class AmmoUsed {
     private String caliberName;
 
-    private UUID member;
+    private UUID memberUUID;
 
     private Integer counter;
 
@@ -33,12 +33,12 @@ public class AmmoUsed {
         this.caliberName = caliberName;
     }
 
-    public UUID getMember() {
-        return member;
+    public UUID getMemberUUID() {
+        return memberUUID;
     }
 
-    public void setMember(UUID member) {
-        this.member = member;
+    public void setMemberUUID(UUID memberUUID) {
+        this.memberUUID = memberUUID;
     }
 
     public Integer getCounter() {

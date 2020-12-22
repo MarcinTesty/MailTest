@@ -2,22 +2,27 @@ package com.shootingplace.shootingplace.services;
 
 import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.domain.models.FilesModel;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
+import com.shootingplace.shootingplace.repositories.AmmoInEvidenceRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class AmmoEvidenceService {
+
+    private final AmmoInEvidenceRepository ammoInEvidenceRepository;
 
     private final CaliberService caliberService;
     private final FilesService filesService;
@@ -25,7 +30,8 @@ public class AmmoEvidenceService {
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public AmmoEvidenceService(CaliberService caliberService, FilesService filesService, AmmoEvidenceRepository ammoEvidenceRepository) {
+    public AmmoEvidenceService(AmmoInEvidenceRepository ammoInEvidenceRepository, CaliberService caliberService, FilesService filesService, AmmoEvidenceRepository ammoEvidenceRepository) {
+        this.ammoInEvidenceRepository = ammoInEvidenceRepository;
         this.caliberService = caliberService;
         this.filesService = filesService;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
@@ -65,7 +71,7 @@ public class AmmoEvidenceService {
     }
 
     public void addMemberToCaliber(UUID memberUUID, UUID caliberUUID, Integer quantity) throws IOException, DocumentException {
-        if (ammoEvidenceRepository.findAll().isEmpty() || ammoEvidenceRepository.findAll() == null){
+        if (ammoEvidenceRepository.findAll().isEmpty() || ammoEvidenceRepository.findAll() == null) {
             addAmmoEvidenceEntity();
         }
         if (quantity != null) {
@@ -78,16 +84,82 @@ public class AmmoEvidenceService {
         return caliberService.getCalibersList();
     }
 
-    public Map<String, Integer> getMap(UUID memberUUID, UUID caliberUUID) {
-        return caliberService.returnMap(memberUUID, caliberUUID);
+//    public Map<String, Integer> getMap(UUID memberUUID, UUID caliberUUID) {
+//        return caliberService.returnMap(memberUUID, caliberUUID);
+//    }
+
+    void addAmmoInEvidenceToAmmoEvidence(AmmoInEvidenceEntity ammoInEvidenceEntity) {
+
+        if (ammoEvidenceRepository.findAll().size() < 1) {
+            AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
+                    .date(LocalDate.now())
+                    .number("1/01/2021")
+                    .open(true)
+                    .ammoInEvidenceEntityList(new ArrayList<>())
+                    .build();
+            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+            ammoInEvidenceEntity.setEvidenceUUID(ammoEvidenceEntity.getUuid());
+            ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
+            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+        }
+        else{
+
+            AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+                    .findAll()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(EntityNotFoundException::new);
+            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
+            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+
+        }
+//
+//        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+//                .findAll()
+//                .stream()
+//                .findFirst()
+//                .orElseThrow(EntityNotFoundException::new);
+//        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
+//
+//        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+//                .findAll()
+//                .stream()
+//                .filter();
+//
+//        ammoInEvidenceEntity.setEvidenceUUID(ammoEvidenceEntity.getUuid());
+//        ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+//
+//        ammoInEvidenceEntityList.forEach(e -> {
+//            System.out.println(e.getCaliberUUID());
+//        });
+//
+//        if(ammoInEvidenceEntityList.stream()
+//                .anyMatch(e -> e.getCaliberUUID().equals(ammoInEvidenceEntity.getCaliberUUID()))){
+//
+//        }
+//
+//        ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
+//
+//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+
+//
+//        AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
+//                .date(LocalDate.now())
+//                .number("1/01/2021")
+//                .open(true)
+//                .ammoInEvidenceEntityList(new ArrayList<>())
+//                .build();
+//
+//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+//
+
+//        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
+//        ammoInEvidenceEntityList.add(ammoInEvidenceEntity);
+//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
     }
 
-    public void createAmmoEvidence(LocalDate date){
-
-        AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
-                .date(date)
-                .number("1/01/2021")
-                .build();
-
+    public List<AmmoEvidenceEntity> getAllEvidences() {
+        return ammoEvidenceRepository.findAll();
     }
 }

@@ -20,7 +20,6 @@ public class PersonalEvidenceEntity {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID uuid;
 
-    private String[] ammo;
     @OneToOne
     private FilesEntity file;
     @OneToMany
@@ -32,14 +31,6 @@ public class PersonalEvidenceEntity {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    public String[] getAmmo() {
-        return ammo;
-    }
-
-    public void setAmmo(String[] ammo) {
-        this.ammo = ammo;
     }
 
     public FilesEntity getFile() {
