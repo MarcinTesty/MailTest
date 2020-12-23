@@ -33,29 +33,32 @@ public class AmmoInEvidenceService {
 //      Nie znaleziono żadnej listy
         if (ammoEvidenceRepository.findAll().size() < 1 || ammoEvidenceRepository.findAll() == null) {
             System.out.println("tworzymy od zera");
-            AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
-                    .date(LocalDate.now())
-                    .open(true)
-                    .ammoInEvidenceEntityList(new ArrayList<>())
-                    .number("1")
-                    .build();
-            ammoEvidenceRepository.saveAndFlush(buildEvidence);
+            if (ammoUsedToEvidenceEntity.getCounter() < 0) {
+                System.out.println("nie można dodać ujemnej wartości");
+            } else {
+                AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
+                        .date(LocalDate.now())
+                        .open(true)
+                        .ammoInEvidenceEntityList(new ArrayList<>())
+                        .number("1")
+                        .build();
+                ammoEvidenceRepository.saveAndFlush(buildEvidence);
 
-            AmmoInEvidenceEntity build = AmmoInEvidenceEntity.builder()
-                    .caliberName(ammoUsedToEvidenceEntity.getCaliberName())
-                    .caliberUUID(ammoUsedToEvidenceEntity.getCaliberUUID())
-                    .evidenceUUID(buildEvidence.getUuid())
-                    .quantity(0)
-                    .ammoUsedToEvidenceEntityList(new ArrayList<>())
-                    .build();
+                AmmoInEvidenceEntity build = AmmoInEvidenceEntity.builder()
+                        .caliberName(ammoUsedToEvidenceEntity.getCaliberName())
+                        .caliberUUID(ammoUsedToEvidenceEntity.getCaliberUUID())
+                        .evidenceUUID(buildEvidence.getUuid())
+                        .quantity(0)
+                        .ammoUsedToEvidenceEntityList(new ArrayList<>())
+                        .build();
 
-            build.getAmmoUsedToEvidenceEntityList().add(ammoUsedToEvidenceEntity);
-            build.setQuantity(ammoUsedToEvidenceEntity.getCounter());
-            ammoInEvidenceRepository.saveAndFlush(build);
+                build.getAmmoUsedToEvidenceEntityList().add(ammoUsedToEvidenceEntity);
+                build.setQuantity(ammoUsedToEvidenceEntity.getCounter());
+                ammoInEvidenceRepository.saveAndFlush(build);
 
-            buildEvidence.getAmmoInEvidenceEntityList().add(build);
-            ammoEvidenceRepository.saveAndFlush(buildEvidence);
-
+                buildEvidence.getAmmoInEvidenceEntityList().add(build);
+                ammoEvidenceRepository.saveAndFlush(buildEvidence);
+            }
 
         }
 //      Znaleziono jakąś otwartą listę
@@ -83,8 +86,20 @@ public class AmmoInEvidenceService {
                         .orElseThrow(EntityNotFoundException::new);
 
                 List<AmmoUsedToEvidenceEntity> ammoUsedToEvidenceEntityList = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList();
+//        Nie znaleziono podanego membera
+                if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getMemberUUID().equals(ammoUsedToEvidenceEntity.getMemberUUID()))) {
+                    System.out.println("nie ma membera");
+                    if (ammoUsedToEvidenceEntity.getCounter() < 0) {
+                        System.out.println("nie można dodać ujemnej wartości");
+                    } else {
+                        ammoUsedToEvidenceEntityList.add(ammoUsedToEvidenceEntity);
+                        ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
+
+                        ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+                    }
+                }
 //        Znaleziono podanego membera
-                if (ammoUsedToEvidenceEntityList.stream().anyMatch(f -> f.getMemberUUID().equals(ammoUsedToEvidenceEntity.getMemberUUID()))) {
+                else {
                     System.out.println("jest member");
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
@@ -92,17 +107,13 @@ public class AmmoInEvidenceService {
                                     .equals(ammoUsedToEvidenceEntity.getMemberUUID()))
                             .findFirst()
                             .orElseThrow(EntityNotFoundException::new);
-                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
-                    ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter()+ammoUsedToEvidenceEntity.getCounter());
-                    ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity1);
-                    ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
-                }
-//        Nie znaleziono podanego membera
-                else {
-                    System.out.println("nie ma membera");
-                    ammoUsedToEvidenceEntityList.add(ammoUsedToEvidenceEntity);
-                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
 
+                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
+                    ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter());
+                    if(ammoUsedToEvidenceEntity1.getCounter()<=0){
+                        ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().remove(ammoUsedToEvidenceEntity1);
+                    }
+                    ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity1);
                     ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
 
                 }
@@ -122,10 +133,38 @@ public class AmmoInEvidenceService {
                 build.getAmmoUsedToEvidenceEntityList().add(ammoUsedToEvidenceEntity);
                 build.setQuantity(ammoUsedToEvidenceEntity.getCounter());
                 ammoInEvidenceRepository.saveAndFlush(build);
+                ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(build);
+                ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
             }
 
         }
+        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+                .findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(EntityNotFoundException::new);
 
+
+        if (ammoEvidenceEntity
+                .getAmmoInEvidenceEntityList()
+                .stream()
+                .filter(f -> f.getQuantity() <= 0)
+                .anyMatch(a -> a.getQuantity() <= 0)) {
+
+            AmmoInEvidenceEntity ammoInEvidenceEntity = ammoEvidenceEntity
+                    .getAmmoInEvidenceEntityList()
+                    .stream()
+                    .filter(f -> f.getQuantity() <= 0)
+                    .findFirst()
+                    .orElseThrow(EntityNotFoundException::new);
+
+            ammoEvidenceEntity.getAmmoInEvidenceEntityList().remove(ammoInEvidenceEntity);
+            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+
+        }
+        if(ammoEvidenceEntity.getAmmoInEvidenceEntityList().size()<1){
+            ammoEvidenceRepository.delete(ammoEvidenceEntity);
+        }
     }
 
 
