@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -115,7 +116,9 @@ public class AmmoEvidenceService {
 //    }
 
     public List<AmmoEvidenceEntity> getAllEvidences(boolean state) {
-        return ammoEvidenceRepository.findAll().stream().filter(f -> f.isOpen()==state).collect(Collectors.toList());
+        List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().filter(f -> f.isOpen() == state).collect(Collectors.toList());
+        collect.sort(Comparator.comparing(AmmoEvidenceEntity::getDate).reversed());
+        return collect;
     }
 
     public boolean closeEvidence(UUID evidenceUUID) {

@@ -5,7 +5,6 @@ import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.AmmoUsedToEvidenceEntity;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import com.shootingplace.shootingplace.repositories.AmmoInEvidenceRepository;
-import com.shootingplace.shootingplace.repositories.AmmoUsedRepository;
 import com.shootingplace.shootingplace.repositories.AmmoUsedToEvidenceEntityRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +19,12 @@ import java.util.stream.Collectors;
 public class AmmoInEvidenceService {
     private final AmmoInEvidenceRepository ammoInEvidenceRepository;
     private final AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository;
-    private final AmmoUsedRepository ammoUsedRepository;
 
     private final AmmoEvidenceRepository ammoEvidenceRepository;
 
-    public AmmoInEvidenceService(AmmoInEvidenceRepository ammoInEvidenceRepository, AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository, AmmoUsedRepository ammoUsedRepository, AmmoEvidenceRepository ammoEvidenceRepository) {
+    public AmmoInEvidenceService(AmmoInEvidenceRepository ammoInEvidenceRepository, AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository, AmmoEvidenceRepository ammoEvidenceRepository) {
         this.ammoInEvidenceRepository = ammoInEvidenceRepository;
         this.ammoUsedToEvidenceEntityRepository = ammoUsedToEvidenceEntityRepository;
-        this.ammoUsedRepository = ammoUsedRepository;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
     }
 
