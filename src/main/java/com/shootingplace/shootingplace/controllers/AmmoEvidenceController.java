@@ -1,7 +1,9 @@
 package com.shootingplace.shootingplace.controllers;
 
-import com.itextpdf.text.DocumentException;
-import com.shootingplace.shootingplace.domain.entities.*;
+import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.AmmoUsedToEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.services.AmmoEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoInEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoUsedService;
@@ -9,7 +11,6 @@ import com.shootingplace.shootingplace.services.PersonalEvidenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,22 +31,22 @@ public class AmmoEvidenceController {
         this.ammoUsedService = ammoUsedService;
     }
 
-    @GetMapping("/")
-    public AmmoEvidenceEntity getAmmoEvidence() throws IOException, DocumentException {
-        return ammoEvidenceService.getAmmoEvidence();
-    }
+//    @GetMapping("/")
+//    public AmmoEvidenceEntity getAmmoEvidence() throws IOException, DocumentException {
+//        return ammoEvidenceService.getAmmoEvidence();
+//    }
 
     @GetMapping("/calibers")
     public ResponseEntity<List<CaliberEntity>> getCalibersList() {
         return ResponseEntity.ok(ammoEvidenceService.getCalibersList());
     }
-
-    @PutMapping("/addMember/{memberUUID}/{caliberUUID}")
-    public void addMemberToCaliber(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID, @RequestParam Integer quantity) throws IOException, DocumentException {
-        if (quantity > 0) {
-            ammoEvidenceService.addMemberToCaliber(memberUUID, caliberUUID, quantity);
-        }
-    }
+//
+//    @PutMapping("/addMember/{memberUUID}/{caliberUUID}")
+//    public void addMemberToCaliber(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID, @RequestParam Integer quantity) throws IOException, DocumentException {
+//        if (quantity > 0) {
+//            ammoEvidenceService.addMemberToCaliber(memberUUID, caliberUUID, quantity);
+//        }
+//    }
 
 //    @GetMapping("/map{memberUUID}/{caliberUUID}")
 //    public Map<String, Integer> getMap(@PathVariable UUID memberUUID, @PathVariable UUID caliberUUID) {
@@ -59,11 +60,6 @@ public class AmmoEvidenceController {
 
     // New ammo used by Member
 
-    @GetMapping("/ammo")
-    public ResponseEntity<List<AmmoUsedEntity>> getAllAmmoUsed() {
-        return ResponseEntity.ok(ammoUsedService.getAllAmmoUsed());
-    }
-
     @PostMapping("/ammo")
     public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam UUID memberUUID, @RequestParam Integer counter) {
         if (ammoUsedService.addAmmoUsedEntity(caliberUUID, memberUUID, counter)) {
@@ -76,25 +72,29 @@ public class AmmoEvidenceController {
 
     // New ammo in evidence
 
-//    @PostMapping("/ammoEvidence")
-//    public ResponseEntity<?> createAmmoInEvidence(@RequestParam UUID caliberUUID,@RequestParam UUID memberUUID, @RequestParam Integer quantity) {
-//        ammoInEvidenceService.createNewAmmoInEvidenceEntity(caliberUUID,memberUUID,quantity);
-//        return ResponseEntity.ok().build();
-//    }
-//
-// not important ///////////////
-    @GetMapping("/ammoEvidence")
-    public ResponseEntity<List<AmmoInEvidenceEntity>> getAllAmmoInEvidence(){
-        return ResponseEntity.ok(ammoInEvidenceService.getAllAmmoInEvidence());
+    @GetMapping("/evidence")
+    public ResponseEntity<List<AmmoEvidenceEntity>> getAllEvidences(@RequestParam boolean state) {
+        return ResponseEntity.ok(ammoEvidenceService.getAllEvidences(state));
     }
-////////////////////////////////
-    @GetMapping("/ammo/evidence")
-    public ResponseEntity<List<AmmoEvidenceEntity>> getAllEvidences(){
-        return ResponseEntity.ok(ammoEvidenceService.getAllEvidences());
+
+    @PatchMapping("/ammo")
+    public ResponseEntity<?> closeEvidence(@RequestParam UUID evidenceUUID) {
+        if (ammoEvidenceService.closeEvidence(evidenceUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
+    // helper
+    @GetMapping("/ammoEvidence")
+    public ResponseEntity<List<AmmoInEvidenceEntity>> getAllAmmoInEvidence() {
+        return ResponseEntity.ok(ammoInEvidenceService.getAllAmmoInEvidence());
     }
 
     @GetMapping("/ammoUsed")
-    public ResponseEntity<List<AmmoUsedToEvidenceEntity>> getAllsmth(){
+    public ResponseEntity<List<AmmoUsedToEvidenceEntity>> getAllsmth() {
         return ResponseEntity.ok(ammoUsedService.getAllsmth());
     }
 }

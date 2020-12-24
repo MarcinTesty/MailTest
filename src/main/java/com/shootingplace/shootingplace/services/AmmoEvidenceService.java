@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.services;
 
 import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.domain.models.FilesModel;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
@@ -15,9 +14,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AmmoEvidenceService {
@@ -88,78 +87,44 @@ public class AmmoEvidenceService {
 //        return caliberService.returnMap(memberUUID, caliberUUID);
 //    }
 
-    void addAmmoInEvidenceToAmmoEvidence(AmmoInEvidenceEntity ammoInEvidenceEntity) {
-
-        if (ammoEvidenceRepository.findAll().size() < 1) {
-            AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
-                    .date(LocalDate.now())
-                    .number("1/01/2021")
-                    .open(true)
-                    .ammoInEvidenceEntityList(new ArrayList<>())
-                    .build();
-            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
-            ammoInEvidenceEntity.setEvidenceUUID(ammoEvidenceEntity.getUuid());
-            ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
-            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
-            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
-        }
-        else{
-
-            AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
-                    .findAll()
-                    .stream()
-                    .findFirst()
-                    .orElseThrow(EntityNotFoundException::new);
-            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
-            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
-
-        }
+//    void addAmmoInEvidenceToAmmoEvidence(AmmoInEvidenceEntity ammoInEvidenceEntity) {
 //
-//        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
-//                .findAll()
-//                .stream()
-//                .findFirst()
-//                .orElseThrow(EntityNotFoundException::new);
-//        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
+//        if (ammoEvidenceRepository.findAll().size() < 1) {
+//            AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
+//                    .date(LocalDate.now())
+//                    .number("1/01/2021")
+//                    .open(true)
+//                    .ammoInEvidenceEntityList(new ArrayList<>())
+//                    .build();
+//            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+//            ammoInEvidenceEntity.setEvidenceUUID(ammoEvidenceEntity.getUuid());
+//            ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+//            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
+//            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+//        } else {
 //
-//        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
-//                .findAll()
-//                .stream()
-//                .filter();
-//
-//        ammoInEvidenceEntity.setEvidenceUUID(ammoEvidenceEntity.getUuid());
-//        ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
-//
-//        ammoInEvidenceEntityList.forEach(e -> {
-//            System.out.println(e.getCaliberUUID());
-//        });
-//
-//        if(ammoInEvidenceEntityList.stream()
-//                .anyMatch(e -> e.getCaliberUUID().equals(ammoInEvidenceEntity.getCaliberUUID()))){
+//            AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+//                    .findAll()
+//                    .stream()
+//                    .findFirst()
+//                    .orElseThrow(EntityNotFoundException::new);
+//            ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
+//            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
 //
 //        }
-//
-//        ammoEvidenceEntity.getAmmoInEvidenceEntityList().add(ammoInEvidenceEntity);
-//
-//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+//    }
 
-//
-//        AmmoEvidenceEntity ammoEvidenceEntity = AmmoEvidenceEntity.builder()
-//                .date(LocalDate.now())
-//                .number("1/01/2021")
-//                .open(true)
-//                .ammoInEvidenceEntityList(new ArrayList<>())
-//                .build();
-//
-//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
-//
-
-//        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
-//        ammoInEvidenceEntityList.add(ammoInEvidenceEntity);
-//        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+    public List<AmmoEvidenceEntity> getAllEvidences(boolean state) {
+        return ammoEvidenceRepository.findAll().stream().filter(f -> f.isOpen()==state).collect(Collectors.toList());
     }
 
-    public List<AmmoEvidenceEntity> getAllEvidences() {
-        return ammoEvidenceRepository.findAll();
+    public boolean closeEvidence(UUID evidenceUUID) {
+        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
+                .findById(evidenceUUID)
+                .orElseThrow(EntityNotFoundException::new);
+        ammoEvidenceEntity.setOpen(false);
+        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+        System.out.println("zamknięto");
+        return true;
     }
 }

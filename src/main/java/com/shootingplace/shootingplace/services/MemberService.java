@@ -68,7 +68,7 @@ public class MemberService {
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
 
-//            BARDZO WAŻNE BY ZROBIĆ TO ŚWIEŻM UMYSŁEM
+//            BARDZO WAŻNE BY ZROBIĆ TO ŚWIEŻYM UMYSŁEM
 
 //            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
 //                    && e.getActive()) {
