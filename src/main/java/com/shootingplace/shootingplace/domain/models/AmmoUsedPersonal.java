@@ -8,7 +8,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AmmoUsed {
+public class AmmoUsedPersonal {
     private String caliberName;
 
     private UUID memberUUID;
@@ -16,14 +16,6 @@ public class AmmoUsed {
     private Integer counter;
 
     private UUID caliberUUID;
-
-    public UUID getCaliberUUID() {
-        return caliberUUID;
-    }
-
-    public void setCaliberUUID(UUID caliberUUID) {
-        this.caliberUUID = caliberUUID;
-    }
 
     public String getCaliberName() {
         return caliberName;
@@ -47,5 +39,13 @@ public class AmmoUsed {
 
     public void setCounter(Integer counter) {
         this.counter = counter;
+    }
+
+    public UUID getCaliberUUID() {
+        return caliberUUID;
+    }
+
+    public void setCaliberUUID(UUID caliberUUID) {
+        this.caliberUUID = caliberUUID;
     }
 }

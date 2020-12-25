@@ -2,8 +2,11 @@ package com.shootingplace.shootingplace.services;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.FilesEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.FilesModel;
@@ -13,9 +16,7 @@ import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.File;
@@ -23,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,47 +45,30 @@ public class FilesService {
         this.filesRepository = filesRepository;
     }
 
-    void createContributionFileEntity(UUID memberUUID, FilesModel filesModel) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getContributionFile() != null) {
-            LOG.error("nie można już dodać pola z plikiem");
-        }
+    private FilesEntity createContributionFileEntity(FilesModel filesModel) {
         FilesEntity filesEntity = Mapping.map(filesModel);
-        filesRepository.saveAndFlush(filesEntity);
-        memberEntity.setContributionFile(filesEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("pole z plikiem Potwierdzenia Składki zostało zapisane");
+        LOG.info("Potwierdzenia Składki zostało zapisane");
+        return filesRepository.saveAndFlush(filesEntity);
 
     }
 
-    void createPersonalCardFileEntity(UUID memberUUID, FilesModel filesModel) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getPersonalCardFile() != null) {
-            LOG.error("nie można już dodać pola z plikiem");
-        }
+    private FilesEntity createPersonalCardFileEntity(FilesModel filesModel) {
         FilesEntity filesEntity = Mapping.map(filesModel);
-        filesRepository.saveAndFlush(filesEntity);
-        memberEntity.setPersonalCardFile(filesEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("pole z plikiem Karty Personalnej zostało zapisane");
+        LOG.info("Karta Personalnej została zapisana");
+        return filesRepository.saveAndFlush(filesEntity);
 
     }
 
-    void createAmmoListFileEntity(UUID ammoListUUID, FilesModel filesModel) {
-        AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoListUUID).orElseThrow(EntityNotFoundException::new);
-        if (ammoEvidenceEntity.getFile() != null) {
-            LOG.error("nie można już dodać pola z plikiem");
-        }
+    private FilesEntity createAmmoListFileEntity(FilesModel filesModel) {
+
         FilesEntity filesEntity = Mapping.map(filesModel);
-        filesRepository.saveAndFlush(filesEntity);
-        ammoEvidenceEntity.setFile(filesEntity);
-        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
-        LOG.info("pole z plikiem Karty Personalnej zostało zapisane");
+        LOG.info("Lista Amunicji została zapisane");
+        return filesRepository.saveAndFlush(filesEntity);
 
     }
 
 
-    public void contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
+    public FilesEntity contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LocalDate contribution = memberEntity.getHistory().getContributionList().get(0).getPaymentDay();
         LocalDate validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
@@ -135,9 +120,9 @@ public class FilesService {
         Paragraph p8 = new Paragraph("\n\nSkładka ważna do : ", new Font(czcionka, 11));
         Phrase p9 = new Phrase(String.valueOf(validThru), new Font(czcionka, 11, Font.BOLD));
         Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", new Font(czcionka, 11));
-//        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + memberEntity.getContribution().getPaymentDay() + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
+        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + contribution + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
         Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", new Font(czcionka, 11));
-//        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
+        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
         Paragraph p14 = new Paragraph("", new Font(czcionka, 11));
         Phrase p15 = new Phrase("\n\nSkładki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
                 "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
@@ -158,7 +143,7 @@ public class FilesService {
         p2.add(p4);
         p6.add(p7);
         p8.add(p9);
-//        p10.add(p11);
+        p10.add(p11);
         p14.add(p15);
 
         p20.add(p21);
@@ -175,7 +160,7 @@ public class FilesService {
         document.add(p8);
         document.add(p10);
         document.add(p12);
-//        document.add(p13);
+        document.add(p13);
         document.add(p14);
         document.add(p16);
         document.add(p19);
@@ -183,20 +168,22 @@ public class FilesService {
         document.close();
 
         byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
 
-        FilesEntity filesEntity = memberEntity.getContributionFile();
-        filesEntity.setName(fileName);
-        filesEntity.setType(String.valueOf(MediaType.APPLICATION_PDF));
-        filesEntity.setData(data);
+        FilesEntity filesEntity =
+                createContributionFileEntity(filesModel);
+
         File file = new File(fileName);
-        MultipartFile multipartFile = new MockMultipartFile(fileName,
-                file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setContributionFile(saveContributionFile(multipartFile, memberEntity.getUuid()));
-        memberRepository.saveAndFlush(memberEntity);
+
         file.delete();
+        return filesEntity;
     }
 
-    public void personalCardFile(UUID memberUUID) throws IOException, DocumentException {
+    public FilesEntity personalCardFile(UUID memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
@@ -333,33 +320,39 @@ public class FilesService {
         document.close();
 
         byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
 
-        FilesEntity filesEntity = memberEntity.getPersonalCardFile();
+        FilesEntity filesEntity =
+                createPersonalCardFileEntity(filesModel);
+
+
         filesEntity.setName(fileName);
         filesEntity.setType(String.valueOf(MediaType.APPLICATION_PDF));
         filesEntity.setData(data);
         File file = new File(fileName);
-        MultipartFile multipartFile = new MockMultipartFile(fileName,
-                file.getName(), filesEntity.getType(), filesEntity.getData());
-        memberEntity.setPersonalCardFile(savePersonalCardFile(multipartFile, memberEntity.getUuid()));
-        memberRepository.saveAndFlush(memberEntity);
+
         file.delete();
+        return filesEntity;
 
     }
 
-    void createAmmunitionListDocument(UUID ammoEvidenceUUID) throws IOException, DocumentException {
-
+    public FilesEntity createAmmunitionListDocument(UUID ammoEvidenceUUID) throws IOException, DocumentException {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
+        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
 
-//        String fileName = ammoEvidenceEntity.getLabel().concat(" " + ammoEvidenceEntity.getDate() + ".pdf");
+        String fileName = "Lista_Amunicyjna_" + ammoEvidenceEntity.getDate() + ".pdf";
 
         Document document = new Document(PageSize.A4);
-//        PdfWriter.getInstance(document,
-//                new FileOutputStream(fileName));
-//
-//        document.open();
-//        document.addTitle(fileName);
-//        document.addCreationDate();
+        PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
 
         try {
             czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
@@ -369,36 +362,68 @@ public class FilesService {
 
         Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", new Font(czcionka, 14, Font.BOLD));
         Paragraph p1 = new Paragraph("Lista rozliczenia amunicji\n", new Font(czcionka, 14, Font.ITALIC));
-//        if (!ammoEvidenceEntity.getCaliberList().get(0).getMembers().isEmpty()) {
-//
-//            Phrase p2 = new Phrase(String.valueOf(ammoEvidenceEntity.getCaliberList().get(0).getMembers().get(0)), new Font(czcionka, 14, Font.BOLD));
-//            p1.add(p2);
-//
-//        }
 
 
         p.setIndentationLeft(100);
         p1.add("\n");
         p1.setIndentationLeft(190);
 
-
         document.add(p);
         document.add(p1);
+        for (int i = 0; i < ammoInEvidenceEntityList.size(); i++) {
+            Paragraph p2 = new Paragraph("Kaliber : " +ammoInEvidenceEntityList.get(i).getCaliberName() + "\n", new Font(czcionka, 14, Font.BOLD));
+            p2.add("\n");
+            p2.setIndentationLeft(220);
+            document.add(p2);
+            float [] pointColumnWidths = {20F, 255F,25};
+            PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
+            PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", new Font(czcionka, 10, Font.ITALIC))));
+
+
+
+            tableLabel.addCell(cellLabel);
+            tableLabel.addCell(cell1Label);
+            tableLabel.addCell(cell2Label);
+            document.add(tableLabel);
+            for (int j = 0; j < ammoInEvidenceEntityList.get(i).getAmmoUsedToEvidenceEntityList().size(); j++) {
+                PdfPTable table = new PdfPTable(pointColumnWidths);
+                PdfPCell cell;
+                PdfPCell cell1;
+                PdfPCell cell2;
+                cell = new PdfPCell(new Paragraph(String.valueOf(j + 1), new Font(czcionka, 10, Font.ITALIC)));
+                cell1 = new PdfPCell(
+                        new Paragraph(ammoInEvidenceEntityList.get(i)
+                                .getAmmoUsedToEvidenceEntityList().get(j)
+                                .getMemberEntity().getSecondName().concat(" "+ammoInEvidenceEntityList.get(i)
+                                        .getAmmoUsedToEvidenceEntityList().get(j)
+                                        .getMemberEntity().getFirstName()), new Font(czcionka, 10, Font.ITALIC)));
+                cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntityList.get(i).getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), new Font(czcionka, 10, Font.ITALIC)));
+                table.addCell(cell);
+                table.addCell(cell1);
+                table.addCell(cell2);
+                document.add(table);
+            }
+        }
 
         document.close();
 
 
-//        byte[] data = convertToByteArray(fileName);
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
 
-        FilesEntity filesEntity = ammoEvidenceEntity.getFile();
-//        filesEntity.setName(fileName);
-        filesEntity.setType(String.valueOf(MediaType.APPLICATION_PDF));
-//        filesEntity.setData(data);
-//        File file = new File(fileName);
-//        MultipartFile multipartFile = new MockMultipartFile(fileName,
-//                file.getName(), filesEntity.getType(), filesEntity.getData());
-//        ammoEvidenceEntity.setFile(saveAmmunitionListFile(multipartFile, ammoEvidenceEntity.getUuid()));
-        ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+        FilesEntity filesEntity =
+                createAmmoListFileEntity(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
 
     }
 
@@ -413,32 +438,6 @@ public class FilesService {
         return filesRepository.findById(fileUUID);
     }
 
-    private FilesEntity saveContributionFile(MultipartFile file, UUID memberUUID) throws IOException {
-        String docName = file.getOriginalFilename();
-        FilesEntity filesEntity = memberRepository.findById(memberUUID).get().getContributionFile();
-        filesEntity.setName(docName);
-        filesEntity.setType(file.getContentType());
-        filesEntity.setData(file.getBytes());
-        return filesRepository.saveAndFlush(filesEntity);
-    }
-
-    private FilesEntity savePersonalCardFile(MultipartFile file, UUID memberUUID) throws IOException {
-        String docName = file.getOriginalFilename();
-        FilesEntity filesEntity = memberRepository.findById(memberUUID).get().getPersonalCardFile();
-        filesEntity.setName(docName);
-        filesEntity.setType(file.getContentType());
-        filesEntity.setData(file.getBytes());
-        return filesRepository.saveAndFlush(filesEntity);
-    }
-
-    private FilesEntity saveAmmunitionListFile(MultipartFile file, UUID ammoListUUID) throws IOException {
-        String docName = file.getOriginalFilename();
-        FilesEntity filesEntity = ammoEvidenceRepository.findById(ammoListUUID).get().getFile();
-        filesEntity.setName(docName);
-        filesEntity.setType(file.getContentType());
-        filesEntity.setData(file.getBytes());
-        return filesRepository.saveAndFlush(filesEntity);
-    }
 
     private byte[] convertToByteArray(String path) throws IOException {
         File file = new File(path);
@@ -459,4 +458,8 @@ public class FilesService {
         return LocalDate.of(year, month, day);
     }
 
+    public void delete(FilesEntity filesEntity) {
+        filesRepository.delete(filesEntity);
+
+    }
 }

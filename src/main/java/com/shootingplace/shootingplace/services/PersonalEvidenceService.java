@@ -43,16 +43,16 @@ public class PersonalEvidenceService {
     }
 
 //    public void collectAmmoData(UUID memberUUID) {
-//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 //        List<CaliberEntity> caliberEntities = caliberRepository.findAll();
-//        PersonalEvidenceEntity personalEvidence = memberEntity.getPersonalEvidence();
+//        PersonalEvidenceEntity personalEvidence = memberUUID.getPersonalEvidence();
 //        String[] evidenceAmmo = new String[caliberEntities.size()];
 //        Integer ammo = 0;
 //        for (int i = 0; i < caliberEntities.size(); i++) {
 //            List<MemberEntity> members = caliberEntities.get(i).getMembers();
 //            Integer[] integers = caliberEntities.get(i).getAmmoUsed();
 //            for (int j = 0; j < members.size(); j++) {
-//                if (members.get(j).equals(memberEntity)) {
+//                if (members.get(j).equals(memberUUID)) {
 //                    ammo = ammo + integers[j];
 //                }
 //            }

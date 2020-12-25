@@ -28,7 +28,7 @@ public class AmmoInEvidenceService {
         this.ammoEvidenceRepository = ammoEvidenceRepository;
     }
 
-    void addAmmoUsedEntityToAmmoInEvidenceEntity(AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity, Integer counter) {
+    void addAmmoUsedEntityToAmmoInEvidenceEntity(AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity) {
 
         List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().filter(AmmoEvidenceEntity::isOpen).collect(Collectors.toList());
 
@@ -50,10 +50,10 @@ public class AmmoInEvidenceService {
                     List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll();
                     all.sort(Comparator.comparing(AmmoEvidenceEntity::getNumber).reversed());
                     String number1 = all.get(0).getNumber();
-                    String[] split = number1.split("/");
+                    String[] split = number1.split("-");
                     number = Integer.valueOf(split[0])+1;
                 }
-                String evidenceNumber = number + "/LA/" + LocalDate.now().getYear();
+                String evidenceNumber = number + "-LA-" + LocalDate.now().getYear();
                 AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
                         .date(LocalDate.now())
                         .open(true)
@@ -95,7 +95,6 @@ public class AmmoInEvidenceService {
                     .stream()
                     .anyMatch(a -> a.getCaliberUUID().equals(ammoUsedToEvidenceEntity.getCaliberUUID()))) {
 
-                System.out.println("jest lista z kalibrem");
 
                 AmmoInEvidenceEntity ammoInEvidenceEntity = ammoEvidenceEntity.getAmmoInEvidenceEntityList()
                         .stream()
@@ -105,8 +104,7 @@ public class AmmoInEvidenceService {
 
                 List<AmmoUsedToEvidenceEntity> ammoUsedToEvidenceEntityList = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList();
 //        Nie znaleziono podanego membera
-                if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getMemberUUID().equals(ammoUsedToEvidenceEntity.getMemberUUID()))) {
-                    System.out.println("nie ma membera");
+                if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getMemberEntity().equals(ammoUsedToEvidenceEntity.getMemberEntity()))) {
                     if (ammoUsedToEvidenceEntity.getCounter() < 0) {
                         System.out.println("nie można dodać ujemnej wartości");
                     } else {
@@ -121,8 +119,8 @@ public class AmmoInEvidenceService {
                     System.out.println("jest member");
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
-                            .filter(f -> f.getMemberUUID()
-                                    .equals(ammoUsedToEvidenceEntity.getMemberUUID()))
+                            .filter(f -> f.getMemberEntity()
+                                    .equals(ammoUsedToEvidenceEntity.getMemberEntity()))
                             .findFirst()
                             .orElseThrow(EntityNotFoundException::new);
 

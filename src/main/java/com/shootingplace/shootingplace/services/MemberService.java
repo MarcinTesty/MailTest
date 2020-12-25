@@ -271,24 +271,6 @@ public class MemberService {
                         .build();
                 memberPermissionsService.addMemberPermissions(memberEntity.getUuid(), memberPermissions);
             }
-            if (memberEntity.getContributionFile() == null) {
-                FilesModel filesModel = FilesModel.builder()
-                        .name("")
-                        .data(null)
-                        .type(String.valueOf(MediaType.APPLICATION_PDF))
-                        .build();
-                filesService.createContributionFileEntity(memberEntity.getUuid(), filesModel);
-                filesService.contributionConfirm(memberEntity.getUuid());
-            }
-            if (memberEntity.getPersonalCardFile() == null) {
-                FilesModel filesModel = FilesModel.builder()
-                        .name("")
-                        .data(null)
-                        .type(String.valueOf(MediaType.APPLICATION_PDF))
-                        .build();
-                filesService.createPersonalCardFileEntity(memberEntity.getUuid(), filesModel);
-                filesService.personalCardFile(memberEntity.getUuid());
-            }
             if (memberEntity.getPersonalEvidence() == null) {
                 PersonalEvidence personalEvidence = PersonalEvidence.builder()
                         .ammo(new String[0])

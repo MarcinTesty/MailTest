@@ -2,8 +2,10 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.AmmoUsedEntity;
 import com.shootingplace.shootingplace.domain.entities.AmmoUsedToEvidenceEntity;
+import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.entities.PersonalEvidenceEntity;
-import com.shootingplace.shootingplace.domain.models.AmmoUsed;
+import com.shootingplace.shootingplace.domain.models.AmmoUsedEvidence;
+import com.shootingplace.shootingplace.domain.models.AmmoUsedPersonal;
 import com.shootingplace.shootingplace.repositories.*;
 import org.springframework.stereotype.Service;
 
@@ -43,22 +45,30 @@ public class AmmoUsedService {
                 .orElseThrow(EntityNotFoundException::new)
                 .getName();
 
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
-        AmmoUsed ammoUsed = AmmoUsed.builder()
+        AmmoUsedPersonal ammoUsedPersonal = AmmoUsedPersonal.builder()
                 .caliberName(name)
                 .counter(quantity)
                 .memberUUID(memberUUID)
                 .caliberUUID(caliberUUID)
                 .build();
 
-        validateAmmo(ammoUsed);
-        starEvidence(ammoUsed);
+        AmmoUsedEvidence ammoUsedEvidence = AmmoUsedEvidence.builder()
+                .caliberName(name)
+                .counter(quantity)
+                .memberUUID(memberEntity)
+                .caliberUUID(caliberUUID)
+                .build();
+
+        validateAmmo(ammoUsedPersonal);
+        starEvidence(ammoUsedEvidence);
         return true;
     }
 
-    private void validateAmmo(AmmoUsed ammoUsed) {
+    private void validateAmmo(AmmoUsedPersonal ammoUsedpersonal) {
         PersonalEvidenceEntity personalEvidence = memberRepository
-                .findById(ammoUsed.getMemberUUID())
+                .findById(ammoUsedpersonal.getMemberUUID())
                 .orElseThrow(EntityNotFoundException::new)
                 .getPersonalEvidence();
 
@@ -67,11 +77,11 @@ public class AmmoUsedService {
                 .stream()
                 .filter(Objects::nonNull)
                 .anyMatch(e -> e.getCaliberUUID()
-                        .equals(ammoUsed.getCaliberUUID()) &&
+                        .equals(ammoUsedpersonal.getCaliberUUID()) &&
                         e.getCaliberName()
-                                .equals(ammoUsed.getCaliberName()));
+                                .equals(ammoUsedpersonal.getCaliberName()));
         if (!match) {
-            AmmoUsedEntity ammoUsedEntity = createAmmoUsedEntity(ammoUsed);
+            AmmoUsedEntity ammoUsedEntity = createAmmoUsedEntity(ammoUsedpersonal);
             if (ammoUsedEntity.getCounter() < 0) {
                 ammoUsedEntity.setCounter(0);
             }
@@ -83,13 +93,13 @@ public class AmmoUsedService {
             AmmoUsedEntity ammoUsedEntity = personalEvidence
                     .getAmmoList()
                     .stream()
-                    .filter(e -> e.getCaliberUUID().equals(ammoUsed.getCaliberUUID()))
+                    .filter(e -> e.getCaliberUUID().equals(ammoUsedpersonal.getCaliberUUID()))
                     .findFirst()
                     .orElseThrow(EntityNotFoundException::new);
 
             Integer counter = ammoUsedEntity.getCounter();
 
-            ammoUsedEntity.setCounter(counter + ammoUsed.getCounter());
+            ammoUsedEntity.setCounter(counter + ammoUsedpersonal.getCounter());
             if (ammoUsedEntity.getCounter() < 0) {
                 ammoUsedEntity.setCounter(0);
             }
@@ -99,21 +109,21 @@ public class AmmoUsedService {
 
     }
 
-    private void starEvidence(AmmoUsed ammoUsed) {
+    private void starEvidence(AmmoUsedEvidence ammoUsedEvidence) {
 
-        AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity = createAmmoUsedToEvidenceEntity(ammoUsed);
+        AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity = createAmmoUsedToEvidenceEntity(ammoUsedEvidence);
 
             System.out.println("zapis");
             ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity);
-            ammoInEvidenceService.addAmmoUsedEntityToAmmoInEvidenceEntity(ammoUsedToEvidenceEntity, ammoUsed.getCounter());
+            ammoInEvidenceService.addAmmoUsedEntityToAmmoInEvidenceEntity(ammoUsedToEvidenceEntity);
 
 
     }
 
 
-    private AmmoUsedEntity createAmmoUsedEntity(AmmoUsed ammoUsed) {
+    private AmmoUsedEntity createAmmoUsedEntity(AmmoUsedPersonal ammoUsedPersonal) {
 
-        return ammoUsedRepository.saveAndFlush(Mapping.map(ammoUsed));
+        return ammoUsedRepository.saveAndFlush(Mapping.map(ammoUsedPersonal));
 
     }
 
@@ -125,8 +135,8 @@ public class AmmoUsedService {
 
     }
 
-    private AmmoUsedToEvidenceEntity createAmmoUsedToEvidenceEntity(AmmoUsed ammoUsed) {
-        return ammoUsedToEvidenceEntityRepository.saveAndFlush(Mapping.map1(ammoUsed));
+    private AmmoUsedToEvidenceEntity createAmmoUsedToEvidenceEntity(AmmoUsedEvidence ammoUsedEvidence) {
+        return ammoUsedToEvidenceEntityRepository.saveAndFlush(Mapping.map(ammoUsedEvidence));
     }
 
     public List<AmmoUsedToEvidenceEntity> getAllsmth() {

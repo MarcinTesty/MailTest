@@ -64,7 +64,7 @@ public class CaliberService {
     }
 
     void addAmmoUsedByMemberToCaliber(UUID memberUUID, UUID caliberUUID, Integer quantity) {
-//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 //        CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
 //        if (caliberEntity.getQuantity() == null) {
 //            Integer sum = 0;
@@ -78,10 +78,10 @@ public class CaliberService {
 //            Integer quantity1 = caliberEntity.getQuantity();
 //            quantity1 = quantity1 + quantity;
 //            caliberEntity.setQuantity(quantity1);
-//            caliberEntity.getMembers().add(memberEntity);
+//            caliberEntity.getMembers().add(memberUUID);
 //            caliberRepository.saveAndFlush(caliberEntity);
 //        } else {
-//            caliberEntity.getMembers().add(memberEntity);
+//            caliberEntity.getMembers().add(memberUUID);
 //
 //            Integer[] ammoUsed = new Integer[caliberEntity.getAmmoUsed().length + 1];
 //
@@ -106,23 +106,23 @@ public class CaliberService {
 
 //    Map<String, Integer> returnMap(UUID memberUUID, UUID caliberUUID) {
 //        CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
-//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 //        List<MemberEntity> members = caliberEntity.getMembers();
 //        Integer[] integers = caliberEntity.getAmmoUsed();
 //        Integer integer = 0;
 //        for (int i = 0; i < members.size(); i++) {
-//            if (members.get(i).equals(memberEntity)) {
+//            if (members.get(i).equals(memberUUID)) {
 //                integer = integer + integers[i];
 //                integers[i] = integer;
 //            }
 //        }
-//        Map<String, Integer> map1 = new HashMap<>();
+//        Map<String, Integer> map = new HashMap<>();
 //        for (int i = 0; i < members.size(); i++) {
 //
-//            map1.put(memberEntity.getSecondName().concat(" " + memberEntity.getFirstName()), integer);
+//            map.put(memberUUID.getSecondName().concat(" " + memberUUID.getFirstName()), integer);
 //
 //        }
-//        return map1;
+//        return map;
 //    }
 
 

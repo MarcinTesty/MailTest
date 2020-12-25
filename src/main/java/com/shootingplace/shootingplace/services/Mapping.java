@@ -306,22 +306,32 @@ class Mapping {
                 .name(e.getName())
                 .build()).orElse(null);
     }
+//
+//    public static AmmoUsedEntity map(AmmoUsedEvidence a) {
+//        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
+//        .caliberName(a.getCaliberName())
+//        .counter(a.getCounter())
+//        .memberUUID(a.getMemberUUID())
+//        .caliberUUID(a.getCaliberUUID())
+//        .build()).orElse(null);
+//    }
 
-    public static AmmoUsedEntity map(AmmoUsed a) {
-        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
-        .caliberName(a.getCaliberName())
-        .counter(a.getCounter())
-        .memberUUID(a.getMemberUUID())
-        .caliberUUID(a.getCaliberUUID())
-        .build()).orElse(null);
-    }
-
-    public static AmmoUsedToEvidenceEntity map1(AmmoUsed a){
+    public static AmmoUsedToEvidenceEntity map(AmmoUsedEvidence a){
         return Optional.ofNullable(a).map(e->AmmoUsedToEvidenceEntity.builder()
         .caliberName(a.getCaliberName())
         .caliberUUID(a.getCaliberUUID())
         .counter(a.getCounter())
-        .memberUUID(a.getMemberUUID())
+        .memberEntity(a.getMemberUUID())
         .build()).orElse(null);
+    }
+
+    public static AmmoUsedEntity map(AmmoUsedPersonal a) {
+        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
+                .caliberName(a.getCaliberName())
+                .counter(a.getCounter())
+                .memberUUID(a.getMemberUUID())
+                .caliberUUID(a.getCaliberUUID())
+                .build()).orElse(null);
+
     }
 }

@@ -68,12 +68,6 @@ public class MemberEntity {
     @OneToOne(orphanRemoval = true)
     private PersonalEvidenceEntity personalEvidence;
 
-    @OneToOne
-    private FilesEntity contributionFile;
-
-    @OneToOne
-    private FilesEntity personalCardFile;
-
     public UUID getUuid() {
         return uuid;
     }
@@ -228,22 +222,6 @@ public class MemberEntity {
 
     public void setPersonalEvidence(PersonalEvidenceEntity personalEvidence) {
         this.personalEvidence = personalEvidence;
-    }
-
-    public FilesEntity getContributionFile() {
-        return contributionFile;
-    }
-
-    public void setContributionFile(FilesEntity contributionFile) {
-        this.contributionFile = contributionFile;
-    }
-
-    public FilesEntity getPersonalCardFile() {
-        return personalCardFile;
-    }
-
-    public void setPersonalCardFile(FilesEntity personalCardFile) {
-        this.personalCardFile = personalCardFile;
     }
 
 }

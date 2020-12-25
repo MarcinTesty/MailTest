@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -24,8 +22,8 @@ public class AmmoUsedToEvidenceEntity {
     private String caliberName;
 
     private UUID caliberUUID;
-
-    private UUID memberUUID;
+    @ManyToOne
+    private MemberEntity memberEntity;
 
     private Integer counter;
 
@@ -49,12 +47,12 @@ public class AmmoUsedToEvidenceEntity {
         this.caliberUUID = caliberUUID;
     }
 
-    public UUID getMemberUUID() {
-        return memberUUID;
+    public MemberEntity getMemberEntity() {
+        return memberEntity;
     }
 
-    public void setMemberUUID(UUID memberUUID) {
-        this.memberUUID = memberUUID;
+    public void setMemberEntity(MemberEntity memberEntity) {
+        this.memberEntity = memberEntity;
     }
 
     public Integer getCounter() {
