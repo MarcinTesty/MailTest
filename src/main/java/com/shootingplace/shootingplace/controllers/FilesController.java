@@ -62,4 +62,17 @@ public class FilesController {
         }
     }
 
+    @GetMapping("/downloadApplication/{memberUUID}")
+    public ResponseEntity<byte[]> getApplicationForExtensionOfTheCompetitorsLicense(@PathVariable UUID memberUUID) throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.createApplicationForExtensionOfTheCompetitorsLicense(memberUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
 }

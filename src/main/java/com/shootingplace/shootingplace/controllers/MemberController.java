@@ -27,9 +27,9 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("/{memberUUID}")
-    public ResponseEntity<MemberEntity> getMember(@PathVariable UUID memberUUID) {
-        return ResponseEntity.ok(memberService.getMember(memberUUID));
+    @GetMapping("/{number}")
+    public ResponseEntity<MemberEntity> getMember(@PathVariable int number) {
+        return ResponseEntity.ok(memberService.getMember(number));
     }
 
     @GetMapping("/activelist")
@@ -49,7 +49,7 @@ public class MemberController {
 
     @GetMapping("/getMembersNames")
     public List<String> getMembersNames(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
-        return memberService.getMembersNameAndUUID(active, adult, erase);
+        return memberService.getMembersNameAndLegitimationNumber(active, adult, erase);
     }
 
     @GetMapping("/memberswithpermissions")

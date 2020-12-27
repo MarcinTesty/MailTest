@@ -134,11 +134,11 @@ public class MemberService {
         return list;
     }
 
-    public List<String> getMembersNameAndUUID(Boolean active, Boolean adult, Boolean erase) {
+    public List<String> getMembersNameAndLegitimationNumber(Boolean active, Boolean adult, Boolean erase) {
         List<String> list = new ArrayList<>();
         memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase)
                 .forEach(e ->
-                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
+                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
         list.sort(Comparator.comparing(String::new));
         LOG.info("Lista nazwisk z identyfikatorem");
         return list;
@@ -436,9 +436,10 @@ public class MemberService {
     }
 
 
-    public MemberEntity getMember(UUID uuid) {
+    public MemberEntity getMember(int number) {
         LOG.info("Wywołano Klubowicza");
-        return memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
+        return memberEntity;
     }
 
     public List<MemberEntity> getErasedMembers() {

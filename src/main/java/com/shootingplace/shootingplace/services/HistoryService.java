@@ -43,8 +43,8 @@ public class HistoryService {
         historyEntity.setPistolCounter(0);
         historyEntity.setRifleCounter(0);
         historyEntity.setShotgunCounter(0);
-        historyEntity.setCompetitionHistory(null);
-        historyEntity.setJudgingHistory(null);
+        historyEntity.setCompetitionHistory(new ArrayList<>());
+        historyEntity.setJudgingHistory(new ArrayList<>());
         historyEntity.setPatentFirstRecord(false);
         historyRepository.saveAndFlush(historyEntity);
         memberEntity.setHistory(historyEntity);

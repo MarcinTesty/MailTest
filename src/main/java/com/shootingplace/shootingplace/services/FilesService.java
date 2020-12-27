@@ -1,14 +1,8 @@
 package com.shootingplace.shootingplace.services;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.FilesEntity;
-import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.itextpdf.text.pdf.*;
+import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.FilesModel;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import com.shootingplace.shootingplace.repositories.FilesRepository;
@@ -24,9 +18,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FilesService {
@@ -63,6 +59,14 @@ public class FilesService {
 
         FilesEntity filesEntity = Mapping.map(filesModel);
         LOG.info("Lista Amunicji została zapisane");
+        return filesRepository.saveAndFlush(filesEntity);
+
+    }
+
+    private FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(FilesModel filesModel) {
+
+        FilesEntity filesEntity = Mapping.map(filesModel);
+        LOG.info("Wniosek został zapisany");
         return filesRepository.saveAndFlush(filesEntity);
 
     }
@@ -360,46 +364,48 @@ public class FilesService {
             e.printStackTrace();
         }
 
+
+        Paragraph number = new Paragraph(ammoEvidenceEntity.getNumber(), font(8, -1));
         Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", new Font(czcionka, 14, Font.BOLD));
-        Paragraph p1 = new Paragraph("Lista rozliczenia amunicji\n", new Font(czcionka, 14, Font.ITALIC));
+        Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), new Font(czcionka, 12, Font.ITALIC));
 
-
+        number.setIndentationLeft(450);
         p.setIndentationLeft(100);
         p1.add("\n");
         p1.setIndentationLeft(190);
 
+        document.add(number);
         document.add(p);
         document.add(p1);
-        for (int i = 0; i < ammoInEvidenceEntityList.size(); i++) {
-            Paragraph p2 = new Paragraph("Kaliber : " +ammoInEvidenceEntityList.get(i).getCaliberName() + "\n", new Font(czcionka, 14, Font.BOLD));
+        for (AmmoInEvidenceEntity ammoInEvidenceEntity : ammoInEvidenceEntityList) {
+            Paragraph p2 = new Paragraph("Kaliber : " + ammoInEvidenceEntity.getCaliberName() + "\n", font(12, 1));
             p2.add("\n");
-            p2.setIndentationLeft(220);
+            p2.setIndentationLeft(230);
             document.add(p2);
-            float [] pointColumnWidths = {20F, 255F,25};
+            float[] pointColumnWidths = {20F, 255F, 25};
             PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
             PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", new Font(czcionka, 10, Font.ITALIC))));
             PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", new Font(czcionka, 10, Font.ITALIC))));
             PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", new Font(czcionka, 10, Font.ITALIC))));
 
 
-
             tableLabel.addCell(cellLabel);
             tableLabel.addCell(cell1Label);
             tableLabel.addCell(cell2Label);
             document.add(tableLabel);
-            for (int j = 0; j < ammoInEvidenceEntityList.get(i).getAmmoUsedToEvidenceEntityList().size(); j++) {
+            for (int j = 0; j < ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().size(); j++) {
                 PdfPTable table = new PdfPTable(pointColumnWidths);
                 PdfPCell cell;
                 PdfPCell cell1;
                 PdfPCell cell2;
                 cell = new PdfPCell(new Paragraph(String.valueOf(j + 1), new Font(czcionka, 10, Font.ITALIC)));
                 cell1 = new PdfPCell(
-                        new Paragraph(ammoInEvidenceEntityList.get(i)
+                        new Paragraph(ammoInEvidenceEntity
                                 .getAmmoUsedToEvidenceEntityList().get(j)
-                                .getMemberEntity().getSecondName().concat(" "+ammoInEvidenceEntityList.get(i)
+                                .getMemberEntity().getSecondName().concat(" " + ammoInEvidenceEntity
                                         .getAmmoUsedToEvidenceEntityList().get(j)
                                         .getMemberEntity().getFirstName()), new Font(czcionka, 10, Font.ITALIC)));
-                cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntityList.get(i).getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), new Font(czcionka, 10, Font.ITALIC)));
+                cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), new Font(czcionka, 10, Font.ITALIC)));
                 table.addCell(cell);
                 table.addCell(cell1);
                 table.addCell(cell2);
@@ -419,6 +425,266 @@ public class FilesService {
 
         FilesEntity filesEntity =
                 createAmmoListFileEntity(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+
+    }
+
+    public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(UUID memberUUID) throws IOException, DocumentException {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
+        String fileName = "Wniosek_" + memberEntity.getFirstName() + " " + memberEntity.getSecondName() + ".pdf";
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+        PdfContentByte cb = writer.getDirectContent();
+
+        PdfReader reader = new PdfReader("C:\\Users\\izebr\\IdeaProjects\\shootingplace\\src\\main\\resources\\Wniosek_o_przedluzenie_licencji_zawodniczej.pdf");
+        PdfImportedPage page = writer.getImportedPage(reader, 1);
+
+        document.newPage();
+        cb.addTemplate(page, 0, 0);
+
+        String licenseNumber = memberEntity.getLicense().getNumber();
+        char[] P = memberEntity.getPesel().toCharArray();
+        String phone = memberEntity.getPhoneNumber();
+        String name = memberEntity.getSecondName().toUpperCase() + "  " + memberEntity.getFirstName().toUpperCase();
+        String splited = phone.substring(0, 3) + " ";
+        String splited1 = phone.substring(3, 6) + " ";
+        String splited2 = phone.substring(6, 9) + " ";
+        String splited3 = phone.substring(9, 12) + " ";
+        String phoneSplited = splited + splited1 + splited2 + splited3;
+        String date = memberEntity.getLicense().getValidThru().toString().substring(2, 4);
+
+        // brać uprawnienia  z patentu
+        int pistol = 0;
+        if (memberEntity.getShootingPatent().getPistolPermission()) {
+
+            pistol = memberEntity.getHistory().getPistolCounter();
+        }
+        int rifle = 0;
+        if (memberEntity.getShootingPatent().getRiflePermission()) {
+
+            rifle = memberEntity.getHistory().getRifleCounter();
+        }
+        int shotgun = 0;
+        if (memberEntity.getShootingPatent().getShotgunPermission()) {
+            shotgun = memberEntity.getHistory().getShotgunCounter();
+        }
+
+        if (pistol > 4) {
+            if (rifle > 2) {
+                rifle = 2;
+            }
+            if (shotgun > 2) {
+                shotgun = 2;
+            }
+            pistol = 4;
+
+        } else if (rifle > 4) {
+            if (pistol > 2) {
+                pistol = 2;
+            }
+            if (shotgun > 2) {
+                shotgun = 2;
+            }
+            rifle = 4;
+
+        } else if (shotgun > 4) {
+            if (pistol > 2) {
+                pistol = 2;
+            }
+            if (rifle > 2) {
+                rifle = 2;
+            }
+            shotgun = 4;
+
+        }
+        LocalDate validThru = memberEntity.getLicense().getValidThru();
+
+        List<CompetitionHistoryEntity> competitions = memberEntity
+                .getHistory()
+                .getCompetitionHistory()
+                .stream()
+                .filter(f -> f.getDate().isBefore(validThru))
+                .filter(f -> f.getDate().isAfter(LocalDate.of(validThru.getYear(), 1, 1)))
+                .collect(Collectors.toList());
+        String pistolet = "Pistolet";
+        String karabin = "Karabin";
+        String strzelba = "Strzelba";
+        // podzielić na dyscypliny
+        List<CompetitionHistoryEntity> pistolCollect = competitions.
+                stream()
+                .filter(f -> f.getDiscipline()
+                        .contains(pistolet))
+                .sorted(Comparator.comparing(CompetitionHistoryEntity::getDate)
+                        .reversed()).collect(Collectors.toList());
+
+        List<CompetitionHistoryEntity> karabinCollect = competitions
+                .stream()
+                .filter(f -> f.getDiscipline()
+                        .contains(karabin))
+                .sorted(Comparator.comparing(CompetitionHistoryEntity::getDate)
+                        .reversed()).collect(Collectors.toList());
+
+        List<CompetitionHistoryEntity> strzelbaCollect = competitions
+                .stream()
+                .filter(f -> f.getDiscipline()
+                        .contains(strzelba))
+                .sorted(Comparator.comparing(CompetitionHistoryEntity::getDate)
+                        .reversed()).collect(Collectors.toList());
+
+        // zapisać tylko tyle ile potrzeba
+
+
+        Paragraph patentNumber = new Paragraph(memberEntity.getShootingPatent().getPatentNumber() + "                                                       " + licenseNumber, font(12, 0));
+
+        patentNumber.setIndentationLeft(160);
+
+        Paragraph newLine = new Paragraph("\n", font(7, 0));
+        Paragraph pesel = new Paragraph(P[0] + "   " + P[1] + "   " + P[2] + "   " + P[3] + "   " + P[4] + "   " + P[5] + "  " + P[6] + "   " + P[7] + "   " + P[8] + "   " + P[9] + "   " + P[10] + "                                             " + phoneSplited, font(12, 0));
+        Paragraph names = new Paragraph(name, font(12, 0));
+        Paragraph year = new Paragraph(date, font(12, 1));
+        pesel.setIndentationLeft(72);
+        names.setIndentationLeft(150);
+        year.setIndentationLeft(350);
+
+        for (int i = 0; i < 12; i++) {
+
+            document.add(newLine);
+        }
+
+        document.add(patentNumber);
+
+        for (int i = 0; i < 1; i++) {
+
+            document.add(newLine);
+        }
+        document.add(pesel);
+        document.add(new Paragraph("\n", font(4, 0)));
+        for (int i = 0; i < 1; i++) {
+
+            document.add(newLine);
+        }
+        document.add(names);
+        for (int i = 0; i < 5; i++) {
+
+            document.add(newLine);
+        }
+        document.add(year);
+
+        for (int i = 0; i < 3; i++) {
+
+            document.add(newLine);
+        }
+        for (int i = 0; i < pistol; i++) {
+            float[] pointColumnWidths = {50, 20, 20, 5, 10, 2, 28};
+            PdfPTable table = new PdfPTable(pointColumnWidths);
+
+
+            PdfPCell cell = new PdfPCell(new Paragraph(pistolCollect.get(i).getName(), font(9, 0)));
+            PdfPCell cell1 = new PdfPCell(new Paragraph(" " + pistolCollect.get(i).getDate().toString(), font(9, 0)));
+            PdfPCell cell2 = new PdfPCell(new Paragraph("Łódź", font(9, 0)));
+            PdfPCell cell3 = new PdfPCell(new Paragraph("X", font(9, 1)));
+            PdfPCell cell4 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell5 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell6 = new PdfPCell(new Paragraph("WZSS", font(9, 0)));
+            cell.setBorder(0);
+            cell1.setBorder(0);
+            cell2.setBorder(0);
+            cell3.setBorder(0);
+            cell4.setBorder(0);
+            cell5.setBorder(0);
+            cell6.setBorder(0);
+            cell.setUseDescender(true);
+            table.addCell(cell);
+            table.addCell(cell1);
+            table.addCell(cell2);
+            table.addCell(cell3);
+            table.addCell(cell4);
+            table.addCell(cell5);
+            table.addCell(cell6);
+            document.add(new Phrase("\n", font(5, 0)));
+            document.add(table);
+        }
+        for (int i = 0; i < rifle; i++) {
+            float[] pointColumnWidths = {50, 20, 20, 5, 2, 10, 28};
+            PdfPTable table = new PdfPTable(pointColumnWidths);
+
+
+            PdfPCell cell = new PdfPCell(new Paragraph(karabinCollect.get(i).getName(), font(9, 0)));
+            PdfPCell cell1 = new PdfPCell(new Paragraph(" " + karabinCollect.get(i).getDate().toString(), font(9, 0)));
+            PdfPCell cell2 = new PdfPCell(new Paragraph("Łódź", font(9, 0)));
+            PdfPCell cell3 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell4 = new PdfPCell(new Paragraph("X", font(9, 1)));
+            PdfPCell cell5 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell6 = new PdfPCell(new Paragraph("WZSS", font(9, 0)));
+            cell.setBorder(0);
+            cell1.setBorder(0);
+            cell2.setBorder(0);
+            cell3.setBorder(0);
+            cell4.setBorder(0);
+            cell5.setBorder(0);
+            cell6.setBorder(0);
+            cell.setUseDescender(true);
+            table.addCell(cell);
+            table.addCell(cell1);
+            table.addCell(cell2);
+            table.addCell(cell3);
+            table.addCell(cell4);
+            table.addCell(cell5);
+            table.addCell(cell6);
+            document.add(new Phrase("\n", font(5, 0)));
+            document.add(table);
+        }
+        for (int i = 0; i < shotgun; i++) {
+            float[] pointColumnWidths = {50, 20, 20, 8, 3, 6, 28};
+            PdfPTable table = new PdfPTable(pointColumnWidths);
+
+
+            PdfPCell cell = new PdfPCell(new Paragraph(strzelbaCollect.get(i).getName(), font(9, 0)));
+            PdfPCell cell1 = new PdfPCell(new Paragraph(" " + strzelbaCollect.get(i).getDate().toString(), font(9, 0)));
+            PdfPCell cell2 = new PdfPCell(new Paragraph("Łódź", font(9, 0)));
+            PdfPCell cell3 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell4 = new PdfPCell(new Paragraph(" ", font(9, 0)));
+            PdfPCell cell5 = new PdfPCell(new Paragraph("X", font(9, 1)));
+            PdfPCell cell6 = new PdfPCell(new Paragraph("WZSS", font(9, 0)));
+            cell.setBorder(0);
+            cell1.setBorder(0);
+            cell2.setBorder(0);
+            cell3.setBorder(0);
+            cell4.setBorder(0);
+            cell5.setBorder(0);
+            cell6.setBorder(0);
+            cell.setUseDescender(true);
+            table.addCell(cell);
+            table.addCell(cell1);
+            table.addCell(cell2);
+            table.addCell(cell3);
+            table.addCell(cell4);
+            table.addCell(cell5);
+            table.addCell(cell6);
+            document.add(new Phrase("\n", font(5, 0)));
+            document.add(table);
+        }
+        document.close();
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createApplicationForExtensionOfTheCompetitorsLicense(filesModel);
 
         File file = new File(fileName);
 
@@ -462,4 +728,13 @@ public class FilesService {
         filesRepository.delete(filesEntity);
 
     }
+
+    private Font font(int size, int style) throws IOException, DocumentException {
+//        1 - BOLD
+//        2 - ITALIC
+//        3 - BOLDITALIC
+        czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
+        return new Font(czcionka, size, style);
+    }
+
 }

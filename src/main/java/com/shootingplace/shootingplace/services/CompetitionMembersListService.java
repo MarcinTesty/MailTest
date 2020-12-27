@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.services;
 
-import com.shootingplace.shootingplace.domain.entities.CompetitionHistoryEntity;
 import com.shootingplace.shootingplace.domain.entities.CompetitionMembersListEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.repositories.CompetitionMembersListRepository;
@@ -28,15 +27,15 @@ public class CompetitionMembersListService {
         this.historyService = historyService;
     }
 
-    public boolean addMemberToCompetitionList(UUID competitionUUID, UUID memberUUID) {
+    public boolean addMemberToCompetitionList(UUID competitionUUID, int legitimationNumber) {
         CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
-        MemberEntity member = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        MemberEntity member = memberRepository.findAll().stream().filter(f->f.getLegitimationNumber().equals(legitimationNumber)).findFirst().orElseThrow(EntityNotFoundException::new);
         List<MemberEntity> membersList = list.getMembersList();
         if (!membersList.contains(member)) {
             membersList.add(member);
             competitionMembersListRepository.saveAndFlush(list);
             LOG.info("Dodano Klubowicza do Listy");
-            historyService.addCompetitionRecord(memberUUID,list);
+            historyService.addCompetitionRecord(member.getUuid(),list);
             return true;
         } else {
             LOG.info("Nie można dodać bo klubowicz już się znajduje na liście");
@@ -46,17 +45,16 @@ public class CompetitionMembersListService {
     }
 
 
-    public boolean removeMemberFromList(UUID competitionUUID, UUID memberUUID) {
+    public boolean removeMemberFromList(UUID competitionUUID,  int legitimationNumber) {
         CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
-        MemberEntity member = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        MemberEntity member = memberRepository.findAll().stream().filter(f->f.getLegitimationNumber().equals(legitimationNumber)).findFirst().orElseThrow(EntityNotFoundException::new);
         List<MemberEntity> membersList = list.getMembersList();
 
         if (membersList.contains(member)) {
             membersList.remove(member);
             competitionMembersListRepository.saveAndFlush(list);
             LOG.info("Usunięto Klubowicza do Listy");
-//            do zrobienia na cito
-            historyService.removeCompetitionRecord(memberUUID,list);
+            historyService.removeCompetitionRecord(member.getUuid(),list);
             return true;
         }
         return false;

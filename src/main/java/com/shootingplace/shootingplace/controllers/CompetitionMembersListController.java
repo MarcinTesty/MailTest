@@ -18,16 +18,16 @@ public class CompetitionMembersListController {
     }
 
     @PutMapping("/addMember")
-    public ResponseEntity<?> addMemberToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam UUID memberUUID) {
-        if (competitionMembersListService.addMemberToCompetitionList(competitionUUID, memberUUID)) {
+    public ResponseEntity<?> addMemberToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber) {
+        if (competitionMembersListService.addMemberToCompetitionList(competitionUUID, legitimationNumber)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/removeMember")
-    public ResponseEntity<?> removeMemberFromList(@RequestParam UUID competitionUUID, @RequestParam UUID memberUUID) {
-        if (competitionMembersListService.removeMemberFromList(competitionUUID, memberUUID)) {
+    public ResponseEntity<?> removeMemberFromList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber) {
+        if (competitionMembersListService.removeMemberFromList(competitionUUID, legitimationNumber)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.badRequest().build();
