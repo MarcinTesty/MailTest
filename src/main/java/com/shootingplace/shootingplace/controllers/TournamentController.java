@@ -2,6 +2,7 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
+import com.shootingplace.shootingplace.domain.models.TournamentDTO;
 import com.shootingplace.shootingplace.services.TournamentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +26,19 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentService.getListOfTournaments());
     }
 
+    @GetMapping("/closedList")
+    public ResponseEntity<List<TournamentDTO>> getListOfClosedTournaments() {
+        return ResponseEntity.ok().body(tournamentService.getClosedTournaments());
+    }
+
     @PostMapping("/")
     public ResponseEntity<UUID> addNewTournament(@RequestBody Tournament tournament) {
         return ResponseEntity.status(201).body(tournamentService.createNewTournament(tournament));
     }
 
     @PostMapping("/removeArbiter/{tournamentUUID}")
-    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        if (tournamentService.removeArbiterFromTournament(tournamentUUID, memberUUID)) {
+    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam int number) {
+        if (tournamentService.removeArbiterFromTournament(tournamentUUID, number)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(418).body("I'm a teapot");
@@ -58,24 +64,24 @@ public class TournamentController {
     }
 
     @PutMapping("/addMainArbiter/{tournamentUUID}")
-    public ResponseEntity<?> addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        if (tournamentService.addMainArbiter(tournamentUUID, memberUUID)) {
+    public ResponseEntity<?> addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number) {
+        if (tournamentService.addMainArbiter(tournamentUUID, number)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/addRTSArbiter/{tournamentUUID}")
-    public ResponseEntity<?> addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        if (tournamentService.addRTSArbiter(tournamentUUID, memberUUID)) {
+    public ResponseEntity<?> addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number) {
+        if (tournamentService.addRTSArbiter(tournamentUUID, number)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/addOthersArbiters/{tournamentUUID}")
-    public ResponseEntity<?> addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        if (tournamentService.addOthersArbiters(tournamentUUID, memberUUID)) {
+    public ResponseEntity<?> addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam int number) {
+        if (tournamentService.addOthersArbiters(tournamentUUID, number)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();

@@ -119,6 +119,9 @@ public class LicenseService {
         }
         if (license.getValidThru() != null) {
             licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
+            if(LocalDate.now().getYear()<license.getValidThru().getYear()){
+                licenseEntity.setValid(true);
+            }
             LOG.info("zaktualizowano datę licencji");
         } else {
             licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));

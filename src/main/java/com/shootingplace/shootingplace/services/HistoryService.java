@@ -380,8 +380,8 @@ public class HistoryService {
 
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         tournamentEntity.getCompetitionsList().forEach(competitionList -> competitionList
-                .getMembersList()
-                .forEach(member -> member
+                .getScoreList()
+                .forEach(scoreEntity ->scoreEntity.getMember()
                         .getHistory()
                         .getCompetitionHistory()
                         .stream()

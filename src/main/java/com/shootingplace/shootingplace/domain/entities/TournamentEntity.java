@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -35,7 +34,7 @@ public class TournamentEntity {
     private Set<MemberEntity> arbitersList;
     @OneToMany
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
-    private Boolean open;
+    private boolean open;
 
     public UUID getUuid() {
         return uuid;
@@ -93,11 +92,11 @@ public class TournamentEntity {
         this.competitionsList = competitionsList;
     }
 
-    public Boolean getOpen() {
+    public boolean isOpen() {
         return open;
     }
 
-    public void setOpen(Boolean open) {
+    public void setOpen(boolean open) {
         this.open = open;
     }
 }

@@ -215,7 +215,7 @@ class Mapping {
         return Tournament.builder()
                 .name(t.getName())
                 .date(t.getDate())
-                .open(t.getOpen())
+                .open(t.isOpen())
                 .build();
     }
 
@@ -316,22 +316,39 @@ class Mapping {
 //        .build()).orElse(null);
 //    }
 
-    public static AmmoUsedToEvidenceEntity map(AmmoUsedEvidence a){
-        return Optional.ofNullable(a).map(e->AmmoUsedToEvidenceEntity.builder()
-        .caliberName(a.getCaliberName())
-        .caliberUUID(a.getCaliberUUID())
-        .counter(a.getCounter())
-        .memberEntity(a.getMemberUUID())
-        .build()).orElse(null);
+    public static AmmoUsedToEvidenceEntity map(AmmoUsedEvidence a) {
+        return Optional.ofNullable(a).map(e -> AmmoUsedToEvidenceEntity.builder()
+                .caliberName(a.getCaliberName())
+                .caliberUUID(a.getCaliberUUID())
+                .counter(a.getCounter())
+                .memberEntity(a.getMemberUUID())
+                .build()).orElse(null);
     }
 
     public static AmmoUsedEntity map(AmmoUsedPersonal a) {
-        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
+        return Optional.ofNullable(a).map(e -> AmmoUsedEntity.builder()
                 .caliberName(a.getCaliberName())
                 .counter(a.getCounter())
                 .memberUUID(a.getMemberUUID())
                 .caliberUUID(a.getCaliberUUID())
                 .build()).orElse(null);
+
+    }
+
+    static AmmoDTO map1(AmmoEvidenceEntity a) {
+        return AmmoDTO.builder()
+                .evidenceUUID(a.getUuid())
+                .date(a.getDate())
+                .build();
+
+    }
+
+    static TournamentDTO map1(TournamentEntity a) {
+        return TournamentDTO.builder()
+                .tournamentUUID(a.getUuid())
+                .date(a.getDate())
+                .name(a.getName())
+                .build();
 
     }
 }

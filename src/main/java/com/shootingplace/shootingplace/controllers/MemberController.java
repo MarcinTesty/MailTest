@@ -1,7 +1,6 @@
 package com.shootingplace.shootingplace.controllers;
 
 
-import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,16 +49,16 @@ public class MemberController {
     public List<String> getMembersNames(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return memberService.getMembersNameAndLegitimationNumber(active, adult, erase);
     }
+    @GetMapping("/getArbiters")
+    public List<String> getArbiters() {
+        return memberService.getArbiters();
+    }
 
     @GetMapping("/memberswithpermissions")
     public List<Member> getMembersWithPermissions() {
         return memberService.getMembersWithPermissions();
     }
 
-    @GetMapping("/getArbiters")
-    public List<String> getArbiters() {
-        return memberService.getArbiters();
-    }
 
     @GetMapping("/membersEmails")
     public String getMembersEmails(@RequestParam Boolean condition) {
@@ -73,7 +71,7 @@ public class MemberController {
         ResponseEntity<?> result;
         try {
             result = memberService.addNewMember(member);
-        } catch (IOException | DocumentException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             result = ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         return result;
@@ -111,8 +109,8 @@ public class MemberController {
     }
 
     @PatchMapping("/erase/{uuid}")
-    public ResponseEntity<?> eraseMember(@PathVariable UUID uuid) {
-        return memberService.eraseMember(uuid);
+    public ResponseEntity<?> eraseMember(@PathVariable UUID uuid,@RequestParam String reason) {
+        return memberService.eraseMember(uuid,reason);
     }
 
 

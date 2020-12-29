@@ -26,7 +26,7 @@ public class CompetitionMembersListEntity {
     private UUID attachedToTournament;
     private LocalDate date;
     @ManyToMany
-    private List<MemberEntity> membersList = new ArrayList<>();
+    private List<ScoreEntity> scoreList = new ArrayList<>();
 
     public UUID getUuid() {
         return uuid;
@@ -60,11 +60,11 @@ public class CompetitionMembersListEntity {
         this.date = date;
     }
 
-    public List<MemberEntity> getMembersList() {
-        return membersList;
+    public List<ScoreEntity> getScoreList() {
+        return scoreList;
     }
 
-    public void setMembersList(List<MemberEntity> membersList) {
-        this.membersList = membersList;
+    public void setScoreList(List<ScoreEntity> scoreList) {
+        this.scoreList = scoreList;
     }
 }

@@ -126,7 +126,7 @@ public class FilesService {
         Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", new Font(czcionka, 11));
         Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + contribution + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
         Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", new Font(czcionka, 11));
-        Paragraph p13 = new Paragraph("\n" + (contribution.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
+        Paragraph p13 = new Paragraph("\n" + (validThru.plusMonths(3)), new Font(czcionka, 11, Font.BOLD));
         Paragraph p14 = new Paragraph("", new Font(czcionka, 11));
         Phrase p15 = new Phrase("\n\nSkładki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
                 "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
@@ -351,9 +351,9 @@ public class FilesService {
         String fileName = "Lista_Amunicyjna_" + ammoEvidenceEntity.getDate() + ".pdf";
 
         Document document = new Document(PageSize.A4);
-        PdfWriter.getInstance(document,
+        PdfWriter writer = PdfWriter.getInstance(document,
                 new FileOutputStream(fileName));
-
+        writer.setPageEvent(new PageStamper());
         document.open();
         document.addTitle(fileName);
         document.addCreationDate();
@@ -365,7 +365,7 @@ public class FilesService {
         }
 
 
-        Paragraph number = new Paragraph(ammoEvidenceEntity.getNumber(), font(8, -1));
+        Paragraph number = new Paragraph(ammoEvidenceEntity.getNumber(), font(10, 4));
         Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", new Font(czcionka, 14, Font.BOLD));
         Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), new Font(czcionka, 12, Font.ITALIC));
 
@@ -413,7 +413,7 @@ public class FilesService {
             }
         }
 
-        document.close();
+    document.close();
 
 
         byte[] data = convertToByteArray(fileName);
@@ -735,6 +735,26 @@ public class FilesService {
 //        3 - BOLDITALIC
         czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
         return new Font(czcionka, size, style);
+    }
+    class PageStamper extends PdfPageEventHelper {
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            final int currentPageNumber = writer.getCurrentPageNumber();
+
+            try {
+                final Rectangle pageSize = document.getPageSize();
+                final PdfContentByte directContent = writer.getDirectContent();
+
+                directContent.setColorFill(BaseColor.GRAY);
+                directContent.setFontAndSize(BaseFont.createFont(), 10);
+
+                directContent.setTextMatrix(pageSize.getRight(40), pageSize.getBottom(30));
+                directContent.showText(String.valueOf(currentPageNumber));
+
+            } catch (DocumentException | IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
@@ -10,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Club {
 
-    private String name = "Klub Strzelecki Dziesiątka LOK Łódź";
-    private String licenseNumber = "1233/2020";
+    private String name;
+    private String licenseNumber;
 
     public String getName() {
         return name;
@@ -21,11 +20,4 @@ public class Club {
         this.name = name;
     }
 
-    public String getLicenseNumber() {
-        return licenseNumber;
-    }
-
-    public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
-    }
 }

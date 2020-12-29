@@ -1,7 +1,6 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
-import com.shootingplace.shootingplace.domain.models.Caliber;
 import com.shootingplace.shootingplace.repositories.CaliberRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class CaliberService {
@@ -62,68 +60,5 @@ public class CaliberService {
                 .build();
         caliberRepository.saveAndFlush(caliberEntity5);
     }
-
-    void addAmmoUsedByMemberToCaliber(UUID memberUUID, UUID caliberUUID, Integer quantity) {
-//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-//        CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
-//        if (caliberEntity.getQuantity() == null) {
-//            Integer sum = 0;
-//            caliberEntity.setQuantity(sum);
-//            caliberRepository.saveAndFlush(caliberEntity);
-//        }
-//        if (caliberEntity.getAmmoUsed() == null) {
-//            Integer[] integers = new Integer[1];
-//            integers[0] = quantity;
-//            caliberEntity.setAmmoUsed(integers);
-//            Integer quantity1 = caliberEntity.getQuantity();
-//            quantity1 = quantity1 + quantity;
-//            caliberEntity.setQuantity(quantity1);
-//            caliberEntity.getMembers().add(memberUUID);
-//            caliberRepository.saveAndFlush(caliberEntity);
-//        } else {
-//            caliberEntity.getMembers().add(memberUUID);
-//
-//            Integer[] ammoUsed = new Integer[caliberEntity.getAmmoUsed().length + 1];
-//
-//            System.arraycopy(caliberEntity.getAmmoUsed(), 0, ammoUsed, 0, caliberEntity.getAmmoUsed().length);
-//            ammoUsed[caliberEntity.getMembers().size() - 1] = quantity;
-//            Integer quantity1 = caliberEntity.getQuantity();
-//            quantity1 = quantity1 + quantity;
-//            caliberEntity.setQuantity(quantity1);
-//
-//            caliberEntity.setAmmoUsed(ammoUsed);
-//            caliberRepository.saveAndFlush(caliberEntity);
-//            LOG.info("Dodano Amunicje do listy");
-//        }
-    }
-
-
-    private void addNewCaliber(Caliber caliber) {
-//        CaliberEntity caliberEntity = Mapping.map(caliber);
-//        caliberEntity.setMembers(null);
-//        caliberRepository.saveAndFlush(caliberEntity);
-    }
-
-//    Map<String, Integer> returnMap(UUID memberUUID, UUID caliberUUID) {
-//        CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
-//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-//        List<MemberEntity> members = caliberEntity.getMembers();
-//        Integer[] integers = caliberEntity.getAmmoUsed();
-//        Integer integer = 0;
-//        for (int i = 0; i < members.size(); i++) {
-//            if (members.get(i).equals(memberUUID)) {
-//                integer = integer + integers[i];
-//                integers[i] = integer;
-//            }
-//        }
-//        Map<String, Integer> map = new HashMap<>();
-//        for (int i = 0; i < members.size(); i++) {
-//
-//            map.put(memberUUID.getSecondName().concat(" " + memberUUID.getFirstName()), integer);
-//
-//        }
-//        return map;
-//    }
-
 
 }

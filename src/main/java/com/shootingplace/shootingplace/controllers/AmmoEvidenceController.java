@@ -4,6 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.AmmoUsedToEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
+import com.shootingplace.shootingplace.domain.models.AmmoDTO;
 import com.shootingplace.shootingplace.services.AmmoEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoInEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoUsedService;
@@ -51,6 +52,10 @@ public class AmmoEvidenceController {
     @GetMapping("/evidence")
     public ResponseEntity<List<AmmoEvidenceEntity>> getAllEvidences(@RequestParam boolean state) {
         return ResponseEntity.ok(ammoEvidenceService.getAllEvidences(state));
+    }
+    @GetMapping("/closedEvidences")
+    public ResponseEntity<List<AmmoDTO>> getClosedEvidence(){
+        return ResponseEntity.ok().body(ammoEvidenceService.getClosedEvidences());
     }
 
     @PatchMapping("/ammo")

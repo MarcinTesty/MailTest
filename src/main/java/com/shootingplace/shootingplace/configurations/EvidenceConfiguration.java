@@ -24,7 +24,6 @@ public class EvidenceConfiguration {
         return args ->
                 clubRepository.saveAndFlush(ClubEntity.builder()
                         .id(1)
-                        .licenseNumber("1233/2020")
                         .name("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build());
     }

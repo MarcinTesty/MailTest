@@ -1,6 +1,5 @@
 package com.shootingplace.shootingplace.services;
 
-import com.itextpdf.text.DocumentException;
 import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -129,7 +127,7 @@ public class MemberService {
         List<String> list = new ArrayList<>();
         memberRepository.findAll().stream()
                 .filter(e -> e.getMemberPermissions().getArbiterNumber() != null)
-                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getUuid())));
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
@@ -145,7 +143,7 @@ public class MemberService {
     }
 
     //--------------------------------------------------------------------------
-    public ResponseEntity<?> addNewMember(Member member) throws IOException, DocumentException {
+    public ResponseEntity<?> addNewMember(Member member) {
         MemberEntity memberEntity;
         member.setActive(true);
 
@@ -206,6 +204,8 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
+            String[] split = member.getFirstName().split(" ");
+
             member.setFirstName(member.getFirstName().substring(0, 1).toUpperCase() + member.getFirstName().substring(1).toLowerCase());
             member.setSecondName(member.getSecondName().toUpperCase());
             LOG.info("Dodano nowego członka Klubu " + member.getFirstName());
@@ -331,13 +331,15 @@ public class MemberService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<?> eraseMember(UUID memberUUID) {
+    public ResponseEntity<?> eraseMember(UUID memberUUID, String reason) {
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         memberEntity.toggleErase();
+        if (reason.equals("null"))
+            memberEntity.setErasedReason(reason);
         if (memberEntity.getErased()) {
             LOG.info("Klubowicz skreślony : " + LocalDate.now());
         }
@@ -438,8 +440,7 @@ public class MemberService {
 
     public MemberEntity getMember(int number) {
         LOG.info("Wywołano Klubowicza");
-        MemberEntity memberEntity = memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
-        return memberEntity;
+        return memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
     }
 
     public List<MemberEntity> getErasedMembers() {

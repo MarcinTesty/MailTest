@@ -58,6 +58,7 @@ public class MemberEntity {
     private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
+    private String erasedReason;
 
     @OneToOne(orphanRemoval = true)
     private HistoryEntity history;
@@ -170,6 +171,14 @@ public class MemberEntity {
 
     public void setWeaponPermission(WeaponPermissionEntity weaponPermission) {
         this.weaponPermission = weaponPermission;
+    }
+
+    public String getErasedReason() {
+        return erasedReason;
+    }
+
+    public void setErasedReason(String erasedReason) {
+        this.erasedReason = erasedReason;
     }
 
     public Boolean getActive() {

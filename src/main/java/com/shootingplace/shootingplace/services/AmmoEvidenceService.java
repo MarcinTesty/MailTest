@@ -2,12 +2,14 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
+import com.shootingplace.shootingplace.domain.models.AmmoDTO;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -43,5 +45,13 @@ public class AmmoEvidenceService {
         ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
         LOG.info("zamknięto");
         return true;
+    }
+
+    public List<AmmoDTO> getClosedEvidences() {
+        List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll().stream().filter(f->!f.isOpen()).collect(Collectors.toList());
+        List<AmmoDTO> allDTO = new ArrayList<>();
+        all.forEach(e -> allDTO.add(Mapping.map1(e)));
+        allDTO.sort(Comparator.comparing(AmmoDTO::getDate).reversed());
+        return allDTO;
     }
 }
