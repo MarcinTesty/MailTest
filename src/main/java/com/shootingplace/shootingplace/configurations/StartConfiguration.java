@@ -21,7 +21,7 @@ public class StartConfiguration {
         return args ->
                 clubRepository.saveAndFlush(ClubEntity.builder()
                         .id(1)
-                        .name("Dziesiątka LOK Łódź")
+                        .name("DZIESIĄTKA LOK ŁÓDŹ")
                         .build());
     }
 

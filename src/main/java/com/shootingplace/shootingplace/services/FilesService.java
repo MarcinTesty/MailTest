@@ -424,7 +424,7 @@ public class FilesService {
             }
         }
 
-    document.close();
+        document.close();
 
 
         byte[] data = convertToByteArray(fileName);
@@ -716,6 +716,35 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
+        Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(10, 1));
+        Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10,2));
+        Paragraph newLine = new Paragraph("\n",font(10,0));
+
+        for (int i = 0;i<tournamentEntity.getCompetitionsList().size();i++) {
+            CompetitionMembersListEntity competitionMembersListEntity = tournamentEntity.getCompetitionsList().get(i);
+
+//            Paragraph p2 = new Paragraph("Kaliber : " + ammoInEvidenceEntity.getCaliberName() + "\n", font(12, 1));
+//            p2.add("\n");
+//            p2.setIndentationLeft(230);
+//            document.add(p2);
+//            float[] pointColumnWidths = {20F, 255F, 25};
+//            PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
+//            PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", new Font(czcionka, 10, Font.ITALIC))));
+//            PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", new Font(czcionka, 10, Font.ITALIC))));
+//            PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", new Font(czcionka, 10, Font.ITALIC))));
+
+
+
+        }
+
+
+
+
+            document.add(title);
+        document.add(date);
+        document.add(newLine);
+
+
 
 
 
@@ -777,6 +806,55 @@ public class FilesService {
 //        3 - BOLDITALIC
         czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
         return new Font(czcionka, size, style);
+    }
+
+    private String dateFormat(LocalDate date) {
+
+        String day = String.valueOf(date.getDayOfMonth());
+        String month = "";
+
+        if (date.getMonth().getValue() == 1) {
+            month = "stycznia";
+        }
+        if (date.getMonth().getValue() == 2) {
+            month = "lutego";
+        }
+        if (date.getMonth().getValue() == 3) {
+            month = "marca";
+        }
+        if (date.getMonth().getValue() == 4) {
+            month = "kwietnia";
+        }
+        if (date.getMonth().getValue() == 5) {
+            month = "maja";
+        }
+        if (date.getMonth().getValue() == 6) {
+            month = "czerwca";
+        }
+        if (date.getMonth().getValue() == 7) {
+            month = "lipca";
+        }
+        if (date.getMonth().getValue() == 8) {
+            month = "sierpnia";
+        }
+        if (date.getMonth().getValue() == 9) {
+            month = "września";
+        }
+        if (date.getMonth().getValue() == 10) {
+            month = "października";
+        }
+        if (date.getMonth().getValue() == 11) {
+            month = "listopada";
+        }
+        if (date.getMonth().getValue() == 12) {
+            month = "grudnia";
+        }
+        String year = String.valueOf(date.getYear());
+
+
+        return day + " " + month + " " + year;
+
+
     }
 
 
