@@ -32,7 +32,7 @@ public class CompetitionService {
             LOG.info("Zostały utworzone domyślne encje Konkurencji");
         }
         LOG.info("Wyświetlono listę Konkurencji");
-        competitionEntityList.sort(Comparator.comparing(CompetitionEntity::getName));
+        competitionEntityList.sort(Comparator.comparing(CompetitionEntity::getDiscipline));
         return competitionEntityList;
     }
 
