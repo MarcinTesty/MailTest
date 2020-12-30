@@ -46,6 +46,8 @@ public class MemberEntity {
     private String pesel;
     @NotBlank
     private String IDCard;
+    @OneToOne
+    private ClubEntity club;
 
     @OneToOne
     private AddressEntity address;
@@ -233,4 +235,11 @@ public class MemberEntity {
         this.personalEvidence = personalEvidence;
     }
 
+    public ClubEntity getClub() {
+        return club;
+    }
+
+    public void setClub(ClubEntity club) {
+        this.club = club;
+    }
 }

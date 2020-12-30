@@ -75,4 +75,17 @@ public class FilesController {
         }
     }
 
+    @GetMapping("/downloadAnnouncementFromCompetition/{tournamentUUID}")
+    public ResponseEntity<byte[]> getAnnouncementFromCompetition(@PathVariable UUID tournamentUUID) throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.createAnnouncementFromCompetition(tournamentUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
 }

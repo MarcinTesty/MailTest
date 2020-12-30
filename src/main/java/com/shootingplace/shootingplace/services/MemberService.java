@@ -4,6 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.*;
+import com.shootingplace.shootingplace.repositories.ClubRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,7 @@ public class MemberService {
     private final MemberPermissionsService memberPermissionsService;
     private final PersonalEvidenceService personalEvidenceService;
     private final FilesService filesService;
+    private final ClubRepository clubRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -38,7 +40,7 @@ public class MemberService {
                          LicenseService licenseService,
                          ShootingPatentService shootingPatentService,
                          ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, PersonalEvidenceService personalEvidenceService, FilesService filesService) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, MemberPermissionsService memberPermissionsService, PersonalEvidenceService personalEvidenceService, FilesService filesService, ClubRepository clubRepository) {
         this.memberRepository = memberRepository;
         this.contributionService = contributionService;
         this.addressService = addressService;
@@ -49,6 +51,7 @@ public class MemberService {
         this.memberPermissionsService = memberPermissionsService;
         this.personalEvidenceService = personalEvidenceService;
         this.filesService = filesService;
+        this.clubRepository = clubRepository;
     }
 
 
@@ -230,7 +233,6 @@ public class MemberService {
                         .isValid(false)
                         .canProlong(false)
                         .isPaid(false)
-                        .club("Klub Strzelecki Dziesiątka LOK Łódź")
                         .build();
                 licenseService.addLicenseToMember(memberEntity.getUuid(), license);
             }
@@ -278,6 +280,7 @@ public class MemberService {
                         .build();
                 personalEvidenceService.addPersonalEvidence(memberEntity.getUuid(), personalEvidence);
             }
+            memberEntity.setClub(clubRepository.findById(1).orElseThrow(EntityNotFoundException::new));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity.getUuid());
 

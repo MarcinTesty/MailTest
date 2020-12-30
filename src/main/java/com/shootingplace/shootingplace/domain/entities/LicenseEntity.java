@@ -38,7 +38,6 @@ public class LicenseEntity {
     private Boolean isPaid;
 
 
-    private String club;
 
     public UUID getUuid() {
         return uuid;
@@ -104,13 +103,6 @@ public class LicenseEntity {
         this.canProlong = canProlong;
     }
 
-    public String getClub() {
-        return club;
-    }
-
-    public void setClub(String club) {
-        this.club = club;
-    }
 
     public Boolean getPaid() {
         return isPaid;

@@ -7,6 +7,7 @@ import com.shootingplace.shootingplace.domain.models.FilesModel;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import com.shootingplace.shootingplace.repositories.FilesRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
+import com.shootingplace.shootingplace.repositories.TournamentRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
@@ -32,13 +33,15 @@ public class FilesService {
     private final MemberRepository memberRepository;
     private final AmmoEvidenceRepository ammoEvidenceRepository;
     private final FilesRepository filesRepository;
+    private final TournamentRepository tournamentRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository) {
+    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository) {
         this.memberRepository = memberRepository;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
         this.filesRepository = filesRepository;
+        this.tournamentRepository = tournamentRepository;
     }
 
     private FilesEntity createContributionFileEntity(FilesModel filesModel) {
@@ -67,6 +70,14 @@ public class FilesService {
 
         FilesEntity filesEntity = Mapping.map(filesModel);
         LOG.info("Wniosek został zapisany");
+        return filesRepository.saveAndFlush(filesEntity);
+
+    }
+
+    private FilesEntity createAnnouncementFromCompetition(FilesModel filesModel) {
+
+        FilesEntity filesEntity = Mapping.map(filesModel);
+        LOG.info("Komunikat został zapisany");
         return filesRepository.saveAndFlush(filesEntity);
 
     }
@@ -693,6 +704,37 @@ public class FilesService {
 
     }
 
+    public FilesEntity createAnnouncementFromCompetition(UUID tournamentUUID) throws IOException, DocumentException {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+
+        String fileName = "Zawody_" + tournamentEntity.getName() + "_" + tournamentEntity.getDate() + ".pdf";
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+
+
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createApplicationForExtensionOfTheCompetitorsLicense(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+    }
+
     private String getSex(String pesel) {
         int i = (int) pesel.charAt(8);
         if (i % 2 == 1) {
@@ -736,6 +778,8 @@ public class FilesService {
         czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
         return new Font(czcionka, size, style);
     }
+
+
     class PageStamper extends PdfPageEventHelper {
         @Override
         public void onEndPage(PdfWriter writer, Document document) {

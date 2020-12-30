@@ -86,7 +86,6 @@ class Mapping {
                         .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
                         .isPaid(e.getPaid())
-                        .club(e.getClub())
                         .build()).orElse(null);
     }
 
@@ -101,7 +100,6 @@ class Mapping {
                         .isValid(e.getValid())
                         .canProlong(e.getCanProlong())
                         .isPaid(e.getPaid())
-                        .club(e.getClub())
                         .build()).orElse(null);
     }
 
