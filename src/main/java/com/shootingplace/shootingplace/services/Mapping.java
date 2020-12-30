@@ -255,14 +255,12 @@ class Mapping {
 
     public static AmmoEvidenceEntity map(AmmoEvidence a) {
         return Optional.ofNullable(a).map(e -> AmmoEvidenceEntity.builder()
-//                .label(e.getLabel())
                 .date(e.getDate())
                 .build()).orElse(null);
     }
 
     public static AmmoEvidence map(AmmoEvidenceEntity a) {
         return Optional.ofNullable(a).map(e -> AmmoEvidence.builder()
-//                .label(e.getLabel())
                 .date(e.getDate())
                 .build()).orElse(null);
     }
@@ -304,15 +302,6 @@ class Mapping {
                 .name(e.getName())
                 .build()).orElse(null);
     }
-//
-//    public static AmmoUsedEntity map(AmmoUsedEvidence a) {
-//        return Optional.ofNullable(a).map(e->AmmoUsedEntity.builder()
-//        .caliberName(a.getCaliberName())
-//        .counter(a.getCounter())
-//        .memberUUID(a.getMemberUUID())
-//        .caliberUUID(a.getCaliberUUID())
-//        .build()).orElse(null);
-//    }
 
     public static AmmoUsedToEvidenceEntity map(AmmoUsedEvidence a) {
         return Optional.ofNullable(a).map(e -> AmmoUsedToEvidenceEntity.builder()

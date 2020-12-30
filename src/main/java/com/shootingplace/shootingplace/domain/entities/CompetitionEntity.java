@@ -23,6 +23,8 @@ public class CompetitionEntity {
     
     private String name;
 
+    private String discipline;
+
     public UUID getUuid() {
         return uuid;
     }
@@ -37,5 +39,13 @@ public class CompetitionEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDiscipline() {
+        return discipline;
+    }
+
+    public void setDiscipline(String discipline) {
+        this.discipline = discipline;
     }
 }

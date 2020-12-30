@@ -274,6 +274,7 @@ public class TournamentService {
                         .name(competition.getName())
                         .attachedToTournament(tournamentEntity.getUuid())
                         .date(tournamentEntity.getDate())
+                        .discipline(competition.getDiscipline())
                         .build();
                 competitionMembersListRepository.saveAndFlush(competitionMembersList);
                 List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();

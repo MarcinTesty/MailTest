@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
+import com.shootingplace.shootingplace.domain.enums.Discipline;
 import com.shootingplace.shootingplace.domain.models.History;
 import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
@@ -239,7 +240,7 @@ public class HistoryService {
 
     void addCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
 
-        CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getName(), list.getUuid());
+        CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getDiscipline() , list.getUuid());
         competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
 
         List<CompetitionHistoryEntity> competitionHistoryEntityList = memberRepository
@@ -256,15 +257,15 @@ public class HistoryService {
         competitionHistoryEntityList.sort(Comparator.comparing(CompetitionHistoryEntity::getDate).reversed());
         historyEntity.setCompetitionHistory(competitionHistoryEntityList);
 
-        if (list.getName().toUpperCase().startsWith("P")) {
+        if (list.getDiscipline().equals(Discipline.PISTOL.getName())) {
             Integer pistolCounter = historyEntity.getPistolCounter() + 1;
             historyEntity.setPistolCounter(pistolCounter);
         }
-        if (list.getName().toUpperCase().startsWith("K")) {
+        if (list.getDiscipline().equals(Discipline.RIFLE.getName())) {
             Integer rifleCounter = historyEntity.getRifleCounter() + 1;
             historyEntity.setRifleCounter(rifleCounter);
         }
-        if (list.getName().toUpperCase().startsWith("S")) {
+        if (list.getDiscipline().equals(Discipline.SHOTGUN.getName())) {
             Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
             historyEntity.setShotgunCounter(shotgunCounter);
         }
@@ -308,15 +309,15 @@ public class HistoryService {
         }
         historyEntity.getCompetitionHistory().remove(competitionHistoryEntity);
         historyRepository.saveAndFlush(historyEntity);
-        if (list.getName().toUpperCase().startsWith("P")) {
+        if (list.getDiscipline().equals(Discipline.PISTOL.getName())) {
             Integer pistolCounter = historyEntity.getPistolCounter() - 1;
             historyEntity.setPistolCounter(pistolCounter);
         }
-        if (list.getName().toUpperCase().startsWith("K")) {
+        if (list.getDiscipline().equals(Discipline.RIFLE.getName())) {
             Integer rifleCounter = historyEntity.getRifleCounter() - 1;
             historyEntity.setRifleCounter(rifleCounter);
         }
-        if (list.getName().toUpperCase().startsWith("S")) {
+        if (list.getDiscipline().equals(Discipline.SHOTGUN.getName())) {
             Integer shotgunCounter = historyEntity.getShotgunCounter() - 1;
             historyEntity.setShotgunCounter(shotgunCounter);
         }

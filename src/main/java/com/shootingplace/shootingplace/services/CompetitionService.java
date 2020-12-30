@@ -1,7 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.CompetitionEntity;
-import com.shootingplace.shootingplace.domain.models.Competition;
+import com.shootingplace.shootingplace.domain.enums.Discipline;
 import com.shootingplace.shootingplace.repositories.CompetitionRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,60 +36,77 @@ public class CompetitionService {
         return competitionEntityList;
     }
 
-    private void createCompetitions() {
+    public void createCompetitions() {
 
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Pistolet sportowy")
+                .name("25m Pistolet sportowy bocznego zapłonu 10 strzałów OPEN")
+                .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Pistolet centralnego zapłonu")
+                .name("25m Pistolet centralnego zapłonu 10 strzałów OPEN")
+                .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Pistolet pneumatyczny")
+                .name("10m Pistolet pneumatyczny 10 strzałów OPEN")
+                .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Pistolet dynamiczny")
+                .name("50m Pistolet dowolny 10 strzałów OPEN")
+                .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Pistolet dowolny")
+                .name("25m Pistolet maszynowy 10 strzałów OPEN")
+                .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Karabin dowolny")
+                .name("50m Karabin sportowy 10 strzałów OPEN")
+                .discipline(Discipline.RIFLE.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Karabin pneumatyczny")
+                .name("10m Karabin pneumatyczny 10 strzałów OPEN")
+                .discipline(Discipline.RIFLE.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("Strzelba dynamiczna")
+                .name("10m Strzelba dynamiczna 7 strzałów OPEN")
+                .discipline(Discipline.SHOTGUN.getName())
+                .build());
+        competitionRepository.saveAndFlush(CompetitionEntity.builder()
+                .uuid(UUID.randomUUID())
+                .name("10m Strzelba statyczna 7 strzałów OPEN")
+                .discipline(Discipline.SHOTGUN.getName())
                 .build());
         LOG.info("Stworzono encje konkurencji");
     }
 
-    public boolean createNewCompetition(Competition competition) {
+    public boolean createNewCompetition(String name, String discipline) {
         List<String> list = new ArrayList<>();
-        competitionRepository.findAll().forEach(e-> list.add(e.getName()));
-        String s = competition.getName().substring(0,1).toUpperCase();
-        String s1 = competition.getName().substring(1).toLowerCase();
-        if (list.isEmpty()){
+        competitionRepository.findAll().forEach(e -> list.add(e.getName()));
+        if (list.isEmpty()) {
             createCompetitions();
         }
-        if (list.contains(s+s1)){
+        if (list.contains(name)) {
             LOG.info("Taka konkurencja już istnieje");
             return false;
         }
-        competition.setName(s+s1);
-        CompetitionEntity competitionEntity = Mapping.map(competition);
-        competitionRepository.saveAndFlush(competitionEntity);
-        LOG.info("Utworzono nową konkurencję " + competition.getName());
-        return true;
+        if (discipline.equals(Discipline.PISTOL.getName()) || discipline.equals(Discipline.RIFLE.getName()) || discipline.equals(Discipline.SHOTGUN.getName())) {
+            CompetitionEntity competitionEntity = CompetitionEntity.builder()
+                    .name(name)
+                    .discipline(discipline)
+                    .build();
+            competitionRepository.saveAndFlush(competitionEntity);
+            LOG.info("Utworzono nową konkurencję \" " + name + " \"");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void deleteCompetition(UUID competitionUUID) {

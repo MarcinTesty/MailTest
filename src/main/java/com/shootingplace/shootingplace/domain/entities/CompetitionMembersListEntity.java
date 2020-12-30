@@ -25,6 +25,9 @@ public class CompetitionMembersListEntity {
     private String name;
     private UUID attachedToTournament;
     private LocalDate date;
+
+    private String discipline;
+
     @ManyToMany
     private List<ScoreEntity> scoreList = new ArrayList<>();
 
@@ -32,9 +35,6 @@ public class CompetitionMembersListEntity {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
 
     public String getName() {
         return name;
@@ -66,5 +66,13 @@ public class CompetitionMembersListEntity {
 
     public void setScoreList(List<ScoreEntity> scoreList) {
         this.scoreList = scoreList;
+    }
+
+    public String getDiscipline() {
+        return discipline;
+    }
+
+    public void setDiscipline(String discipline) {
+        this.discipline = discipline;
     }
 }

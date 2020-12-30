@@ -1,7 +1,6 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.CompetitionEntity;
-import com.shootingplace.shootingplace.domain.models.Competition;
 import com.shootingplace.shootingplace.services.CompetitionService;
 import com.shootingplace.shootingplace.services.ScoreService;
 import org.springframework.http.HttpStatus;
@@ -29,8 +28,8 @@ public class CompetitionController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createCompetition(@RequestBody Competition competition) {
-        if (competitionService.createNewCompetition(competition)) {
+    public ResponseEntity<?> createCompetition(@RequestParam String name,@RequestParam String discipline) {
+        if (competitionService.createNewCompetition(name,discipline)) {
             return ResponseEntity.status(201).build();
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
