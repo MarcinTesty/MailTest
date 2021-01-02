@@ -1,12 +1,9 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.AmmoInEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.AmmoUsedToEvidenceEntity;
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.domain.models.AmmoDTO;
 import com.shootingplace.shootingplace.services.AmmoEvidenceService;
-import com.shootingplace.shootingplace.services.AmmoInEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoUsedService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +17,10 @@ import java.util.UUID;
 public class AmmoEvidenceController {
 
     private final AmmoEvidenceService ammoEvidenceService;
-    private final AmmoInEvidenceService ammoInEvidenceService;
     private final AmmoUsedService ammoUsedService;
 
-    public AmmoEvidenceController(AmmoEvidenceService ammoEvidenceService, AmmoInEvidenceService ammoInEvidenceService, AmmoUsedService ammoUsedService) {
+    public AmmoEvidenceController(AmmoEvidenceService ammoEvidenceService, AmmoUsedService ammoUsedService) {
         this.ammoEvidenceService = ammoEvidenceService;
-        this.ammoInEvidenceService = ammoInEvidenceService;
         this.ammoUsedService = ammoUsedService;
     }
 
@@ -39,6 +34,7 @@ public class AmmoEvidenceController {
 
     @PostMapping("/ammo")
     public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam UUID memberUUID, @RequestParam Integer counter) {
+        System.out.println(memberUUID);
         if (ammoUsedService.addAmmoUsedEntity(caliberUUID, memberUUID, counter)) {
             return ResponseEntity.ok().build();
         } else {
@@ -68,14 +64,14 @@ public class AmmoEvidenceController {
     }
 
 
-    // helper
-    @GetMapping("/ammoEvidence")
-    public ResponseEntity<List<AmmoInEvidenceEntity>> getAllAmmoInEvidence() {
-        return ResponseEntity.ok(ammoInEvidenceService.getAllAmmoInEvidence());
-    }
-
-    @GetMapping("/ammoUsed")
-    public ResponseEntity<List<AmmoUsedToEvidenceEntity>> getAllsmth() {
-        return ResponseEntity.ok(ammoUsedService.getAllsmth());
-    }
+//    // helper
+//    @GetMapping("/ammoEvidence")
+//    public ResponseEntity<List<AmmoInEvidenceEntity>> getAllAmmoInEvidence() {
+//        return ResponseEntity.ok(ammoInEvidenceService.getAllAmmoInEvidence());
+//    }
+//
+//    @GetMapping("/ammoUsed")
+//    public ResponseEntity<List<AmmoUsedToEvidenceEntity>> getAllsmth() {
+//        return ResponseEntity.ok(ammoUsedService.getAllsmth());
+//    }
 }

@@ -112,4 +112,22 @@ public class CompetitionMembersListService {
         }
         return false;
     }
+
+    public boolean sortScore(UUID competitionUUID, boolean sort) {
+        List<ScoreEntity> scoreList = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new).getScoreList();
+        if (sort) {
+            scoreList.sort(Comparator.comparing(ScoreEntity::getName));
+        } else {
+            scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
+                    .reversed()
+                    .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
+                            .reversed()
+                            .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
+                                    .reversed().thenComparing(ScoreEntity::getName)
+                            )));
+        }
+        competitionMembersListRepository.saveAndFlush(competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new));
+
+        return true;
+    }
 }

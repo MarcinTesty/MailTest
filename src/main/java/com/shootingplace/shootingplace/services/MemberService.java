@@ -83,13 +83,13 @@ public class MemberService {
 //                memberRepository.save(e);
 //                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
 //            }
-            if (e.getLicense().getValidThru() != null) {
-                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-                    e.getLicense().setValid(false);
-                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
-                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
-                }
-            }
+//            if (e.getLicense().getValidThru() != null) {
+//                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+//                    e.getLicense().setValid(false);
+//                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
+//                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
+//                }
+//            }
 //            reset startów po nowym roku
             LocalDate date = LocalDate.of(2020, 12, 31);
             if (LocalDate.now().isAfter(date)) {
@@ -512,6 +512,16 @@ public class MemberService {
                     .filter(e -> e.getLicense().getNumber() != null && !e.getLicense().getValid())
                     .forEach(e -> list.add(e.getFirstName() + " " + e.getSecondName() + " " + e.getLicense().getNumber()));
         }
+        return list;
+    }
+
+    public List<String> getAllActiveMembersNames() {
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().stream().filter(MemberEntity::getActive)
+                .forEach(e ->
+                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
+        list.sort(Comparator.comparing(String::new));
+        LOG.info("Lista nazwisk z identyfikatorem");
         return list;
     }
 }

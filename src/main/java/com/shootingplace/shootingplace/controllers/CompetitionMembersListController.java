@@ -20,7 +20,7 @@ public class CompetitionMembersListController {
 
     @PutMapping("/addMember")
     public ResponseEntity<?> addScoreToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
-        if (competitionMembersListService.addScoreToCompetitionList(competitionUUID, legitimationNumber,otherPerson)) {
+        if (competitionMembersListService.addScoreToCompetitionList(competitionUUID, legitimationNumber, otherPerson)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.badRequest().build();
@@ -28,10 +28,20 @@ public class CompetitionMembersListController {
 
     @PostMapping("/removeMember")
     public ResponseEntity<?> removeMemberFromList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
-        if (competitionMembersListService.removeScoreFromList(competitionUUID, legitimationNumber,otherPerson)) {
+        if (competitionMembersListService.removeScoreFromList(competitionUUID, legitimationNumber, otherPerson)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.badRequest().build();
     }
+
+    @PatchMapping("/sort")
+    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam UUID competitionUUID, @RequestParam boolean sort) {
+        if (competitionMembersListService.sortScore(competitionUUID,sort)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 }

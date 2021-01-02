@@ -34,7 +34,7 @@ public class HistoryService {
     }
 
     //  Basic
-    void createHistory(UUID memberUUID, History history) {
+    public void createHistory(UUID memberUUID, History history) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = Mapping.map(history);

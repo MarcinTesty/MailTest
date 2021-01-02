@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.repositories.CaliberRepository;
-import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -14,13 +13,11 @@ import java.util.List;
 public class CaliberService {
 
     private final CaliberRepository caliberRepository;
-    private final MemberRepository memberRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
-    public CaliberService(CaliberRepository caliberRepository, MemberRepository memberRepository) {
+    public CaliberService(CaliberRepository caliberRepository) {
         this.caliberRepository = caliberRepository;
-        this.memberRepository = memberRepository;
     }
 
     List<CaliberEntity> getCalibersList() {

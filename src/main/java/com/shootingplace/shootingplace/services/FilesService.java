@@ -422,6 +422,19 @@ public class FilesService {
                 table.addCell(cell2);
                 document.add(table);
             }
+            PdfPTable tableSum = new PdfPTable(pointColumnWidths);
+            PdfPCell cellTableSum = new PdfPCell(new Paragraph(new Paragraph("", new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cellTableSum1 = new PdfPCell(new Paragraph(new Paragraph("Suma", new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cellTableSum2 = new PdfPCell(new Paragraph(new Paragraph(ammoInEvidenceEntity.getQuantity().toString(), new Font(czcionka, 10, Font.ITALIC))));
+            cellTableSum.setBorder(0);
+            cellTableSum1.setBorder(0);
+            cellTableSum1.setRunDirection(PdfWriter.RUN_DIRECTION_RTL);
+
+            tableSum.addCell(cellTableSum);
+            tableSum.addCell(cellTableSum1);
+            tableSum.addCell(cellTableSum2);
+            document.add(tableSum);
+
         }
 
         document.close();
@@ -486,10 +499,11 @@ public class FilesService {
         }
         int shotgun = 0;
         if (memberEntity.getShootingPatent().getShotgunPermission()) {
+
             shotgun = memberEntity.getHistory().getShotgunCounter();
         }
 
-        if (pistol > 4) {
+        if (pistol >= 4) {
             if (rifle > 2) {
                 rifle = 2;
             }
@@ -498,7 +512,7 @@ public class FilesService {
             }
             pistol = 4;
 
-        } else if (rifle > 4) {
+        } else if (rifle >= 4) {
             if (pistol > 2) {
                 pistol = 2;
             }
@@ -507,7 +521,7 @@ public class FilesService {
             }
             rifle = 4;
 
-        } else if (shotgun > 4) {
+        } else if (shotgun >= 4) {
             if (pistol > 2) {
                 pistol = 2;
             }
@@ -711,41 +725,137 @@ public class FilesService {
         String fileName = "Zawody_" + tournamentEntity.getName() + "_" + tournamentEntity.getDate() + ".pdf";
 
         Document document = new Document(PageSize.A4);
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+        PdfWriter writer = PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
         document.open();
         document.addTitle(fileName);
         document.addCreationDate();
+        int page = 1;
+        System.out.println(page);
 
-        Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(10, 1));
-        Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10,2));
-        Paragraph newLine = new Paragraph("\n",font(10,0));
+        Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(14, 1));
+        Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10, 2));
+        Paragraph newLine = new Paragraph("\n", font(10, 0));
 
-        for (int i = 0;i<tournamentEntity.getCompetitionsList().size();i++) {
-            CompetitionMembersListEntity competitionMembersListEntity = tournamentEntity.getCompetitionsList().get(i);
-
-//            Paragraph p2 = new Paragraph("Kaliber : " + ammoInEvidenceEntity.getCaliberName() + "\n", font(12, 1));
-//            p2.add("\n");
-//            p2.setIndentationLeft(230);
-//            document.add(p2);
-//            float[] pointColumnWidths = {20F, 255F, 25};
-//            PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
-//            PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", new Font(czcionka, 10, Font.ITALIC))));
-//            PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", new Font(czcionka, 10, Font.ITALIC))));
-//            PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", new Font(czcionka, 10, Font.ITALIC))));
-
-
-
-        }
-
-
-
-
-            document.add(title);
+        document.add(title);
         document.add(date);
         document.add(newLine);
 
+        PdfPTable mainTable = new PdfPTable(1);
+        mainTable.setWidthPercentage(100);
 
 
+        for (int i = 0; i < tournamentEntity.getCompetitionsList().size(); i++) {
+
+            CompetitionMembersListEntity competitionMembersListEntity = tournamentEntity.getCompetitionsList().get(i);
+            competitionMembersListEntity.getScoreList().sort(Comparator.comparing(ScoreEntity::getScore).reversed());
+
+            Paragraph competition = new Paragraph(competitionMembersListEntity.getName(), font(14, 1));
+            competition.add("\n");
+            document.add(competition);
+            float[] pointColumnWidths = {25F, 150F, 150F, 25F};
+            PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
+            PdfPCell cellLabel = new PdfPCell(new Paragraph("M-ce", font(10, 0)));
+            PdfPCell cellLabel1 = new PdfPCell(new Paragraph("Imię i Nazwisko", font(10, 0)));
+            PdfPCell cellLabel2 = new PdfPCell(new Paragraph("Klub", font(10, 0)));
+            PdfPCell cellLabel3 = new PdfPCell(new Paragraph("wynik", font(10, 0)));
+
+            document.add(newLine);
+
+            cellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+            cellLabel.setBorder(0);
+            cellLabel1.setBorder(0);
+            cellLabel2.setBorder(0);
+            cellLabel3.setBorder(0);
+
+            tableLabel.setWidthPercentage(100F);
+            tableLabel.addCell(cellLabel);
+            tableLabel.addCell(cellLabel1);
+            tableLabel.addCell(cellLabel2);
+            tableLabel.addCell(cellLabel3);
+
+            document.add(tableLabel);
+
+
+            for (int j = 0; j < competitionMembersListEntity.getScoreList().size(); j++) {
+
+                String secondName;
+                String firstName;
+                String club;
+                if (competitionMembersListEntity.getScoreList().get(j).getMember() != null) {
+                    secondName = competitionMembersListEntity.getScoreList().get(j).getMember().getSecondName();
+                    firstName = competitionMembersListEntity.getScoreList().get(j).getMember().getFirstName();
+                    club = competitionMembersListEntity.getScoreList().get(j).getMember().getClub().getName();
+
+                } else {
+                    secondName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getSecondName();
+                    firstName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getFirstName();
+                    club = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getClub().getName();
+
+                }
+                float score = competitionMembersListEntity.getScoreList().get(j).getScore();
+                PdfPTable playerTableLabel = new PdfPTable(pointColumnWidths);
+                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(12, 0)));
+                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(12, 0)));
+                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(12, 0)));
+                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(12, 0)));
+
+                playerCellLabel.setBorder(0);
+                playerCellLabel1.setBorder(0);
+                playerCellLabel2.setBorder(0);
+                playerCellLabel3.setBorder(0);
+
+                playerCellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+                playerCellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
+                playerCellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
+                playerCellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+
+                playerTableLabel.setWidthPercentage(100F);
+
+                playerTableLabel.addCell(playerCellLabel);
+                playerTableLabel.addCell(playerCellLabel1);
+                playerTableLabel.addCell(playerCellLabel2);
+                playerTableLabel.addCell(playerCellLabel3);
+
+                document.add(playerTableLabel);
+
+            }
+
+        }
+        float[] pointColumnWidths = {220F, 240F, 240F};
+        MemberEntity mainArbiter = tournamentEntity.getMainArbiter();
+        MemberEntity commissionRTSArbiter = tournamentEntity.getCommissionRTSArbiter();
+        PdfPTable arbiterTableLabel = new PdfPTable(pointColumnWidths);
+        PdfPCell arbiterCellLabel1 = new PdfPCell(new Paragraph("Sędzia Główny \n" + mainArbiter.getFirstName() + " " + mainArbiter.getSecondName() + "\n"+ mainArbiter.getMemberPermissions().getArbiterClass(), font(12, 0)));
+        PdfPCell arbiterCellLabel2 = new PdfPCell(new Paragraph(" ", font(10, 0)));
+        PdfPCell arbiterCellLabel3 = new PdfPCell(new Paragraph("Przewodniczący Komisji RTS \n" + commissionRTSArbiter.getFirstName() + " " + commissionRTSArbiter.getSecondName() + "\n" + commissionRTSArbiter.getMemberPermissions().getArbiterClass(), font(12, 0)));
+
+        arbiterCellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        arbiterCellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        arbiterCellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+        arbiterCellLabel1.setBorder(0);
+        arbiterCellLabel2.setBorder(0);
+        arbiterCellLabel3.setBorder(0);
+
+        arbiterTableLabel.setWidthPercentage(100F);
+
+        arbiterTableLabel.addCell(arbiterCellLabel1);
+        arbiterTableLabel.addCell(arbiterCellLabel2);
+        arbiterTableLabel.addCell(arbiterCellLabel3);
+
+
+        document.add(newLine);
+        document.add(newLine);
+
+        document.add(arbiterTableLabel);
+
+        document.close();
 
 
         byte[] data = convertToByteArray(fileName);
@@ -756,7 +866,7 @@ public class FilesService {
                 .build();
 
         FilesEntity filesEntity =
-                createApplicationForExtensionOfTheCompetitorsLicense(filesModel);
+                createAnnouncementFromCompetition(filesModel);
 
         File file = new File(fileName);
 

@@ -27,9 +27,10 @@ public class CompetitionController {
         return ResponseEntity.ok(competitionService.getAllCompetitions());
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> createCompetition(@RequestParam String name,@RequestParam String discipline) {
-        if (competitionService.createNewCompetition(name,discipline)) {
+    @PostMapping("")
+    public ResponseEntity<?> createCompetition(@RequestParam String name, @RequestParam String discipline) {
+        String trim = discipline.trim();
+        if (competitionService.createNewCompetition(name, trim)) {
             return ResponseEntity.status(201).build();
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -37,8 +38,19 @@ public class CompetitionController {
     }
 
     @PutMapping("")
-    public ResponseEntity<?> setScore(@RequestParam UUID scoreUUID, @RequestParam float score,@RequestParam float innerTen,@RequestParam float outerTen) {
-        if (scoreService.setScore(scoreUUID, score,innerTen,outerTen)) {
+    public ResponseEntity<?> setScore(@RequestParam UUID scoreUUID, @RequestParam float score, @RequestParam float innerTen, @RequestParam float outerTen) {
+
+        if (scoreService.setScore(scoreUUID, score, innerTen, outerTen)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<?> toggleAmmunitionInScore(@RequestParam UUID scoreUUID) {
+
+        if (scoreService.toggleAmmunitionInScore(scoreUUID)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();

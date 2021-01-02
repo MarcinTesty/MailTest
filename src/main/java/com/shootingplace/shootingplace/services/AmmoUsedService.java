@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -45,7 +44,9 @@ public class AmmoUsedService {
                 .orElseThrow(EntityNotFoundException::new)
                 .getName();
 
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        MemberEntity memberEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new);
 
         AmmoUsedPersonal ammoUsedPersonal = AmmoUsedPersonal.builder()
                 .caliberName(name)
@@ -113,33 +114,30 @@ public class AmmoUsedService {
 
         AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity = createAmmoUsedToEvidenceEntity(ammoUsedEvidence);
 
-            System.out.println("zapis");
             ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity);
             ammoInEvidenceService.addAmmoUsedEntityToAmmoInEvidenceEntity(ammoUsedToEvidenceEntity);
 
-
     }
-
 
     private AmmoUsedEntity createAmmoUsedEntity(AmmoUsedPersonal ammoUsedPersonal) {
 
         return ammoUsedRepository.saveAndFlush(Mapping.map(ammoUsedPersonal));
 
     }
-
-    public List<AmmoUsedEntity> getAllAmmoUsed() {
-
-        List<AmmoUsedEntity> list = ammoUsedRepository.findAll();
-        list.sort(Comparator.comparing(AmmoUsedEntity::getCaliberName));
-        return list;
-
-    }
+//
+//    public List<AmmoUsedEntity> getAllAmmoUsed() {
+//
+//        List<AmmoUsedEntity> list = ammoUsedRepository.findAll();
+//        list.sort(Comparator.comparing(AmmoUsedEntity::getCaliberName));
+//        return list;
+//
+//    }
 
     private AmmoUsedToEvidenceEntity createAmmoUsedToEvidenceEntity(AmmoUsedEvidence ammoUsedEvidence) {
         return ammoUsedToEvidenceEntityRepository.saveAndFlush(Mapping.map(ammoUsedEvidence));
     }
 
-    public List<AmmoUsedToEvidenceEntity> getAllsmth() {
-        return ammoUsedToEvidenceEntityRepository.findAll();
-    }
+//    public List<AmmoUsedToEvidenceEntity> getAllsmth() {
+//        return ammoUsedToEvidenceEntityRepository.findAll();
+//    }
 }

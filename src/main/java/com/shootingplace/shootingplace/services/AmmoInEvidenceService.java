@@ -35,7 +35,6 @@ public class AmmoInEvidenceService {
 
 //      Nie znaleziono żadnej listy
         if (collect.size() < 1 || ammoEvidenceRepository.findAll() == null) {
-            System.out.println("tworzymy od zera");
             if (ammoUsedToEvidenceEntity.getCounter() < 0) {
                 System.out.println("nie można dodać ujemnej wartości");
             } else {
@@ -44,7 +43,6 @@ public class AmmoInEvidenceService {
 //                nadawanie numeru od zera
                 if (ammoEvidenceRepository.findAll().size() < 1 || ammoEvidenceRepository.findAll() == null) {
                     number = 1;
-                    System.out.println(number);
 //                    nadawanie kolejnego numeru
                 } else {
                     List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll();
@@ -81,7 +79,6 @@ public class AmmoInEvidenceService {
         }
 //      Znaleziono jakąś otwartą listę
         else {
-            System.out.println("jest ewidencja");
             AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
                     .findAll()
                     .stream()
@@ -116,7 +113,6 @@ public class AmmoInEvidenceService {
                 }
 //        Znaleziono podanego membera
                 else {
-                    System.out.println("jest member");
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
                             .filter(f -> f.getMemberEntity()
@@ -137,7 +133,6 @@ public class AmmoInEvidenceService {
             }
 //       Nie znaleziono żadnej listy z podanym kalibrem
             else {
-                System.out.println("nie ma listy z kalibrem");
                 AmmoInEvidenceEntity build = AmmoInEvidenceEntity.builder()
                         .caliberName(ammoUsedToEvidenceEntity.getCaliberName())
                         .caliberUUID(ammoUsedToEvidenceEntity.getCaliberUUID())
@@ -180,7 +175,6 @@ public class AmmoInEvidenceService {
         }
 //        Usuwanie ewidencji jeśli nie ma żadnej listy z amunicją
         if (ammoEvidenceEntity.getAmmoInEvidenceEntityList().isEmpty()) {
-            System.out.println("usuwam");
             ammoEvidenceRepository.deleteById(ammoEvidenceEntity.getUuid());
         }
     }

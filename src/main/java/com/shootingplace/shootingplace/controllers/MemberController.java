@@ -49,6 +49,12 @@ public class MemberController {
     public List<String> getMembersNames(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return memberService.getMembersNameAndLegitimationNumber(active, adult, erase);
     }
+
+    @GetMapping("/getAllActiveMembersNames")
+    public List<String> getAllActiveMembersNames(){
+        return memberService.getAllActiveMembersNames();
+    }
+
     @GetMapping("/getArbiters")
     public List<String> getArbiters() {
         return memberService.getArbiters();

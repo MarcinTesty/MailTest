@@ -25,7 +25,13 @@ public class ScoreService {
     }
 
     ScoreEntity createScore(float score, float innerTen, float outerTen, UUID competitionMembersListEntityUUID, MemberEntity memberEntity, OtherPersonEntity otherPersonEntity) {
-
+        String name;
+        if(memberEntity!=null){
+            name = memberEntity.getSecondName()+ " " + memberEntity.getFirstName();
+        }
+        else {
+            name = otherPersonEntity.getSecondName() + " " + otherPersonEntity.getFirstName();
+        }
         return scoreRepository.saveAndFlush(ScoreEntity.builder()
                 .competitionMembersListEntityUUID(competitionMembersListEntityUUID)
                 .member(memberEntity)
@@ -33,12 +39,23 @@ public class ScoreService {
                 .score(score)
                 .innerTen(innerTen)
                 .outerTen(outerTen)
+                .ammunition(false)
+                .name(name)
                 .build());
 
     }
 
     public boolean setScore(UUID scoreUUID, float score, float innerTen, float outerTen) {
         ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
+        if (score == -1) {
+            score = scoreEntity.getScore();
+        }
+        if (innerTen == -1) {
+            innerTen = scoreEntity.getInnerTen();
+        }
+        if (outerTen == -1) {
+            outerTen = scoreEntity.getOuterTen();
+        }
         scoreEntity.setScore(score);
         scoreEntity.setInnerTen(innerTen);
         scoreEntity.setOuterTen(outerTen);
@@ -46,8 +63,21 @@ public class ScoreService {
         UUID competitionMembersListEntityUUID = scoreEntity.getCompetitionMembersListEntityUUID();
         CompetitionMembersListEntity competitionMembersListEntity = competitionMembersListRepository.findById(competitionMembersListEntityUUID).orElseThrow(EntityNotFoundException::new);
         List<ScoreEntity> scoreList = competitionMembersListEntity.getScoreList();
-        scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed().thenComparing(Comparator.comparing(ScoreEntity::getInnerTen).reversed().thenComparing(Comparator.comparing(ScoreEntity::getOuterTen).reversed())));
+        scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
+                .reversed()
+                .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
+                        .reversed()
+                        .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
+                                .reversed())
+                        ));
         competitionMembersListRepository.saveAndFlush(competitionMembersListEntity);
+        return true;
+    }
+
+    public boolean toggleAmmunitionInScore(UUID scoreUUID) {
+        ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
+        scoreEntity.toggleAmmunition();
+        scoreRepository.saveAndFlush(scoreEntity);
         return true;
     }
 }

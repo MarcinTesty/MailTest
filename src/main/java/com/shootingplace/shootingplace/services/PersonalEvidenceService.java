@@ -29,7 +29,7 @@ public class PersonalEvidenceService {
         this.memberRepository = memberRepository;
     }
 
-    void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
+    public void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getPersonalEvidence() != null) {
             LOG.error("nie można już dodać pola");
@@ -42,27 +42,4 @@ public class PersonalEvidenceService {
         LOG.info("Osobista Ewidencja została zapisana");
     }
 
-//    public void collectAmmoData(UUID memberUUID) {
-//        MemberEntity memberUUID = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-//        List<CaliberEntity> caliberEntities = caliberRepository.findAll();
-//        PersonalEvidenceEntity personalEvidence = memberUUID.getPersonalEvidence();
-//        String[] evidenceAmmo = new String[caliberEntities.size()];
-//        Integer ammo = 0;
-//        for (int i = 0; i < caliberEntities.size(); i++) {
-//            List<MemberEntity> members = caliberEntities.get(i).getMembers();
-//            Integer[] integers = caliberEntities.get(i).getAmmoUsed();
-//            for (int j = 0; j < members.size(); j++) {
-//                if (members.get(j).equals(memberUUID)) {
-//                    ammo = ammo + integers[j];
-//                }
-//            }
-//            evidenceAmmo[i] = String.valueOf(ammo);
-//            evidenceAmmo[i] = evidenceAmmo[i] + " szt. " + caliberEntities.get(i).getName();
-//            ammo = 0;
-//
-//        }
-//        LOG.info("Zebrano dane o amunicji");
-//        personalEvidence.setAmmo(evidenceAmmo);
-//        personalEvidenceRepository.saveAndFlush(personalEvidence);
-//    }
 }

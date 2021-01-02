@@ -24,6 +24,10 @@ public class ScoreEntity {
     private float innerTen;
     private float outerTen;
 
+    private String name;
+
+    private boolean ammunition;
+
     private UUID competitionMembersListEntityUUID;
     @OneToOne(orphanRemoval = true)
     private MemberEntity member;
@@ -80,5 +84,21 @@ public class ScoreEntity {
 
     public void setOtherPersonEntity(OtherPersonEntity otherPersonEntity) {
         this.otherPersonEntity = otherPersonEntity;
+    }
+
+    public boolean isAmmunition() {
+        return ammunition;
+    }
+
+    public void toggleAmmunition() {
+        this.ammunition = !this.ammunition;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
