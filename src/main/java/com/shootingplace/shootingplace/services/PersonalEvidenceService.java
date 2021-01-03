@@ -29,7 +29,7 @@ public class PersonalEvidenceService {
         this.memberRepository = memberRepository;
     }
 
-    public void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
+    void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getPersonalEvidence() != null) {
             LOG.error("nie można już dodać pola");

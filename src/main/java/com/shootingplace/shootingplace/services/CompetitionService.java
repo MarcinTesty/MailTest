@@ -36,7 +36,7 @@ public class CompetitionService {
         return competitionEntityList;
     }
 
-    public void createCompetitions() {
+    private void createCompetitions() {
 
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
@@ -55,18 +55,8 @@ public class CompetitionService {
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())
-                .name("50m Pistolet dowolny 10 strzałów OPEN")
+                .name("50m Pistolet dowolny bocznego zapłonu 10 strzałów OPEN")
                 .discipline(Discipline.PISTOL.getName())
-                .build());
-        competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
-                .name("25m Pistolet maszynowy 10 strzałów OPEN")
-                .discipline(Discipline.PISTOL.getName())
-                .build());
-        competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
-                .name("50m Karabin sportowy 10 strzałów OPEN")
-                .discipline(Discipline.RIFLE.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
                 .uuid(UUID.randomUUID())

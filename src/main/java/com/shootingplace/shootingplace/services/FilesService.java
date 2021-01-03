@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -880,11 +879,6 @@ public class FilesService {
             return "Pani";
         } else return "Pan";
     }
-
-    public Optional<FilesEntity> getFile(UUID fileUUID) {
-        return filesRepository.findById(fileUUID);
-    }
-
 
     private byte[] convertToByteArray(String path) throws IOException {
         File file = new File(path);

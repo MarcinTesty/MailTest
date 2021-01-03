@@ -68,9 +68,9 @@ public class MemberService {
 
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
         memberRepository.findAll().forEach(e -> {
-
+//          TODO
 //            BARDZO WAŻNE BY ZROBIĆ TO ŚWIEŻYM UMYSŁEM
-
+//            TO TRZEBA PRZEROBIĆ A NA PEWNO UMIEŚCIĆ W INNYM MIEJSCU
 //            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
 //                    && e.getActive()) {
 //                e.setActive(false);
@@ -207,7 +207,6 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
-            String[] split = member.getFirstName().split(" ");
 
             member.setFirstName(member.getFirstName().substring(0, 1).toUpperCase() + member.getFirstName().substring(1).toLowerCase());
             member.setSecondName(member.getSecondName().toUpperCase());
@@ -461,19 +460,6 @@ public class MemberService {
         return list.toString().replaceAll(",", "");
     }
 
-
-    public List<String> getMembersNamesWithPermissions(Boolean arbiter) {
-
-        List<String> list = new ArrayList<>();
-        if (arbiter) {
-            memberRepository.findAll().forEach(e -> {
-                if (e.getMemberPermissions().getArbiterNumber() != null) {
-                    list.add(e.getFirstName().concat(" " + e.getSecondName() + " " + e.getMemberPermissions().getArbiterClass() + " " + e.getUuid()));
-                }
-            });
-        }
-        return list;
-    }
 
     public ResponseEntity<?> updateJoinDate(UUID memberUUID, String date) {
 

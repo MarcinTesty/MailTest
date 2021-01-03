@@ -49,7 +49,7 @@ public class OtherPersonService {
         if (all.isEmpty()) {
             id = 1;
         } else {
-            all.sort(Comparator.comparing(OtherPersonEntity::getId));
+            all.sort(Comparator.comparing(OtherPersonEntity::getId).reversed());
             id = (all.get(0).getId()) + 1;
         }
         OtherPersonEntity otherPersonEntity = OtherPersonEntity.builder()

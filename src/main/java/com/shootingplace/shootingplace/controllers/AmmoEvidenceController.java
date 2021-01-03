@@ -64,15 +64,4 @@ public class AmmoEvidenceController {
         }
     }
 
-
-//    // helper
-//    @GetMapping("/ammoEvidence")
-//    public ResponseEntity<List<AmmoInEvidenceEntity>> getAllAmmoInEvidence() {
-//        return ResponseEntity.ok(ammoInEvidenceService.getAllAmmoInEvidence());
-//    }
-//
-//    @GetMapping("/ammoUsed")
-//    public ResponseEntity<List<AmmoUsedToEvidenceEntity>> getAllsmth() {
-//        return ResponseEntity.ok(ammoUsedService.getAllsmth());
-//    }
 }

@@ -150,20 +150,9 @@ public class AmmoUsedService {
         return ammoUsedRepository.saveAndFlush(Mapping.map(ammoUsedPersonal));
 
     }
-//
-//    public List<AmmoUsedEntity> getAllAmmoUsed() {
-//
-//        List<AmmoUsedEntity> list = ammoUsedRepository.findAll();
-//        list.sort(Comparator.comparing(AmmoUsedEntity::getCaliberName));
-//        return list;
-//
-//    }
 
     private AmmoUsedToEvidenceEntity createAmmoUsedToEvidenceEntity(AmmoUsedEvidence ammoUsedEvidence) {
         return ammoUsedToEvidenceEntityRepository.saveAndFlush(Mapping.map(ammoUsedEvidence));
     }
 
-//    public List<AmmoUsedToEvidenceEntity> getAllsmth() {
-//        return ammoUsedToEvidenceEntityRepository.findAll();
-//    }
 }

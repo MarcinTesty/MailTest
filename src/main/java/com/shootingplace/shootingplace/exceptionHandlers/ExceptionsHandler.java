@@ -21,13 +21,6 @@ public class ExceptionsHandler {
         return ex.getMessage();
     }
 
-//    @ExceptionHandler(value = NumberFormatException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public String handleNumberFormatException(Exception ex) {
-//        LOG.error(ex.getMessage() + "źle podano numer PESEL");
-//        return "podałeś złe dane";
-//    }
-
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleConstraintViolationException(Exception ex) {
@@ -35,10 +28,4 @@ public class ExceptionsHandler {
         return "Wprowadzono nieprawidłowe dane";
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public String handleLegitimationNumberException(Exception ex) {
-//        LOG.error("Nie można nadać komuś tego numeru legitymacji");
-//        return "Nie można nadać komuś tego numeru legitymacji";
-//    }
 }

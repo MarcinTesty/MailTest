@@ -34,7 +34,7 @@ public class HistoryService {
     }
 
     //  Basic
-    public void createHistory(UUID memberUUID, History history) {
+    void createHistory(UUID memberUUID, History history) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = Mapping.map(history);
@@ -215,15 +215,6 @@ public class HistoryService {
             array[i] = temp;
         }
         return array;
-    }
-
-    private void sort(String[] array) {
-
-        Arrays.sort(array);
-    }
-
-    private void reverse(List array) {
-        Collections.reverse(array);
     }
 
     //  Tournament
