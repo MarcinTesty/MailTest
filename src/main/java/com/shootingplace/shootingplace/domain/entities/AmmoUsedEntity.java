@@ -27,6 +27,10 @@ public class AmmoUsedEntity {
 
     private UUID memberUUID;
 
+    private Integer otherPersonEntityID;
+
+    private String userName;
+
     private Integer counter;
 
     public UUID getUuid() {
@@ -68,5 +72,21 @@ public class AmmoUsedEntity {
 
     public void setCounter(Integer counter) {
         this.counter = counter;
+    }
+
+    public Integer getOtherPersonEntityID() {
+        return otherPersonEntityID;
+    }
+
+    public void setOtherPersonEntityID(Integer otherPersonEntityID) {
+        this.otherPersonEntityID = otherPersonEntityID;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

@@ -26,6 +26,10 @@ public class AmmoUsedToEvidenceEntity {
     private MemberEntity memberEntity;
 
     private Integer counter;
+    @ManyToOne
+    private OtherPersonEntity otherPersonEntity;
+
+    private String name;
 
     public UUID getUuid() {
         return uuid;
@@ -61,5 +65,21 @@ public class AmmoUsedToEvidenceEntity {
 
     public void setCounter(Integer counter) {
         this.counter = counter;
+    }
+
+    public OtherPersonEntity getOtherPersonEntity() {
+        return otherPersonEntity;
+    }
+
+    public void setOtherPersonEntity(OtherPersonEntity otherPersonEntity) {
+        this.otherPersonEntity = otherPersonEntity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -101,7 +101,7 @@ public class AmmoInEvidenceService {
 
                 List<AmmoUsedToEvidenceEntity> ammoUsedToEvidenceEntityList = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList();
 //        Nie znaleziono podanego membera
-                if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getMemberEntity().equals(ammoUsedToEvidenceEntity.getMemberEntity()))) {
+                if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getName().equals(ammoUsedToEvidenceEntity.getName()))) {
                     if (ammoUsedToEvidenceEntity.getCounter() < 0) {
                         System.out.println("nie można dodać ujemnej wartości");
                     } else {
@@ -115,8 +115,8 @@ public class AmmoInEvidenceService {
                 else {
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
-                            .filter(f -> f.getMemberEntity()
-                                    .equals(ammoUsedToEvidenceEntity.getMemberEntity()))
+                            .filter(f -> f.getName()
+                                    .equals(ammoUsedToEvidenceEntity.getName()))
                             .findFirst()
                             .orElseThrow(EntityNotFoundException::new);
 

@@ -308,7 +308,9 @@ class Mapping {
                 .caliberName(a.getCaliberName())
                 .caliberUUID(a.getCaliberUUID())
                 .counter(a.getCounter())
-                .memberEntity(a.getMemberUUID())
+                .memberEntity(a.getMemberEntity())
+                .otherPersonEntity(a.getOtherPersonEntity())
+                .name(a.getUserName())
                 .build()).orElse(null);
     }
 

@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.domain.models;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.entities.OtherPersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,11 @@ import java.util.UUID;
 public class AmmoUsedEvidence {
     private String caliberName;
 
-    private MemberEntity memberUUID;
+    private String userName;
+
+    private MemberEntity memberEntity;
+
+    private OtherPersonEntity otherPersonEntity;
 
     private Integer counter;
 
@@ -34,12 +39,12 @@ public class AmmoUsedEvidence {
         this.caliberName = caliberName;
     }
 
-    public MemberEntity getMemberUUID() {
-        return memberUUID;
+    public MemberEntity getMemberEntity() {
+        return memberEntity;
     }
 
-    public void setMemberUUID(MemberEntity memberUUID) {
-        this.memberUUID = memberUUID;
+    public void setMemberEntity(MemberEntity memberEntity) {
+        this.memberEntity = memberEntity;
     }
 
     public Integer getCounter() {
@@ -48,5 +53,21 @@ public class AmmoUsedEvidence {
 
     public void setCounter(Integer counter) {
         this.counter = counter;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public OtherPersonEntity getOtherPersonEntity() {
+        return otherPersonEntity;
+    }
+
+    public void setOtherPersonEntity(OtherPersonEntity otherPersonEntity) {
+        this.otherPersonEntity = otherPersonEntity;
     }
 }

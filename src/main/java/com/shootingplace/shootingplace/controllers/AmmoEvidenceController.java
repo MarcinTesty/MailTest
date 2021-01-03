@@ -33,9 +33,9 @@ public class AmmoEvidenceController {
     // New ammo used by Member
 
     @PostMapping("/ammo")
-    public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam UUID memberUUID, @RequestParam Integer counter) {
-        System.out.println(memberUUID);
-        if (ammoUsedService.addAmmoUsedEntity(caliberUUID, memberUUID, counter)) {
+    public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam Integer legitimationNumber, @RequestParam int otherID, @RequestParam Integer counter) {
+
+        if (ammoUsedService.addAmmoUsedEntity(caliberUUID, legitimationNumber, otherID, counter)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
@@ -49,8 +49,9 @@ public class AmmoEvidenceController {
     public ResponseEntity<List<AmmoEvidenceEntity>> getAllEvidences(@RequestParam boolean state) {
         return ResponseEntity.ok(ammoEvidenceService.getAllEvidences(state));
     }
+
     @GetMapping("/closedEvidences")
-    public ResponseEntity<List<AmmoDTO>> getClosedEvidence(){
+    public ResponseEntity<List<AmmoDTO>> getClosedEvidence() {
         return ResponseEntity.ok().body(ammoEvidenceService.getClosedEvidences());
     }
 

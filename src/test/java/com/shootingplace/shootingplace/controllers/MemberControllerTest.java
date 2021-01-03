@@ -57,7 +57,7 @@ public class MemberControllerTest {
                 .email("cośta@mail.com")
                 .pesel("90120510813").phoneNumber("+48987654321").active(true)
                 .build();
-        ResponseEntity<String> re = testRestTemplate.postForEntity("/memberUUID/", member, String.class);
+        ResponseEntity<String> re = testRestTemplate.postForEntity("/memberEntity/", member, String.class);
         assertEquals(HttpStatus.OK, re.getStatusCode());
         assertTrue(memberRepository.findById(uuid).isPresent());
     }
@@ -72,7 +72,7 @@ public class MemberControllerTest {
                 .build();
         memberRepository.saveAndFlush(memberEntity);
         ResponseEntity<Map<UUID, Member>> re = testRestTemplate
-                .exchange("/memberUUID/list", HttpMethod.GET, null, new ParameterizedTypeReference<Map<UUID, Member>>() {
+                .exchange("/memberEntity/list", HttpMethod.GET, null, new ParameterizedTypeReference<Map<UUID, Member>>() {
                 });
         Map<UUID, Member> map = re.getBody();
         assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -86,14 +86,14 @@ public class MemberControllerTest {
         Member updatedMember = Member.builder()
                 .firstName("Jasko")
                 .build();
-        testRestTemplate.put(String.format("/memberUUID/%s", uuid), updatedMember);
+        testRestTemplate.put(String.format("/memberEntity/%s", uuid), updatedMember);
         System.out.println(uuid);
         memberEntity = memberRepository.findById(uuid).orElseGet(MemberEntity::new);
         assertEquals(updatedMember.getFirstName(), memberEntity.getFirstName());
         Member updatedMember2 = Member.builder()
                 .secondName("Pie")
                 .build();
-        testRestTemplate.put(String.format("/memberUUID/%s", uuid), updatedMember2);
+        testRestTemplate.put(String.format("/memberEntity/%s", uuid), updatedMember2);
         System.out.println(uuid);
         memberEntity = memberRepository.findById(uuid).orElseGet(MemberEntity::new);
         assertEquals(updatedMember2.getSecondName(), memberEntity.getSecondName());
@@ -125,9 +125,9 @@ public class MemberControllerTest {
         Member updatedMember2 = Member.builder()
                 .firstName("DRZWI KURWA")
                 .build();
-        testRestTemplate.put(String.format("/memberUUID/%s", uuid), updatedMember);
+        testRestTemplate.put(String.format("/memberEntity/%s", uuid), updatedMember);
         System.out.println(uuid);
-        testRestTemplate.put(String.format("/memberUUID/%s",uuid2),updatedMember2);
+        testRestTemplate.put(String.format("/memberEntity/%s",uuid2),updatedMember2);
         System.out.println(uuid2);
         memberEntity = memberRepository.findById(uuid).orElseGet(MemberEntity::new);
         memberEntity2 = memberRepository.findById(uuid2).orElseGet(MemberEntity::new);
@@ -140,7 +140,7 @@ public class MemberControllerTest {
 
     @Test
     public void deleteMemberTest() {
-        testRestTemplate.delete(String.format("/memberUUID/%s", uuid));
+        testRestTemplate.delete(String.format("/memberEntity/%s", uuid));
         assertFalse(memberRepository.findById(uuid).isPresent());
     }
 
