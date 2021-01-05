@@ -107,7 +107,7 @@ public class MemberService {
             else {
                 if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now())) {
                     e.setActive(false);
-                    System.out.println("zmieniono " + e.getSecondName());
+                    LOG.info("zmieniono " + e.getSecondName());
                     memberRepository.saveAndFlush(e);
 
                 }
@@ -125,7 +125,7 @@ public class MemberService {
                 //dzisiejsza data jest później niż składka + 3 miesiące
                 if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now())) {
                     e.setActive(false);
-                    System.out.println("zmieniono " + e.getSecondName());
+                    LOG.info("zmieniono " + e.getSecondName());
                     memberRepository.saveAndFlush(e);
 
                 }
@@ -437,49 +437,7 @@ public class MemberService {
 
 
     public MemberEntity getMember(int number) {
-        // Sprawdzanie składek u dorosłych
-
-//            if (!e.getHistory().getContributionList().isEmpty() || e.getHistory().getContributionList() != null) {
-//                if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isAfter(LocalDate.now())) {
-//                    e.setActive(false);
-//                    System.out.println("zmieniono 2");
-//                    memberRepository.saveAndFlush(e);
-//                }
-//            }
-//        memberRepository.findAll().forEach(e -> {
-//            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && e.getActive()) {
-//                e.setActive(false);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-//            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-//                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && !e.getActive()) {
-//                e.setActive(true);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-//            }
-//            if (e.getLicense().getValidThru() != null) {
-//                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-//                    e.getLicense().setValid(false);
-//                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
-//                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
-//                }
-//            }
-//            reset startów po nowym roku
-//            LocalDate date = LocalDate.of(2020, 12, 31);
-//            if (LocalDate.now().isAfter(date)) {
-//                e.getHistory().setPistolCounter(0);
-//                e.getHistory().setRifleCounter(0);
-//                e.getHistory().setShotgunCounter(0);
-//                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
-//                LOG.info("zresetowano licznik zawodów");
-//
-//            }
-//        });
-
-
-        LOG.info("Wywołano Klubowicza");
+         LOG.info("Wywołano Klubowicza");
         return memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
     }
 

@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.OtherPersonEntity;
+import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.MemberPermissions;
 import com.shootingplace.shootingplace.domain.models.OtherPerson;
 import com.shootingplace.shootingplace.services.OtherPersonService;
@@ -26,7 +27,23 @@ public class OtherPersonController {
                                        @Nullable @RequestParam String arbiterClass,
                                        @Nullable @RequestParam String arbiterNumber,
                                        @Nullable @RequestParam LocalDate arbiterPermissionValidThru) {
-
+        if (arbiterClass != null && !arbiterClass.isEmpty()) {
+            if (arbiterClass.equals("1")) {
+                arbiterClass = (ArbiterClass.CLASS_3.getName());
+            }
+            if (arbiterClass.equals("2")) {
+                arbiterClass = (ArbiterClass.CLASS_2.getName());
+            }
+            if (arbiterClass.equals("3")) {
+                arbiterClass = (ArbiterClass.CLASS_1.getName());
+            }
+            if (arbiterClass.equals("4")) {
+                arbiterClass = (ArbiterClass.CLASS_STATE.getName());
+            }
+            if (arbiterClass.equals("5")) {
+                arbiterClass = (ArbiterClass.CLASS_INTERNATIONAL.getName());
+            }
+        }
         MemberPermissions memberPermissions = MemberPermissions.builder()
                 .arbiterNumber(arbiterNumber)
                 .arbiterClass(arbiterClass)
@@ -34,6 +51,7 @@ public class OtherPersonController {
                 .shootingLeaderNumber(null)
                 .instructorNumber(null)
                 .build();
+
 
         if (otherPersonService.addPerson(club, person, memberPermissions)) {
             return ResponseEntity.status(201).build();
@@ -49,11 +67,12 @@ public class OtherPersonController {
     }
 
     @GetMapping("/arbiters")
-    public ResponseEntity<List<String>> getAllOthersArbiters(){
+    public ResponseEntity<List<String>> getAllOthersArbiters() {
         return ResponseEntity.ok().body(otherPersonService.getAllOthersArbiters());
     }
+
     @GetMapping("/all")
-    public ResponseEntity<List<OtherPersonEntity>> getAll(){
+    public ResponseEntity<List<OtherPersonEntity>> getAll() {
         return ResponseEntity.ok().body(otherPersonService.getAll());
     }
 

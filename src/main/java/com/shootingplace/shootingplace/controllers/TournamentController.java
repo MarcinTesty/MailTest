@@ -37,10 +37,19 @@ public class TournamentController {
     }
 
     @PostMapping("/removeArbiter/{tournamentUUID}")
-    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam int number) {
-        if (tournamentService.removeArbiterFromTournament(tournamentUUID, number)) {
-            return ResponseEntity.ok().build();
+    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.removeArbiterFromTournament(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
         }
+        if (id > 0) {
+            if (tournamentService.removeOtherArbiterFromTournament(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
         return ResponseEntity.status(418).body("I'm a teapot");
 
     }

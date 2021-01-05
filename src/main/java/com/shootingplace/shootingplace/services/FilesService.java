@@ -730,7 +730,6 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
         int page = 1;
-        System.out.println(page);
 
         Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(14, 1));
         Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10, 2));
@@ -827,12 +826,31 @@ public class FilesService {
 
         }
         float[] pointColumnWidths = {220F, 240F, 240F};
-        MemberEntity mainArbiter = tournamentEntity.getMainArbiter();
-        MemberEntity commissionRTSArbiter = tournamentEntity.getCommissionRTSArbiter();
+        String mainArbiter;
+        String mainArbiterClass;
+        if (tournamentEntity.getMainArbiter() != null) {
+            mainArbiter = tournamentEntity.getMainArbiter().getFirstName() + " " + tournamentEntity.getMainArbiter().getSecondName();
+            mainArbiterClass = tournamentEntity.getMainArbiter().getMemberPermissions().getArbiterClass();
+        } else {
+            mainArbiter = tournamentEntity.getOtherMainArbiter().getFirstName() + " " + tournamentEntity.getOtherMainArbiter().getSecondName();
+            mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
+        }
+
+        String arbiterRTS;
+        String arbiterRTSClass;
+        if (tournamentEntity.getCommissionRTSArbiter() != null) {
+            arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
+            arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
+        } else {
+            arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
+            arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+        }
+
+
         PdfPTable arbiterTableLabel = new PdfPTable(pointColumnWidths);
-        PdfPCell arbiterCellLabel1 = new PdfPCell(new Paragraph("Sędzia Główny \n" + mainArbiter.getFirstName() + " " + mainArbiter.getSecondName() + "\n"+ mainArbiter.getMemberPermissions().getArbiterClass(), font(12, 0)));
+        PdfPCell arbiterCellLabel1 = new PdfPCell(new Paragraph("Sędzia Główny \n" + mainArbiter + "\n" + mainArbiterClass, font(12, 0)));
         PdfPCell arbiterCellLabel2 = new PdfPCell(new Paragraph(" ", font(10, 0)));
-        PdfPCell arbiterCellLabel3 = new PdfPCell(new Paragraph("Przewodniczący Komisji RTS \n" + commissionRTSArbiter.getFirstName() + " " + commissionRTSArbiter.getSecondName() + "\n" + commissionRTSArbiter.getMemberPermissions().getArbiterClass(), font(12, 0)));
+        PdfPCell arbiterCellLabel3 = new PdfPCell(new Paragraph("Przewodniczący Komisji RTS \n" + arbiterRTS + "\n" + arbiterRTSClass, font(12, 0)));
 
         arbiterCellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
         arbiterCellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);

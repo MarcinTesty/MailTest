@@ -126,6 +126,28 @@ public class TournamentService {
         return false;
     }
 
+    public boolean removeOtherArbiterFromTournament(UUID tournamentUUID, int id) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        if (tournamentEntity.isOpen()) {
+
+            OtherPersonEntity otherPersonEntity = otherPersonRepository
+                    .findAll()
+                    .stream()
+                    .filter(f -> f.getId()
+                            .equals(id))
+                    .findFirst().orElseThrow(EntityNotFoundException::new);
+
+            List<OtherPersonEntity> list = tournamentEntity.getOtherArbitersList();
+
+            list.remove(otherPersonEntity);
+
+            tournamentRepository.saveAndFlush(tournamentEntity);
+
+            return true;
+        }
+        return false;
+    }
+
     public boolean addMainArbiter(UUID tournamentUUID, int legitimationNumber) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
