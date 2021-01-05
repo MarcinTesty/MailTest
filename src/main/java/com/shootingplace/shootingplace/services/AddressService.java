@@ -27,7 +27,7 @@ public class AddressService {
     }
 
 
-    public void addAddress(UUID memberUUID, Address address) {
+    void addAddress(UUID memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getAddress() != null) {
             LOG.error("nie można już dodać adresu");
@@ -42,37 +42,37 @@ public class AddressService {
     //--------------------------------------------------------------------------
 
     @SneakyThrows
-    public void updateAddress(UUID memberUUID, Address address) {
-            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            AddressEntity addressEntity = addressRepository.findById(memberEntity
-                    .getAddress()
-                    .getUuid())
-                    .orElseThrow(EntityNotFoundException::new);
-            if (address.getZipCode() != null && !address.getZipCode().isEmpty()) {
-                addressEntity.setZipCode(address.getZipCode());
-                LOG.info("Dodano Kod pocztowy");
-            }
-            if (address.getPostOfficeCity() != null && !address.getPostOfficeCity().isEmpty()) {
-                addressEntity.setPostOfficeCity(address.getPostOfficeCity());
-                LOG.info("Dodano Miasto");
-            }
-            if (address.getStreet() != null && !address.getStreet().isEmpty()) {
-                addressEntity.setStreet(address.getStreet());
-                LOG.info("Dodano Ulica");
-            }
-            if (address.getStreetNumber() != null && !address.getStreetNumber().isEmpty()) {
-                addressEntity.setStreetNumber(address.getStreetNumber());
-                LOG.info("Dodano Numer ulicy");
-            }
-            if (address.getFlatNumber() != null && !address.getFlatNumber().isEmpty()) {
-                addressEntity.setFlatNumber(address.getFlatNumber());
-                LOG.info("Dodano Numer mieszkania");
-            }
-            addressRepository.saveAndFlush(addressEntity);
-            memberEntity.setAddress(addressEntity);
-            memberRepository.saveAndFlush(memberEntity);
-            LOG.info("Zaktualizowano adres");
-            filesService.personalCardFile(memberEntity.getUuid());
-
+    public boolean updateAddress(UUID memberUUID, Address address) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        AddressEntity addressEntity = addressRepository.findById(memberEntity
+                .getAddress()
+                .getUuid())
+                .orElseThrow(EntityNotFoundException::new);
+        if (address.getZipCode() != null && !address.getZipCode().isEmpty()) {
+            addressEntity.setZipCode(address.getZipCode());
+            LOG.info("Dodano Kod pocztowy");
+        }
+        if (address.getPostOfficeCity() != null && !address.getPostOfficeCity().isEmpty()) {
+            addressEntity.setPostOfficeCity(address.getPostOfficeCity().substring(0, 1).toUpperCase() + address.getPostOfficeCity().substring(1).toLowerCase());
+            LOG.info("Dodano Miasto");
+        }
+        if (address.getStreet() != null && !address.getStreet().isEmpty()) {
+            addressEntity.setStreet(address.getStreet().substring(0, 1).toUpperCase() + address.getStreet().substring(1).toLowerCase());
+            LOG.info("Dodano Ulica");
+        }
+        if (address.getStreetNumber() != null && !address.getStreetNumber().isEmpty()) {
+            addressEntity.setStreetNumber(address.getStreetNumber());
+            LOG.info("Dodano Numer ulicy");
+        }
+        if (address.getFlatNumber() != null && !address.getFlatNumber().isEmpty()) {
+            addressEntity.setFlatNumber(address.getFlatNumber());
+            LOG.info("Dodano Numer mieszkania");
+        }
+        addressRepository.saveAndFlush(addressEntity);
+        memberEntity.setAddress(addressEntity);
+        memberRepository.saveAndFlush(memberEntity);
+        LOG.info("Zaktualizowano adres");
+        filesService.personalCardFile(memberEntity.getUuid());
+        return true;
     }
 }

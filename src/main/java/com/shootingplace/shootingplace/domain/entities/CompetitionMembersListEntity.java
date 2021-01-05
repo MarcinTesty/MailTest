@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -25,10 +23,56 @@ public class CompetitionMembersListEntity {
     private UUID uuid;
 
     private String name;
-    private String attachedTo;
+    private UUID attachedToTournament;
     private LocalDate date;
+
+    private String discipline;
+
     @ManyToMany
-    private List<MemberEntity> membersList = new ArrayList<>();
+    private List<ScoreEntity> scoreList = new ArrayList<>();
+
+    public UUID getUuid() {
+        return uuid;
+    }
 
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public UUID getAttachedToTournament() {
+        return attachedToTournament;
+    }
+
+    public void setAttachedToTournament(UUID attachedToTournament) {
+        this.attachedToTournament = attachedToTournament;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public List<ScoreEntity> getScoreList() {
+        return scoreList;
+    }
+
+    public void setScoreList(List<ScoreEntity> scoreList) {
+        this.scoreList = scoreList;
+    }
+
+    public String getDiscipline() {
+        return discipline;
+    }
+
+    public void setDiscipline(String discipline) {
+        this.discipline = discipline;
+    }
 }

@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
+import com.shootingplace.shootingplace.domain.enums.Discipline;
 import com.shootingplace.shootingplace.domain.models.History;
 import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
@@ -32,75 +33,64 @@ public class HistoryService {
         this.judgingHistoryRepository = judgingHistoryRepository;
     }
 
+    //  Basic
     void createHistory(UUID memberUUID, History history) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new);
         HistoryEntity historyEntity = Mapping.map(history);
-        historyEntity.setContributionRecord(new LocalDate[]{LocalDate.now()});
+        historyEntity.setContributionsList(new ArrayList<>());
         historyEntity.setLicenseHistory(new String[3]);
         historyEntity.setPatentDay(new LocalDate[3]);
         historyEntity.setPistolCounter(0);
         historyEntity.setRifleCounter(0);
         historyEntity.setShotgunCounter(0);
+        historyEntity.setCompetitionHistory(new ArrayList<>());
+        historyEntity.setJudgingHistory(new ArrayList<>());
+        historyEntity.setPatentFirstRecord(false);
         historyRepository.saveAndFlush(historyEntity);
         memberEntity.setHistory(historyEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Historia została utworzona");
     }
 
+    // Contribution
+    void addContribution(UUID memberUUID, ContributionEntity contribution) {
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
 
-    private CompetitionHistoryEntity createCompetitionHistoryEntity(String name, LocalDate date, String discipline) {
+        historyEntity
+                .getContributionList()
+                .add(contribution);
 
-        return CompetitionHistoryEntity.builder()
-                .name(name)
-                .date(date)
-                .discipline(discipline)
-                .build();
+        historyEntity
+                .getContributionList()
+                .sort(Comparator.comparing(ContributionEntity::getPaymentDay)
+                        .thenComparing(ContributionEntity::getValidThru).reversed());
 
-    }
-
-    void addContributionRecord(UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
-
-        for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
-            newState[i] = historyEntity.getContributionRecord()[i];
-            newState[i + 1] = LocalDate.now();
-        }
         LOG.info("Dodano rekord w historii składek");
-        LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
         historyRepository.saveAndFlush(historyEntity);
     }
 
-    public Boolean addContributionRecord(UUID memberUUID, String date) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate parsedDate = LocalDate.parse(date);
-        if (parsedDate.isAfter(LocalDate.now())) {
-            LOG.info("Nie dodano rekordu w historii składek - data z przyszłości");
-            return false;
-        }
-        LocalDate[] newState = new LocalDate[historyEntity.getContributionRecord().length + 1];
-
-        for (int i = 0; i <= historyEntity.getContributionRecord().length - 1; i++) {
-            newState[i] = historyEntity.getContributionRecord()[i];
-            newState[i + 1] = LocalDate.parse(date);
-        }
-        LOG.info("Dodano rekord w historii składek");
-        LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
+    void removeContribution(UUID memberUUID, ContributionEntity contribution) {
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        historyEntity
+                .getContributionList()
+                .remove(contribution);
         historyRepository.saveAndFlush(historyEntity);
-        return true;
     }
 
+    // license
     void addLicenseHistoryRecord(UUID memberUUID, int index) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+
         String[] licenseTab = historyEntity.getLicenseHistory().clone();
         if (index == 0) {
             licenseTab[0] = "Pistolet";
@@ -165,170 +155,46 @@ public class HistoryService {
     }
 
     public Boolean addLicenseHistoryPayment(UUID memberUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        if (historyEntity.getLicensePaymentHistory() != null) {
-            LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+        LicenseEntity licenseEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getLicense();
 
-            for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-                newState[i] = historyEntity.getLicensePaymentHistory()[i];
-                newState[i + 1] = LocalDate.now();
-            }
-            LocalDate[] sortState = selectionSort(newState);
-            historyEntity.setLicensePaymentHistory(sortState);
-            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-            historyRepository.saveAndFlush(historyEntity);
+            HistoryEntity historyEntity = memberRepository.findById(memberUUID)
+                    .orElseThrow(EntityNotFoundException::new)
+                    .getHistory();
+            if (!licenseEntity.getPaid()) {
+                if (historyEntity.getLicensePaymentHistory() != null) {
+                    LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
 
-        } else {
-
-            LocalDate[] newState = new LocalDate[1];
-            newState[0] = LocalDate.now();
-            historyEntity.setLicensePaymentHistory(newState);
-            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-            historyRepository.saveAndFlush(historyEntity);
-        }
-        return true;
-    }
-
-    public Boolean addLicenseHistoryPaymentRecord(UUID memberUUID, LocalDate date) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
-
-        for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-            newState[i] = historyEntity.getLicensePaymentHistory()[i];
-            newState[i + 1] = date;
-        }
-        LocalDate[] sortState = selectionSort(newState);
-        historyEntity.setContributionRecord(sortState);
-        historyRepository.saveAndFlush(historyEntity);
-        return true;
-    }
-
-
-    void addCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid())
-                .orElseThrow(EntityNotFoundException::new);
-        if (historyEntity.getCompetitionHistory() != null) {
-            List<CompetitionHistoryEntity> competitionHistory = historyEntity.getCompetitionHistory();
-            CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedTo(), list.getDate(), list.getName().toUpperCase().substring(0, 1));
-            competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
-            competitionHistory.add(competitionHistoryEntity);
-            competitionHistory.sort(Comparator.comparing(CompetitionHistoryEntity::getDate));
-            reverse(competitionHistory);
-            historyEntity.setCompetitionHistory(competitionHistory);
-
-            if (list.getName().toUpperCase().startsWith("P")) {
-                Integer pistolCounter = historyEntity.getPistolCounter() + 1;
-                historyEntity.setPistolCounter(pistolCounter);
-            }
-            if (list.getName().toUpperCase().startsWith("K")) {
-                Integer rifleCounter = historyEntity.getRifleCounter() + 1;
-                historyEntity.setRifleCounter(rifleCounter);
-            }
-            if (list.getName().toUpperCase().startsWith("S")) {
-                Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
-                historyEntity.setShotgunCounter(shotgunCounter);
-            }
-
-            LOG.info("Dodano wpis w historii startów");
-            historyRepository.saveAndFlush(historyEntity);
-        }
-
-        if (historyEntity.getPistolCounter() >= 4 || historyEntity.getRifleCounter() >= 4 || historyEntity.getShotgunCounter() >= 4) {
-            if (historyEntity.getPistolCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
-                memberEntity.getLicense().setCanProlong(true);
-                System.out.println("może przedłużyć licencję");
-                licenseRepository.saveAndFlush(memberEntity.getLicense());
-            }
-            if (historyEntity.getRifleCounter() >= 4 && (historyEntity.getPistolCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
-                memberEntity.getLicense().setCanProlong(true);
-                licenseRepository.saveAndFlush(memberEntity.getLicense());
-                System.out.println("może przedłużyć licencję");
-
-            }
-            if (historyEntity.getShotgunCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getPistolCounter() >= 2)) {
-                memberEntity.getLicense().setCanProlong(true);
-                licenseRepository.saveAndFlush(memberEntity.getLicense());
-                System.out.println("może przedłużyć licencję");
-
-            }
-        }
-    }
-
-    void addJudgingRecord(UUID memberUUID, UUID tournamentUUID) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
-        HistoryEntity historyEntity = historyRepository.findById(memberEntity.getHistory().getUuid()).orElseThrow(EntityNotFoundException::new);
-        List<JudgingHistoryEntity> judgingHistory = historyEntity.getJudgingHistory();
-        JudgingHistoryEntity judgingHistoryEntity = JudgingHistoryEntity.builder()
-                .date(tournamentEntity.getDate())
-                .name(tournamentEntity.getName())
-                .function(null)
-                .tournamentUUID(tournamentUUID)
-                .build();
-        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getCommissionRTSArbiter().equals(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Komisji Obliczeniowej")){
-                        isExist=true;
+                    for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+                        newState[i] = historyEntity.getLicensePaymentHistory()[i];
+                        newState[i + 1] = LocalDate.now();
                     }
+                    LocalDate[] sortState = selectionSort(newState);
+                    historyEntity.setLicensePaymentHistory(sortState);
+                    LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+                    historyRepository.saveAndFlush(historyEntity);
+
+                } else {
+
+                    LocalDate[] newState = new LocalDate[1];
+                    newState[0] = LocalDate.now();
+                    historyEntity.setLicensePaymentHistory(newState);
+                    LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+                    historyRepository.saveAndFlush(historyEntity);
                 }
+
+            } else {
+                return false;
             }
-            if (isExist==false) {
-                judgingHistoryEntity.setFunction("Sędzia Komisji Obliczeniowej");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano Sędziego Komisji Obliczeniowej");
-            } else{
-                LOG.info("nie można już dodać");
-            }
-        }
-        if (tournamentEntity.getMainArbiter() != null && tournamentEntity.getMainArbiter().equals(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Sędzia Główny zawodów")){
-                        isExist=true;
-                    }
-                }
-            }
-            if (isExist==false) {
-                judgingHistoryEntity.setFunction("Sędzia Główny zawodów");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano Sędziego Głównego");
-            } else{
-                LOG.info("nie można już dodać");
-            }
-        }
-        if (tournamentEntity.getArbitersList().contains(memberEntity)) {
-            boolean isExist = false;
-            for (int i = 0; i < historyEntity.getJudgingHistory().size(); i++) {
-                if (historyEntity.getJudgingHistory().get(i).getTournamentUUID().equals(tournamentUUID)) {
-                    if(historyEntity.getJudgingHistory().get(i).getFunction().equals("Inna funkcja sędziowska")){
-                        isExist=true;
-                    }
-                }
-            }
-            if (isExist==false) {
-                judgingHistoryEntity.setFunction("Inna funkcja sędziowska");
-                judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
-                judgingHistory.add(judgingHistoryEntity);
-                LOG.info("Dodano sędziego z inną funkcją");
-            } else{
-                LOG.info("nie można już dodać");
-            }
-        }
-        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate));
-        Collections.reverse(judgingHistory);
-        historyRepository.saveAndFlush(historyEntity);
+
+            licenseEntity.setPaid(true);
+            licenseRepository.saveAndFlush(licenseEntity);
+            return true;
 
     }
+
 
     private LocalDate[] selectionSort(LocalDate[] array) {
 
@@ -348,12 +214,217 @@ public class HistoryService {
         return array;
     }
 
-    private void sort(String[] array) {
+    //  Tournament
+    private CompetitionHistoryEntity createCompetitionHistoryEntity(UUID tournamentUUID, LocalDate date, String discipline, UUID attachedTo) {
+        String name = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new).getName();
+        return CompetitionHistoryEntity.builder()
+                .name(name)
+                .date(date)
+                .discipline(discipline)
+                .attachedToList(attachedTo)
+                .build();
 
-        Arrays.sort(array);
     }
 
-    private void reverse(List array) {
-        Collections.reverse(array);
+    void addCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
+
+        CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getDiscipline(), list.getUuid());
+        competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
+
+        List<CompetitionHistoryEntity> competitionHistoryEntityList = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory()
+                .getCompetitionHistory();
+
+        competitionHistoryEntityList.add(competitionHistoryEntity);
+
+        HistoryEntity historyEntity = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        competitionHistoryEntityList.sort(Comparator.comparing(CompetitionHistoryEntity::getDate).reversed());
+        historyEntity.setCompetitionHistory(competitionHistoryEntityList);
+
+        if (list.getDiscipline().equals(Discipline.PISTOL.getName())) {
+            Integer pistolCounter = historyEntity.getPistolCounter() + 1;
+            historyEntity.setPistolCounter(pistolCounter);
+        }
+        if (list.getDiscipline().equals(Discipline.RIFLE.getName())) {
+            Integer rifleCounter = historyEntity.getRifleCounter() + 1;
+            historyEntity.setRifleCounter(rifleCounter);
+        }
+        if (list.getDiscipline().equals(Discipline.SHOTGUN.getName())) {
+            Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
+            historyEntity.setShotgunCounter(shotgunCounter);
+        }
+
+        LOG.info("Dodano wpis w historii startów.");
+        historyRepository.saveAndFlush(historyEntity);
+
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
+        if (historyEntity.getPistolCounter() >= 4 || historyEntity.getRifleCounter() >= 4 || historyEntity.getShotgunCounter() >= 4) {
+            if (historyEntity.getPistolCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
+                memberEntity.getLicense().setCanProlong(true);
+                System.out.println("może przedłużyć licencję");
+                licenseRepository.saveAndFlush(memberEntity.getLicense());
+            }
+            if (historyEntity.getRifleCounter() >= 4 && (historyEntity.getPistolCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
+                memberEntity.getLicense().setCanProlong(true);
+                licenseRepository.saveAndFlush(memberEntity.getLicense());
+                System.out.println("może przedłużyć licencję");
+
+            }
+            if (historyEntity.getShotgunCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getPistolCounter() >= 2)) {
+                memberEntity.getLicense().setCanProlong(true);
+                licenseRepository.saveAndFlush(memberEntity.getLicense());
+                System.out.println("może przedłużyć licencję");
+            }
+        }
     }
+
+    void removeCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
+        HistoryEntity historyEntity = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        CompetitionHistoryEntity competitionHistoryEntity = new CompetitionHistoryEntity();
+        for (CompetitionHistoryEntity e : historyEntity.getCompetitionHistory()) {
+            if (e.getAttachedToList().equals(list.getUuid())) {
+                competitionHistoryEntity = competitionHistoryRepository.findById(e.getUuid()).orElseThrow(EntityNotFoundException::new);
+                break;
+            }
+
+        }
+        historyEntity.getCompetitionHistory().remove(competitionHistoryEntity);
+        historyRepository.saveAndFlush(historyEntity);
+        if (list.getDiscipline().equals(Discipline.PISTOL.getName())) {
+            Integer pistolCounter = historyEntity.getPistolCounter() - 1;
+            historyEntity.setPistolCounter(pistolCounter);
+        }
+        if (list.getDiscipline().equals(Discipline.RIFLE.getName())) {
+            Integer rifleCounter = historyEntity.getRifleCounter() - 1;
+            historyEntity.setRifleCounter(rifleCounter);
+        }
+        if (list.getDiscipline().equals(Discipline.SHOTGUN.getName())) {
+            Integer shotgunCounter = historyEntity.getShotgunCounter() - 1;
+            historyEntity.setShotgunCounter(shotgunCounter);
+        }
+
+
+        LOG.info("Zaktualizowano wpis w historii startów");
+        historyRepository.saveAndFlush(historyEntity);
+    }
+
+    void addJudgingRecord(UUID memberUUID, UUID tournamentUUID, String function) {
+
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+
+        JudgingHistoryEntity judgingHistoryEntity = createJudgingHistoryEntity(tournamentEntity.getDate(), tournamentEntity.getName(), tournamentEntity.getUuid(), function);
+
+        List<JudgingHistoryEntity> judgingHistory = historyEntity.getJudgingHistory();
+
+        judgingHistory.add(judgingHistoryEntity);
+        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate).reversed());
+        judgingHistoryRepository.saveAndFlush(judgingHistoryEntity);
+        historyEntity.setJudgingHistory(judgingHistory);
+
+        historyRepository.saveAndFlush(historyEntity);
+    }
+
+    void removeJudgingRecord(UUID memberUUID, UUID tournamentUUID, String function) {
+
+        List<JudgingHistoryEntity> judgingHistoryEntityList = memberRepository.findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory().getJudgingHistory();
+
+        JudgingHistoryEntity any = judgingHistoryEntityList
+                .stream()
+                .filter(e -> e.getTournamentUUID().equals(tournamentUUID) && e.getFunction().equals(function))
+                .findAny().orElseThrow(EntityNotFoundException::new);
+        judgingHistoryEntityList.remove(any);
+        HistoryEntity historyEntity = memberRepository
+                .findById(memberUUID)
+                .orElseThrow(EntityNotFoundException::new)
+                .getHistory();
+        historyEntity.setJudgingHistory(judgingHistoryEntityList);
+        historyRepository.saveAndFlush(historyEntity);
+
+    }
+
+    private JudgingHistoryEntity createJudgingHistoryEntity(LocalDate date, String name, UUID tournamentUUID, String function) {
+        return JudgingHistoryEntity.builder()
+                .date(date)
+                .name(name)
+                .function(function)
+                .tournamentUUID(tournamentUUID)
+                .build();
+    }
+
+    void updateTournamentEntityInCompetitionHistory(UUID tournamentUUID) {
+
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        tournamentEntity.getCompetitionsList().forEach(competitionList -> competitionList
+                .getScoreList()
+                .forEach(scoreEntity -> scoreEntity.getMember()
+                        .getHistory()
+                        .getCompetitionHistory()
+                        .stream()
+                        .filter(f -> f.getAttachedToList().equals(competitionList.getUuid()))
+                        .forEach(f -> {
+                            f.setName(tournamentEntity.getName());
+                            f.setDate(tournamentEntity.getDate());
+                            competitionHistoryRepository.saveAndFlush(f);
+                        })));
+    }
+
+    void updateTournamentInJudgingHistory(UUID tournamentUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        if (tournamentEntity.getArbitersList() != null) {
+            tournamentEntity
+                    .getArbitersList()
+                    .forEach(member -> member
+                            .getHistory()
+                            .getJudgingHistory()
+                            .stream()
+                            .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                            .forEach(f -> {
+                                f.setName(tournamentEntity.getName());
+                                f.setDate(tournamentEntity.getDate());
+                                judgingHistoryRepository.saveAndFlush(f);
+                            })
+                    );
+        }
+        if (tournamentEntity.getMainArbiter() != null) {
+            tournamentEntity.getMainArbiter()
+                    .getHistory()
+                    .getJudgingHistory()
+                    .stream()
+                    .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                    .forEach(f -> {
+                        f.setName(tournamentEntity.getName());
+                        f.setDate(tournamentEntity.getDate());
+                        judgingHistoryRepository.saveAndFlush(f);
+                    });
+        }
+        if (tournamentEntity.getCommissionRTSArbiter() != null) {
+            tournamentEntity.getCommissionRTSArbiter()
+                    .getHistory()
+                    .getJudgingHistory()
+                    .stream()
+                    .filter(f -> f.getTournamentUUID().equals(tournamentUUID))
+                    .forEach(f -> {
+                        f.setName(tournamentEntity.getName());
+                        f.setDate(tournamentEntity.getDate());
+                        judgingHistoryRepository.saveAndFlush(f);
+                    });
+        }
+
+    }
+
+
 }

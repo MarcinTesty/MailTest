@@ -2,7 +2,9 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
+import com.shootingplace.shootingplace.domain.models.TournamentDTO;
 import com.shootingplace.shootingplace.services.TournamentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,41 +22,113 @@ public class TournamentController {
     }
 
     @GetMapping("/list")
-    public List<TournamentEntity> getListOfTournaments() {
-        return tournamentService.getListOfTournaments();
+    public ResponseEntity<List<TournamentEntity>> getListOfTournaments() {
+        return ResponseEntity.ok(tournamentService.getListOfTournaments());
+    }
+
+    @GetMapping("/closedList")
+    public ResponseEntity<List<TournamentDTO>> getListOfClosedTournaments() {
+        return ResponseEntity.ok().body(tournamentService.getClosedTournaments());
     }
 
     @PostMapping("/")
-    public UUID addNewTournament(@RequestBody Tournament tournament) {
-        return tournamentService.createNewTournament(tournament);
+    public ResponseEntity<UUID> addNewTournament(@RequestBody Tournament tournament) {
+        return ResponseEntity.status(201).body(tournamentService.createNewTournament(tournament));
     }
 
-    @PutMapping("/{tournamentUUID}")
-    public Boolean updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
-        return tournamentService.updateTournament(tournamentUUID, tournament);
+    @PostMapping("/removeArbiter/{tournamentUUID}")
+    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.removeArbiterFromTournament(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.removeOtherArbiterFromTournament(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.status(418).body("I'm a teapot");
+
     }
 
     @PatchMapping("/{tournamentUUID}")
-    public Boolean closeTournament(@PathVariable UUID tournamentUUID) {
-        return tournamentService.closeTournament(tournamentUUID);
+    public ResponseEntity<?> closeTournament(@PathVariable UUID tournamentUUID) {
+        if (tournamentService.closeTournament(tournamentUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(418).body("I'm a teapot");
+        }
+    }
+
+    @PutMapping("/{tournamentUUID}")
+    public ResponseEntity<?> updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
+        if (tournamentService.updateTournament(tournamentUUID, tournament)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/addMainArbiter/{tournamentUUID}")
-    public void addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        tournamentService.addMainArbiter(tournamentUUID, memberUUID);
+    public ResponseEntity<?> addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.addMainArbiter(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.addOtherMainArbiter(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/addRTSArbiter/{tournamentUUID}")
-    public void addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID) {
-        tournamentService.addRTSArbiter(tournamentUUID, memberUUID);
-    }
-    @PutMapping("/addOthersArbiters/{tournamentUUID}")
-    public void addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam UUID memberUUID){
-        tournamentService.addOthersArbiters(tournamentUUID, memberUUID);
+    public ResponseEntity<?> addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.addRTSArbiter(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.addOtherRTSArbiter(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/addCompetition{tournamentUUID}")
-    public void addNewCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
-        tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID);
+    @PutMapping("/addOthersArbiters/{tournamentUUID}")
+    public ResponseEntity<?> addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.addOthersArbiters(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.addPersonOthersArbiters(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/addCompetition/{tournamentUUID}")
+    public ResponseEntity<?> addCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
+        if (tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

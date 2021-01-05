@@ -49,19 +49,16 @@ public class LicenseService {
         return map;
     }
 
-
-    public boolean addLicenseToMember(UUID memberUUID, License license) {
+    void addLicenseToMember(UUID memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getLicense() != null) {
             LOG.error("nie można już dodać licencji");
-            return false;
         }
         LicenseEntity licenseEntity = Mapping.map(license);
         licenseRepository.saveAndFlush(licenseEntity);
         memberEntity.setLicense(licenseEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Licencja została zapisana");
-        return true;
     }
 
     public boolean updateLicense(UUID memberUUID, License license) {
@@ -80,8 +77,9 @@ public class LicenseService {
         }
         if (license.getNumber() != null
                 && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
-            if (licenseRepository.findByNumber(license.getNumber()).isPresent()
-                    && !memberEntity.getLicense().getNumber().equals(license.getNumber())) {
+            if(licenseRepository.findAll()
+                    .stream().filter(e-> !(e.getNumber() ==null))
+                    .anyMatch(f->f.getNumber().equals(license.getNumber()))){
                 LOG.error("Ktoś już ma taki numer licencji");
                 return false;
             } else {
@@ -121,12 +119,17 @@ public class LicenseService {
         }
         if (license.getValidThru() != null) {
             licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
+            if(LocalDate.now().getYear()<license.getValidThru().getYear()){
+                licenseEntity.setValid(true);
+            }
             LOG.info("zaktualizowano datę licencji");
         } else {
             licenseEntity.setValidThru(LocalDate.of(LocalDate.now().getYear(), 12, 31));
-            licenseEntity.setIsValid(true);
+            licenseEntity.setValid(true);
             LOG.info("Brak ręcznego ustawienia daty, ustawiono na koniec bieżącego roku " + licenseEntity.getValidThru());
         }
+        licenseEntity.setPaid(false);
+
         licenseRepository.saveAndFlush(licenseEntity);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("zaktualizowano licencję");
@@ -141,15 +144,15 @@ public class LicenseService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
-                && licenseEntity.getNumber() != null) {
-            if (LocalDate.now().isAfter(LocalDate.of(LocalDate.now().getYear(), 10, 1))) {
-                licenseEntity.setValidThru(LocalDate.of((LocalDate.now().getYear() + 1), 12, 31));
-                licenseEntity.setIsValid(true);
+                && licenseEntity.getNumber() != null && licenseEntity.getPaid()) {
+            if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1))) {
+                licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
+                licenseEntity.setValid(true);
                 if (license.getPistolPermission() != null) {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getPistolPermission() != null&&memberEntity.getShootingPatent().getPistolPermission()) {
+                    if (license.getPistolPermission() != null && memberEntity.getShootingPatent().getPistolPermission()) {
                         if (!license.getPistolPermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 0);
                         }
@@ -161,7 +164,7 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getRiflePermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getRiflePermission() != null&&memberEntity.getShootingPatent().getRiflePermission()) {
+                    if (license.getRiflePermission() != null && memberEntity.getShootingPatent().getRiflePermission()) {
                         if (!license.getRiflePermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 1);
                         }
@@ -173,7 +176,7 @@ public class LicenseService {
                     if (!memberEntity.getShootingPatent().getShotgunPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
                     }
-                    if (license.getShotgunPermission() != null&&memberEntity.getShootingPatent().getShotgunPermission()) {
+                    if (license.getShotgunPermission() != null && memberEntity.getShootingPatent().getShotgunPermission()) {
                         if (!license.getShotgunPermission()) {
                             historyService.addLicenseHistoryRecord(memberUUID, 2);
                         }
@@ -182,7 +185,10 @@ public class LicenseService {
                     }
                 }
                 licenseEntity.setCanProlong(false);
-
+                licenseEntity.setPaid(false);
+                memberEntity.getHistory().setPistolCounter(0);
+                memberEntity.getHistory().setRifleCounter(0);
+                memberEntity.getHistory().setShotgunCounter(0);
                 licenseRepository.saveAndFlush(licenseEntity);
                 LOG.info("Przedłużono licencję");
                 return true;

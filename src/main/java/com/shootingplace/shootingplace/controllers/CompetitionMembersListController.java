@@ -1,6 +1,8 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.services.CompetitionMembersListService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,8 +19,29 @@ public class CompetitionMembersListController {
     }
 
     @PutMapping("/addMember")
-    public void addMemberToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam UUID memberUUID) {
-        competitionMembersListService.addMemberToCompetitionList(competitionUUID, memberUUID);
+    public ResponseEntity<?> addScoreToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
+        if (competitionMembersListService.addScoreToCompetitionList(competitionUUID, legitimationNumber, otherPerson)) {
+            return ResponseEntity.ok().build();
+        } else
+            return ResponseEntity.badRequest().build();
     }
+
+    @PostMapping("/removeMember")
+    public ResponseEntity<?> removeMemberFromList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
+        if (competitionMembersListService.removeScoreFromList(competitionUUID, legitimationNumber, otherPerson)) {
+            return ResponseEntity.ok().build();
+        } else
+            return ResponseEntity.badRequest().build();
+    }
+
+    @PatchMapping("/sort")
+    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam UUID competitionUUID, @RequestParam boolean sort) {
+        if (competitionMembersListService.sortScore(competitionUUID,sort)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 }
