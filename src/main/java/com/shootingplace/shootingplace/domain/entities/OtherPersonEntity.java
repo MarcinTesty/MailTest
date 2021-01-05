@@ -20,6 +20,8 @@ public class OtherPersonEntity {
     private String secondName;
     @OneToOne
     private ClubEntity club;
+    @OneToOne
+    private MemberPermissionsEntity permissionsEntity;
 
     public Integer getId() {
         return id;
@@ -47,5 +49,13 @@ public class OtherPersonEntity {
 
     public void setClub(ClubEntity club) {
         this.club = club;
+    }
+
+    public MemberPermissionsEntity getPermissionsEntity() {
+        return permissionsEntity;
+    }
+
+    public void setPermissionsEntity(MemberPermissionsEntity permissionsEntity) {
+        this.permissionsEntity = permissionsEntity;
     }
 }

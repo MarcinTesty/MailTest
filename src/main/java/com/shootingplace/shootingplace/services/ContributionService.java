@@ -37,6 +37,7 @@ public class ContributionService {
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory()
                 .getContributionList();
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         LocalDate validThru = getDate(contributionPaymentDay);
 
@@ -44,16 +45,39 @@ public class ContributionService {
                 .paymentDay(null)
                 .validThru(null)
                 .build();
-        if (contributionEntityList.size()<1) {
-            contributionEntity.setPaymentDay(contributionPaymentDay);
-            contributionEntity.setValidThru(validThru.plusMonths(6));
-        } else {
-            contributionEntity.setPaymentDay(contributionPaymentDay);
-            contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
+
+        if (memberEntity.getAdult()) {
+            if (contributionEntityList.size() < 1) {
+                contributionEntity.setPaymentDay(contributionPaymentDay);
+                contributionEntity.setValidThru(validThru.plusMonths(6));
+            } else {
+                contributionEntity.setPaymentDay(contributionPaymentDay);
+                if (contributionEntityList.get(0).getValidThru().equals(LocalDate.of(validThru.getYear(), 6, 30))) {
+                    contributionEntity.setValidThru(LocalDate.of(contributionEntityList.get(0).getValidThru().getYear(), 12, 31));
+                } else {
+                    contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
+                }
+            }
+            contributionRepository.saveAndFlush(contributionEntity);
+            historyService.addContribution(memberUUID, contributionEntity);
+            return true;
         }
-        contributionRepository.saveAndFlush(contributionEntity);
-        historyService.addContribution(memberUUID, contributionEntity);
-        return true;
+        if (!memberEntity.getAdult()) {
+            if (contributionEntityList.size() < 1) {
+                contributionEntity.setPaymentDay(contributionPaymentDay);
+                contributionEntity.setValidThru(validThru.plusMonths(6));
+            } else {
+                contributionEntity.setPaymentDay(contributionPaymentDay);
+                if (contributionEntityList.get(0).getValidThru().equals(LocalDate.of(validThru.getYear(), 2, 28))) {
+                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 8, 31));
+                }
+                contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
+            }
+            contributionRepository.saveAndFlush(contributionEntity);
+            historyService.addContribution(memberUUID, contributionEntity);
+            return true;
+        }
+        return false;
     }
 
     @NotNull
@@ -96,20 +120,37 @@ public class ContributionService {
 
         LocalDate validThru = contributionPaymentDay;
 
-        if (validThru.isBefore(LocalDate.of(contributionPaymentDay.getYear(), 6, 30))) {
-            validThru = LocalDate.of(contributionPaymentDay.getYear(), 6, 30);
-        } else {
-            validThru = LocalDate.of(contributionPaymentDay.getYear(), 12, 31);
+        if (memberEntity.getAdult()) {
+
+            if (validThru.isBefore(LocalDate.of(contributionPaymentDay.getYear(), 6, 30))) {
+                validThru = LocalDate.of(contributionPaymentDay.getYear(), 6, 30);
+            } else {
+                validThru = LocalDate.of(contributionPaymentDay.getYear(), 12, 31);
+            }
+            if (memberEntity.getHistory().getContributionList() != null) {
+                if (!memberEntity.getHistory().getContributionList().isEmpty()) {
+                    validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
+                }
+            }
         }
-        if (memberEntity.getHistory().getContributionList() != null) {
-            if (!memberEntity.getHistory().getContributionList().isEmpty()) {
-                validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
+        if (!memberEntity.getAdult()) {
+            if (validThru.isBefore(LocalDate.of(contributionPaymentDay.getYear(), 2, 28))) {
+                validThru = LocalDate.of(contributionPaymentDay.getYear(), 2, 28);
+            } else {
+                validThru = LocalDate.of(contributionPaymentDay.getYear(), 8, 31);
+            }
+            if (memberEntity.getHistory().getContributionList() != null) {
+                if (!memberEntity.getHistory().getContributionList().isEmpty()) {
+                    validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
+                }
             }
         }
         return ContributionEntity.builder()
                 .paymentDay(contributionPaymentDay)
                 .validThru(validThru)
                 .build();
+
+
     }
 
     public boolean removeContribution(UUID memberUUID, UUID contributionUUID) {

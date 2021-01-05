@@ -5,6 +5,8 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import java.util.UUID;
 @CrossOrigin
 public class MemberController {
 
+    private final Logger log = LoggerFactory.getLogger(MemberController.class);
+
     private final MemberService memberService;
 
     public MemberController(MemberService memberService) {
@@ -27,6 +31,7 @@ public class MemberController {
 
     @GetMapping("/{number}")
     public ResponseEntity<MemberEntity> getMember(@PathVariable int number) {
+        log.info("getMember");
         return ResponseEntity.ok(memberService.getMember(number));
     }
 

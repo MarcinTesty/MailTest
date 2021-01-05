@@ -30,6 +30,7 @@ public class Member {
     private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
+    private String erasedReason;
 
     private History history;
 
@@ -207,5 +208,13 @@ public class Member {
 
     public void setPersonalCardFile(FilesModel personalCardFile) {
         this.personalCardFile = personalCardFile;
+    }
+
+    public String getErasedReason() {
+        return erasedReason;
+    }
+
+    public void setErasedReason(String erasedReason) {
+        this.erasedReason = erasedReason;
     }
 }

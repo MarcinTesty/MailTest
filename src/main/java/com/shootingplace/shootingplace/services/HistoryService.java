@@ -160,7 +160,6 @@ public class HistoryService {
                 .orElseThrow(EntityNotFoundException::new)
                 .getLicense();
 
-        try {
             HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                     .orElseThrow(EntityNotFoundException::new)
                     .getHistory();
@@ -189,13 +188,11 @@ public class HistoryService {
             } else {
                 return false;
             }
-        } catch (EntityNotFoundException e) {
-            return false;
-        }
 
-        licenseEntity.setPaid(true);
-        licenseRepository.saveAndFlush(licenseEntity);
-        return true;
+            licenseEntity.setPaid(true);
+            licenseRepository.saveAndFlush(licenseEntity);
+            return true;
+
     }
 
 
@@ -231,7 +228,7 @@ public class HistoryService {
 
     void addCompetitionRecord(UUID memberUUID, CompetitionMembersListEntity list) {
 
-        CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getDiscipline() , list.getUuid());
+        CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getDiscipline(), list.getUuid());
         competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
 
         List<CompetitionHistoryEntity> competitionHistoryEntityList = memberRepository
@@ -373,7 +370,7 @@ public class HistoryService {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         tournamentEntity.getCompetitionsList().forEach(competitionList -> competitionList
                 .getScoreList()
-                .forEach(scoreEntity ->scoreEntity.getMember()
+                .forEach(scoreEntity -> scoreEntity.getMember()
                         .getHistory()
                         .getCompetitionHistory()
                         .stream()

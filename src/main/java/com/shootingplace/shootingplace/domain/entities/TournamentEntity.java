@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -27,11 +26,20 @@ public class TournamentEntity {
     private LocalDate date;
 
     @ManyToOne
-    private MemberEntity commissionRTSArbiter;
-    @ManyToOne
     private MemberEntity mainArbiter;
+    @ManyToOne
+    private MemberEntity commissionRTSArbiter;
     @ManyToMany
-    private Set<MemberEntity> arbitersList;
+    private List<MemberEntity> arbitersList;
+
+    @ManyToOne
+    private OtherPersonEntity otherMainArbiter;
+    @ManyToOne
+    private OtherPersonEntity otherCommissionRTSArbiter;
+    @ManyToMany
+    private List<OtherPersonEntity> otherArbitersList;
+
+
     @OneToMany
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private boolean open;
@@ -76,11 +84,11 @@ public class TournamentEntity {
         this.mainArbiter = mainArbiter;
     }
 
-    public Set<MemberEntity> getArbitersList() {
+    public List<MemberEntity> getArbitersList() {
         return arbitersList;
     }
 
-    public void setArbitersList(Set<MemberEntity> arbitersList) {
+    public void setArbitersList(List<MemberEntity> arbitersList) {
         this.arbitersList = arbitersList;
     }
 
@@ -98,5 +106,29 @@ public class TournamentEntity {
 
     public void setOpen(boolean open) {
         this.open = open;
+    }
+
+    public OtherPersonEntity getOtherMainArbiter() {
+        return otherMainArbiter;
+    }
+
+    public void setOtherMainArbiter(OtherPersonEntity otherMainArbiter) {
+        this.otherMainArbiter = otherMainArbiter;
+    }
+
+    public OtherPersonEntity getOtherCommissionRTSArbiter() {
+        return otherCommissionRTSArbiter;
+    }
+
+    public void setOtherCommissionRTSArbiter(OtherPersonEntity otherCommissionRTSArbiter) {
+        this.otherCommissionRTSArbiter = otherCommissionRTSArbiter;
+    }
+
+    public List<OtherPersonEntity> getOtherArbitersList() {
+        return otherArbitersList;
+    }
+
+    public void setOtherArbitersList(List<OtherPersonEntity> otherArbitersList) {
+        this.otherArbitersList = otherArbitersList;
     }
 }

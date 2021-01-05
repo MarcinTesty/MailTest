@@ -6,7 +6,7 @@ import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 
 import java.util.Optional;
 
-class Mapping {
+public class Mapping {
 
     static Member map(MemberEntity e) {
         return Member.builder()

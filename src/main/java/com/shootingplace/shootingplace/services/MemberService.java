@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MemberService {
@@ -56,51 +57,8 @@ public class MemberService {
 
 
     //--------------------------------------------------------------------------
-    public Map<UUID, Member> getMembers() {
-        Map<UUID, Member> map = new HashMap<>();
-        memberRepository.findAll().forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("Wyświetlono listę członków klubu");
-        LOG.info("Ilość klubowiczów aktywnych : " + memberRepository.findAllByActive(true).size());
-        LOG.info("Ilość klubowiczów nieaktywnych : " + memberRepository.findAllByActive(false).size());
-        LOG.info("liczba wpisów do rejestru : " + map.size());
-        return map;
-    }
-
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
-        memberRepository.findAll().forEach(e -> {
-//          TODO
-//            BARDZO WAŻNE BY ZROBIĆ TO ŚWIEŻYM UMYSŁEM
-//            TO TRZEBA PRZEROBIĆ A NA PEWNO UMIEŚCIĆ W INNYM MIEJSCU
-//            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && e.getActive()) {
-//                e.setActive(false);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
-//            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
-//                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
-//                    && !e.getActive()) {
-//                e.setActive(true);
-//                memberRepository.save(e);
-//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
-//            }
-//            if (e.getLicense().getValidThru() != null) {
-//                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-//                    e.getLicense().setValid(false);
-//                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
-//                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
-//                }
-//            }
-//            reset startów po nowym roku
-            LocalDate date = LocalDate.of(2020, 12, 31);
-            if (LocalDate.now().isAfter(date)) {
-                e.getHistory().setPistolCounter(0);
-                e.getHistory().setRifleCounter(0);
-                e.getHistory().setShotgunCounter(0);
-//                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
-                LOG.info("zresetowano licznik zawodów");
 
-            }
-        });
         List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase));
         String c = "aktywnych";
         if (!active) {
@@ -130,12 +88,50 @@ public class MemberService {
         List<String> list = new ArrayList<>();
         memberRepository.findAll().stream()
                 .filter(e -> e.getMemberPermissions().getArbiterNumber() != null)
-                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " " + e.getMemberPermissions().getArbiterClass() + " leg. " + e.getLegitimationNumber())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
 
     public List<String> getMembersNameAndLegitimationNumber(Boolean active, Boolean adult, Boolean erase) {
+
+        // dorośli
+        List<MemberEntity> adultMembers = memberRepository.findAll().stream().filter(MemberEntity::getAdult).filter(MemberEntity::getActive).collect(Collectors.toList());
+        // nie ma żadnych składek
+        adultMembers.forEach(e -> {
+            if (e.getHistory().getContributionList().isEmpty() || e.getHistory().getContributionList() == null) {
+                e.setActive(false);
+                memberRepository.saveAndFlush(e);
+            }
+            //dzisiejsza data jest później niż składka + 3 miesiące
+            else {
+                if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now())) {
+                    e.setActive(false);
+                    System.out.println("zmieniono " + e.getSecondName());
+                    memberRepository.saveAndFlush(e);
+
+                }
+            }
+        });
+        //młodzież
+        List<MemberEntity> nonAdultMembers = memberRepository.findAll().stream().filter(f -> !f.getAdult()).filter(MemberEntity::getActive).collect(Collectors.toList());
+        // nie ma żadnych składek
+        nonAdultMembers.forEach(e -> {
+            if (e.getHistory().getContributionList().isEmpty() || e.getHistory().getContributionList() == null) {
+                e.setActive(false);
+                memberRepository.saveAndFlush(e);
+            }
+            else {
+                //dzisiejsza data jest później niż składka + 3 miesiące
+                if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now())) {
+                    e.setActive(false);
+                    System.out.println("zmieniono " + e.getSecondName());
+                    memberRepository.saveAndFlush(e);
+
+                }
+            }
+        });
+
         List<String> list = new ArrayList<>();
         memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase)
                 .forEach(e ->
@@ -207,7 +203,7 @@ public class MemberService {
             } else {
                 LOG.info("Klubowicz należy do grupy dorosłej");
             }
-
+//            String[] s1 = member.getFirstName().split(" ");
             member.setFirstName(member.getFirstName().substring(0, 1).toUpperCase() + member.getFirstName().substring(1).toLowerCase());
             member.setSecondName(member.getSecondName().toUpperCase());
             LOG.info("Dodano nowego członka Klubu " + member.getFirstName());
@@ -340,7 +336,7 @@ public class MemberService {
         }
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         memberEntity.toggleErase();
-        if (reason.equals("null"))
+        if (memberEntity.getErasedReason() == null)
             memberEntity.setErasedReason(reason);
         if (memberEntity.getErased()) {
             LOG.info("Klubowicz skreślony : " + LocalDate.now());
@@ -441,6 +437,48 @@ public class MemberService {
 
 
     public MemberEntity getMember(int number) {
+        // Sprawdzanie składek u dorosłych
+
+//            if (!e.getHistory().getContributionList().isEmpty() || e.getHistory().getContributionList() != null) {
+//                if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isAfter(LocalDate.now())) {
+//                    e.setActive(false);
+//                    System.out.println("zmieniono 2");
+//                    memberRepository.saveAndFlush(e);
+//                }
+//            }
+//        memberRepository.findAll().forEach(e -> {
+//            if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && e.getActive()) {
+//                e.setActive(false);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Nieaktywny");
+//            } else if ((e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 9, 30))
+//                    || e.getHistory().getContributionList().get(0).getValidThru().isBefore(LocalDate.of(LocalDate.now().getYear(), 3, 31)))
+//                    && !e.getActive()) {
+//                e.setActive(true);
+//                memberRepository.save(e);
+//                LOG.info("sprawdzono i zmieniono status " + e.getFirstName() + " " + e.getSecondName() + " na Aktywny");
+//            }
+//            if (e.getLicense().getValidThru() != null) {
+//                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+//                    e.getLicense().setValid(false);
+//                    licenseService.updateLicense(e.getUuid(), Mapping.map(e.getLicense()));
+//                    LOG.info("sprawdzono i zmieniono status licencji " + e.getFirstName() + " " + e.getSecondName() + " na nieważną");
+//                }
+//            }
+//            reset startów po nowym roku
+//            LocalDate date = LocalDate.of(2020, 12, 31);
+//            if (LocalDate.now().isAfter(date)) {
+//                e.getHistory().setPistolCounter(0);
+//                e.getHistory().setRifleCounter(0);
+//                e.getHistory().setShotgunCounter(0);
+//                date = LocalDate.of(LocalDate.now().getYear(), 12, 31);
+//                LOG.info("zresetowano licznik zawodów");
+//
+//            }
+//        });
+
+
         LOG.info("Wywołano Klubowicza");
         return memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
     }

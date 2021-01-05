@@ -145,7 +145,7 @@ public class LicenseService {
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
                 && licenseEntity.getNumber() != null && licenseEntity.getPaid()) {
-            if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 10, 1))) {
+            if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1))) {
                 licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
                 licenseEntity.setValid(true);
                 if (license.getPistolPermission() != null) {
@@ -186,6 +186,9 @@ public class LicenseService {
                 }
                 licenseEntity.setCanProlong(false);
                 licenseEntity.setPaid(false);
+                memberEntity.getHistory().setPistolCounter(0);
+                memberEntity.getHistory().setRifleCounter(0);
+                memberEntity.getHistory().setShotgunCounter(0);
                 licenseRepository.saveAndFlush(licenseEntity);
                 LOG.info("Przedłużono licencję");
                 return true;
