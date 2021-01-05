@@ -335,19 +335,18 @@ public class MemberService {
             return ResponseEntity.notFound().build();
         }
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        memberEntity.toggleErase();
-        if (memberEntity.getErasedReason() == null)
-            memberEntity.setErasedReason(reason);
-        if (memberEntity.getErased()) {
-            LOG.info("Klubowicz skreślony : " + LocalDate.now());
-        }
         if (!memberEntity.getErased()) {
+            memberEntity.setErasedReason(reason);
+            memberEntity.toggleErase();
+            LOG.info("Klubowicz skreślony : " + LocalDate.now());
+        } else {
+            memberEntity.setErasedReason(null);
+            memberEntity.toggleErase();
             LOG.info("Klubowicz przywrócony : " + LocalDate.now());
         }
         memberRepository.saveAndFlush(memberEntity);
         return ResponseEntity.noContent().build();
     }
-
 
     //--------------------------------------------------------------------------
     @SneakyThrows
