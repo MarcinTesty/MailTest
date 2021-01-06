@@ -408,13 +408,18 @@ public class FilesService {
                 PdfPCell cell;
                 PdfPCell cell1;
                 PdfPCell cell2;
+
+                String name;
+                if (ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getMemberEntity() == null) {
+                    OtherPersonEntity otherPersonEntity = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getOtherPersonEntity();
+                    name = otherPersonEntity.getSecondName() + " " + otherPersonEntity.getFirstName();
+                } else {
+                    MemberEntity memberEntity = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getMemberEntity();
+                    name = memberEntity.getSecondName() + " " + memberEntity.getFirstName();
+                }
+
                 cell = new PdfPCell(new Paragraph(String.valueOf(j + 1), new Font(czcionka, 10, Font.ITALIC)));
-                cell1 = new PdfPCell(
-                        new Paragraph(ammoInEvidenceEntity
-                                .getAmmoUsedToEvidenceEntityList().get(j)
-                                .getMemberEntity().getSecondName().concat(" " + ammoInEvidenceEntity
-                                        .getAmmoUsedToEvidenceEntityList().get(j)
-                                        .getMemberEntity().getFirstName()), new Font(czcionka, 10, Font.ITALIC)));
+                cell1 = new PdfPCell(new Paragraph(name, new Font(czcionka, 10, Font.ITALIC)));
                 cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), new Font(czcionka, 10, Font.ITALIC)));
                 table.addCell(cell);
                 table.addCell(cell1);
