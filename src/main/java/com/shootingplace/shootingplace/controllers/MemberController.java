@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -76,7 +75,6 @@ public class MemberController {
         return memberService.getAdultMembersEmails(condition);
     }
 
-    @Transactional
     @PostMapping("/")
     public ResponseEntity<?> addMember(@RequestBody @Valid Member member) {
         ResponseEntity<?> result;
@@ -93,7 +91,6 @@ public class MemberController {
         return memberService.updateMember(uuid, member);
     }
 
-    @Transactional
     @PutMapping("/date/{uuid}")
     public ResponseEntity<?> updateJoinDate(@PathVariable UUID uuid, @RequestParam String date) {
         return memberService.updateJoinDate(uuid, date);
@@ -108,7 +105,6 @@ public class MemberController {
         }
     }
 
-    @Transactional
     @PatchMapping("/adult/{uuid}")
     public ResponseEntity<?> changeAdult(@PathVariable UUID uuid) {
         return memberService.changeAdult(uuid);
