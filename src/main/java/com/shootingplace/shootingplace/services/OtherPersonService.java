@@ -45,7 +45,7 @@ public class OtherPersonService {
                     .orElseThrow(EntityNotFoundException::new);
         } else {
             List<ClubEntity> all = clubRepository.findAll();
-            all.sort(Comparator.comparing(ClubEntity::getId));
+            all.sort(Comparator.comparing(ClubEntity::getId).reversed());
             Integer id = (all.get(0).getId()) + 1;
             clubEntity = ClubEntity.builder()
                     .id(id)
@@ -60,13 +60,17 @@ public class OtherPersonService {
             all.sort(Comparator.comparing(OtherPersonEntity::getId).reversed());
             id = (all.get(0).getId()) + 1;
         }
-        memberPermissionsRepository.saveAndFlush(permissionsEntity);
+        if (permissions != null) {
+
+            memberPermissionsRepository.saveAndFlush(permissionsEntity);
+        }
         OtherPersonEntity otherPersonEntity = OtherPersonEntity.builder()
                 .firstName(person.getFirstName())
                 .secondName(person.getSecondName())
                 .id(id)
                 .permissionsEntity(permissionsEntity)
-                .club(clubEntity).build();
+                .club(clubEntity)
+                .build();
         otherPersonRepository.saveAndFlush(otherPersonEntity);
         return true;
 
@@ -84,13 +88,20 @@ public class OtherPersonService {
     public List<String> getAllOthersArbiters() {
 
         List<String> list = new ArrayList<>();
-        otherPersonRepository.findAll().stream().filter(f->f.getPermissionsEntity().getArbiterNumber()!=null)
-                .forEach(e->list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " id: " + e.getId())));
+        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " id: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
 
     public List<OtherPersonEntity> getAll() {
         return otherPersonRepository.findAll();
+    }
+
+    public List<OtherPersonEntity> getOthersWithPermissions() {
+        List<OtherPersonEntity> list = new ArrayList<>();
+        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
+                .forEach(list::add);
+        return list;
     }
 }

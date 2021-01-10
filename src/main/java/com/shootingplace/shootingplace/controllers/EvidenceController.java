@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/evidence")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class EvidenceController {
 
     private final ElectronicEvidenceService evidenceService;

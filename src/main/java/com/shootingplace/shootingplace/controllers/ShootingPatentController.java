@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/patent")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class ShootingPatentController {
 
     private final ShootingPatentService shootingPatentService;

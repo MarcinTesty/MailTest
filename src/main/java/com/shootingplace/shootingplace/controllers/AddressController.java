@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/address")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class AddressController {
 
     private final AddressService addressService;
