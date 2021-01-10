@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/other")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class OtherPersonController {
     private final OtherPersonService otherPersonService;
 
@@ -26,7 +27,8 @@ public class OtherPersonController {
     public ResponseEntity<?> addPerson(@RequestBody OtherPerson person, @RequestParam String club,
                                        @Nullable @RequestParam String arbiterClass,
                                        @Nullable @RequestParam String arbiterNumber,
-                                       @Nullable @RequestParam LocalDate arbiterPermissionValidThru) {
+                                       @Nullable @RequestParam String arbiterPermissionValidThru) {
+        MemberPermissions memberPermissions = null;
         if (arbiterClass != null && !arbiterClass.isEmpty()) {
             if (arbiterClass.equals("1")) {
                 arbiterClass = (ArbiterClass.CLASS_3.getName());
@@ -43,15 +45,18 @@ public class OtherPersonController {
             if (arbiterClass.equals("5")) {
                 arbiterClass = (ArbiterClass.CLASS_INTERNATIONAL.getName());
             }
+        LocalDate parse = null;
+        if(!Objects.equals(arbiterPermissionValidThru, "")){
+            parse = LocalDate.parse(arbiterPermissionValidThru);
         }
-        MemberPermissions memberPermissions = MemberPermissions.builder()
+        memberPermissions = MemberPermissions.builder()
                 .arbiterNumber(arbiterNumber)
                 .arbiterClass(arbiterClass)
-                .arbiterPermissionValidThru(arbiterPermissionValidThru)
+                .arbiterPermissionValidThru(parse)
                 .shootingLeaderNumber(null)
                 .instructorNumber(null)
                 .build();
-
+        }
 
         if (otherPersonService.addPerson(club, person, memberPermissions)) {
             return ResponseEntity.status(201).build();

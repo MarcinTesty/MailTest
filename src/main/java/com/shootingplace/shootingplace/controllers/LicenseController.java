@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/license")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class LicenseController {
 
     private final LicenseService licenseService;

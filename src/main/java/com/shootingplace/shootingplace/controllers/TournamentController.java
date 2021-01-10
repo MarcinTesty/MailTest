@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/tournament")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class TournamentController {
 
     private final TournamentService tournamentService;
