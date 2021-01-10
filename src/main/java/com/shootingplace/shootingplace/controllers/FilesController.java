@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/files")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class FilesController {
 
     private final FilesService filesService;

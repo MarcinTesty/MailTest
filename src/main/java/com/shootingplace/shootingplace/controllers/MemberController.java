@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/member")
-@CrossOrigin
+@CrossOrigin(origins = "https://localhost:8081")
 public class MemberController {
 
     private final Logger log = LoggerFactory.getLogger(MemberController.class);
@@ -68,6 +68,8 @@ public class MemberController {
     public List<Member> getMembersWithPermissions() {
         return memberService.getMembersWithPermissions();
     }
+
+
 
 
     @GetMapping("/membersEmails")
