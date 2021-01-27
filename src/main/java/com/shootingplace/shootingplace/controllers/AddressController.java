@@ -5,8 +5,6 @@ import com.shootingplace.shootingplace.services.AddressService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/address")
 @CrossOrigin(origins = "https://localhost:8081")
@@ -20,7 +18,7 @@ public class AddressController {
     }
 
     @PutMapping("/{memberUUID}")
-    public ResponseEntity<?> updateMemberAddress(@PathVariable UUID memberUUID, @RequestBody Address address) {
+    public ResponseEntity<?> updateMemberAddress(@PathVariable String memberUUID, @RequestBody Address address) {
         if (addressService.updateAddress(memberUUID, address)) {
             return ResponseEntity.ok().build();
         } else

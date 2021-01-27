@@ -5,8 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/competitionMembersList")
 @CrossOrigin(origins = "https://localhost:8081")
@@ -19,7 +17,7 @@ public class CompetitionMembersListController {
     }
 
     @PutMapping("/addMember")
-    public ResponseEntity<?> addScoreToCompetitionMembersList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
+    public ResponseEntity<?> addScoreToCompetitionMembersList(@RequestParam String competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
         if (competitionMembersListService.addScoreToCompetitionList(competitionUUID, legitimationNumber, otherPerson)) {
             return ResponseEntity.ok().build();
         } else
@@ -27,7 +25,7 @@ public class CompetitionMembersListController {
     }
 
     @PostMapping("/removeMember")
-    public ResponseEntity<?> removeMemberFromList(@RequestParam UUID competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
+    public ResponseEntity<?> removeMemberFromList(@RequestParam String competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
         if (competitionMembersListService.removeScoreFromList(competitionUUID, legitimationNumber, otherPerson)) {
             return ResponseEntity.ok().build();
         } else
@@ -35,7 +33,7 @@ public class CompetitionMembersListController {
     }
 
     @PatchMapping("/sort")
-    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam UUID competitionUUID, @RequestParam boolean sort) {
+    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam String competitionUUID, @RequestParam boolean sort) {
         if (competitionMembersListService.sortScore(competitionUUID,sort)) {
             return ResponseEntity.ok().build();
         } else {

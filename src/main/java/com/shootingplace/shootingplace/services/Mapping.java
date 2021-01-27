@@ -79,13 +79,13 @@ public class Mapping {
         return Optional.ofNullable(l)
                 .map(e -> License.builder()
                         .number(e.getNumber())
-                        .pistolPermission(e.getPistolPermission())
-                        .riflePermission(e.getRiflePermission())
-                        .shotgunPermission(e.getShotgunPermission())
+                        .pistolPermission(e.isPistolPermission())
+                        .riflePermission(e.isRiflePermission())
+                        .shotgunPermission(e.isShotgunPermission())
                         .validThru(e.getValidThru())
-                        .isValid(e.getValid())
-                        .canProlong(e.getCanProlong())
-                        .isPaid(e.getPaid())
+                        .isValid(e.isValid())
+                        .canProlong(e.isCanProlong())
+                        .isPaid(e.isPaid())
                         .build()).orElse(null);
     }
 
@@ -97,9 +97,9 @@ public class Mapping {
                         .riflePermission(e.getRiflePermission())
                         .shotgunPermission(e.getShotgunPermission())
                         .validThru(e.getValidThru())
-                        .isValid(e.getValid())
+                        .valid(e.getValid())
                         .canProlong(e.getCanProlong())
-                        .isPaid(e.getPaid())
+                        .paid(e.getPaid())
                         .build()).orElse(null);
     }
 

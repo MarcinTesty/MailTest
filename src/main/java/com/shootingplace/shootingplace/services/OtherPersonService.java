@@ -8,6 +8,8 @@ import com.shootingplace.shootingplace.domain.models.OtherPerson;
 import com.shootingplace.shootingplace.repositories.ClubRepository;
 import com.shootingplace.shootingplace.repositories.MemberPermissionsRepository;
 import com.shootingplace.shootingplace.repositories.OtherPersonRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -21,6 +23,8 @@ public class OtherPersonService {
     private final ClubRepository clubRepository;
     private final OtherPersonRepository otherPersonRepository;
     private final MemberPermissionsRepository memberPermissionsRepository;
+    private final Logger LOG = LogManager.getLogger();
+
 
     public OtherPersonService(ClubRepository clubRepository, OtherPersonRepository otherPersonRepository, MemberPermissionsRepository memberPermissionsRepository) {
         this.clubRepository = clubRepository;
@@ -65,9 +69,11 @@ public class OtherPersonService {
             memberPermissionsRepository.saveAndFlush(permissionsEntity);
         }
         OtherPersonEntity otherPersonEntity = OtherPersonEntity.builder()
+                .id(id)
                 .firstName(person.getFirstName())
                 .secondName(person.getSecondName())
-                .id(id)
+                .phoneNumber(person.getPhoneNumber())
+                .email(person.getEmail())
                 .permissionsEntity(permissionsEntity)
                 .club(clubEntity)
                 .build();
@@ -80,7 +86,7 @@ public class OtherPersonService {
 
         List<String> list = new ArrayList<>();
         otherPersonRepository.findAll()
-                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " id: " + e.getId())));
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " uuid: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
@@ -89,12 +95,13 @@ public class OtherPersonService {
 
         List<String> list = new ArrayList<>();
         otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
-                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " id: " + e.getId())));
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }
 
     public List<OtherPersonEntity> getAll() {
+        LOG.info("Wywołano wszystkich Nie-Klubowiczów");
         return otherPersonRepository.findAll();
     }
 

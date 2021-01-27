@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/ammoEvidence")
@@ -33,7 +32,7 @@ public class AmmoEvidenceController {
     // New ammo used by Member
 
     @PostMapping("/ammo")
-    public ResponseEntity<?> createAmmoUsed(@RequestParam UUID caliberUUID, @RequestParam Integer legitimationNumber, @RequestParam int otherID, @RequestParam Integer counter) {
+    public ResponseEntity<?> createAmmoUsed(@RequestParam String caliberUUID, @RequestParam Integer legitimationNumber, @RequestParam int otherID, @RequestParam Integer counter) {
 
         if (ammoUsedService.addAmmoUsedEntity(caliberUUID, legitimationNumber, otherID, counter)) {
             return ResponseEntity.ok().build();
@@ -56,7 +55,7 @@ public class AmmoEvidenceController {
     }
 
     @PatchMapping("/ammo")
-    public ResponseEntity<?> closeEvidence(@RequestParam UUID evidenceUUID) {
+    public ResponseEntity<?> closeEvidence(@RequestParam String evidenceUUID) {
         if (ammoEvidenceService.closeEvidence(evidenceUUID)) {
             return ResponseEntity.ok().build();
         } else {

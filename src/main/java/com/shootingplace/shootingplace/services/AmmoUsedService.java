@@ -36,7 +36,7 @@ public class AmmoUsedService {
         this.otherPersonRepository = otherPersonRepository;
     }
 
-    public boolean addAmmoUsedEntity(UUID caliberUUID, Integer legitimationNumber, int otherID, Integer quantity) {
+    public boolean addAmmoUsedEntity(String caliberUUID, Integer legitimationNumber, int otherID, Integer quantity) {
 
         String caliberName = caliberRepository
                 .findById(caliberUUID)

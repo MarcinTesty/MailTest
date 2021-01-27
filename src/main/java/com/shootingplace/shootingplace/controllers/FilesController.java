@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/files")
@@ -24,7 +23,7 @@ public class FilesController {
     }
 
     @GetMapping("/downloadContribution/{memberUUID}")
-    public ResponseEntity<byte[]> getContributionFile(@PathVariable UUID memberUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getContributionFile(@PathVariable String memberUUID) throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.contributionConfirm(memberUUID);
         try {
             return ResponseEntity.ok()
@@ -37,7 +36,7 @@ public class FilesController {
     }
 
     @GetMapping("/downloadPersonalCard/{memberUUID}")
-    public ResponseEntity<byte[]> getPersonalCardFile(@PathVariable UUID memberUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getPersonalCardFile(@PathVariable String memberUUID) throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.personalCardFile(memberUUID);
         try {
             return ResponseEntity.ok()
@@ -50,7 +49,7 @@ public class FilesController {
     }
 
     @GetMapping("/downloadAmmunitionList/{ammoEvidenceUUID}")
-    public ResponseEntity<byte[]> getAmmoListFile(@PathVariable UUID ammoEvidenceUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getAmmoListFile(@PathVariable String ammoEvidenceUUID) throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.createAmmunitionListDocument(ammoEvidenceUUID);
         try {
             return ResponseEntity.ok()
@@ -63,7 +62,7 @@ public class FilesController {
     }
 
     @GetMapping("/downloadApplication/{memberUUID}")
-    public ResponseEntity<byte[]> getApplicationForExtensionOfTheCompetitorsLicense(@PathVariable UUID memberUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getApplicationForExtensionOfTheCompetitorsLicense(@PathVariable String memberUUID) throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.createApplicationForExtensionOfTheCompetitorsLicense(memberUUID);
         try {
             return ResponseEntity.ok()
@@ -76,7 +75,7 @@ public class FilesController {
     }
 
     @GetMapping("/downloadAnnouncementFromCompetition/{tournamentUUID}")
-    public ResponseEntity<byte[]> getAnnouncementFromCompetition(@PathVariable UUID tournamentUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getAnnouncementFromCompetition(@PathVariable String tournamentUUID) throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.createAnnouncementFromCompetition(tournamentUUID);
         try {
             return ResponseEntity.ok()

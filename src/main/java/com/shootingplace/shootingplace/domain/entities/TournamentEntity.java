@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,9 +17,9 @@ import java.util.UUID;
 public class TournamentEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
     private String name;
     private LocalDate date;
@@ -44,12 +43,8 @@ public class TournamentEntity {
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private boolean open;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {

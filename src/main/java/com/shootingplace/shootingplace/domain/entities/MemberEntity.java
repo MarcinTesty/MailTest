@@ -8,25 +8,22 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class MemberEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
     private LocalDate joinDate;
     private Integer legitimationNumber;
@@ -34,9 +31,9 @@ public class MemberEntity {
     private String firstName;
     @NotBlank
     private String secondName;
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private LicenseEntity license;
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private ShootingPatentEntity shootingPatent;
     @Email
     private String email = "";
@@ -46,15 +43,15 @@ public class MemberEntity {
     private String pesel;
     @NotBlank
     private String IDCard;
-    @OneToOne
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private ClubEntity club;
 
-    @OneToOne
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
     private String phoneNumber;
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private WeaponPermissionEntity weaponPermission;
 
     private Boolean active = true;
@@ -62,21 +59,17 @@ public class MemberEntity {
     private Boolean erased = false;
     private String erasedReason;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private HistoryEntity history;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private MemberPermissionsEntity memberPermissions;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private PersonalEvidenceEntity personalEvidence;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public LocalDate getJoinDate() {
@@ -241,5 +234,9 @@ public class MemberEntity {
 
     public void setClub(ClubEntity club) {
         this.club = club;
+    }
+
+    public void setAdult(Boolean adult) {
+        this.adult = adult;
     }
 }

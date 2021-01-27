@@ -9,12 +9,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class LicenseService {
@@ -31,13 +29,6 @@ public class LicenseService {
         this.historyService = historyService;
     }
 
-    public Map<UUID, License> getLicense() {
-        Map<UUID, License> map = new HashMap<>();
-        licenseRepository.findAllByNumberIsNotNull().forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("liczba wpisów do rejestru : " + map.size());
-        return map;
-    }
-
     public Map<String, License> getMembersNamesAndLicense() {
         Map<String, License> map = new HashMap<>();
         memberRepository.findAll()
@@ -49,7 +40,7 @@ public class LicenseService {
         return map;
     }
 
-    void addLicenseToMember(UUID memberUUID, License license) {
+    void addLicenseToMember(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getLicense() != null) {
             LOG.error("nie można już dodać licencji");
@@ -61,7 +52,7 @@ public class LicenseService {
         LOG.info("Licencja została zapisana");
     }
 
-    public boolean updateLicense(UUID memberUUID, License license) {
+    public boolean updateLicense(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity
                 .getLicense()
@@ -140,11 +131,11 @@ public class LicenseService {
         return "Nie ma na to Patentu";
     }
 
-    public boolean renewLicenseValid(UUID memberUUID, License license) {
+    public boolean renewLicenseValid(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
-                && licenseEntity.getNumber() != null && licenseEntity.getPaid()) {
+                && licenseEntity.getNumber() != null && licenseEntity.isPaid()) {
             if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1))) {
                 licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
                 licenseEntity.setValid(true);

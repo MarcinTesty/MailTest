@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,9 +17,9 @@ import java.util.UUID;
 public class MemberPermissionsEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
     private String instructorNumber;
 
@@ -31,12 +30,8 @@ public class MemberPermissionsEntity {
     private String arbiterClass;
     private LocalDate arbiterPermissionValidThru;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getInstructorNumber() {

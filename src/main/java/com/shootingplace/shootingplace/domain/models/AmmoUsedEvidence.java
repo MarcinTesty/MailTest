@@ -5,8 +5,6 @@ import com.shootingplace.shootingplace.domain.entities.OtherPersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,13 +19,13 @@ public class AmmoUsedEvidence {
 
     private Integer counter;
 
-    private UUID caliberUUID;
+    private String caliberUUID;
 
-    public UUID getCaliberUUID() {
+    public String getCaliberUUID() {
         return caliberUUID;
     }
 
-    public void setCaliberUUID(UUID caliberUUID) {
+    public void setCaliberUUID(String caliberUUID) {
         this.caliberUUID = caliberUUID;
     }
 

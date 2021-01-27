@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,21 +16,17 @@ import java.util.UUID;
 @Builder
 public class FilesEntity {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
     private String name;
     private String type;
     @Lob
     private byte[] data;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {

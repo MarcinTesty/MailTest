@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +81,7 @@ public class FilesService {
     }
 
 
-    public FilesEntity contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
+    public FilesEntity contributionConfirm(String memberUUID) throws DocumentException, IOException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LocalDate contribution = memberEntity.getHistory().getContributionList().get(0).getPaymentDay();
         LocalDate validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
@@ -197,7 +196,7 @@ public class FilesService {
         return filesEntity;
     }
 
-    public FilesEntity personalCardFile(UUID memberUUID) throws IOException, DocumentException {
+    public FilesEntity personalCardFile(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
@@ -354,7 +353,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createAmmunitionListDocument(UUID ammoEvidenceUUID) throws IOException, DocumentException {
+    public FilesEntity createAmmunitionListDocument(String ammoEvidenceUUID) throws IOException, DocumentException {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
         List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
 
@@ -461,7 +460,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(UUID memberUUID) throws IOException, DocumentException {
+    public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Wniosek_" + memberEntity.getFirstName() + " " + memberEntity.getSecondName() + ".pdf";
@@ -542,7 +541,7 @@ public class FilesService {
                 .getCompetitionHistory()
                 .stream()
                 .filter(f -> f.getDate().isBefore(validThru))
-                .filter(f -> f.getDate().isAfter(LocalDate.of(validThru.getYear(), 1, 1)))
+//                .filter(f -> f.getDate().isAfter(LocalDate.of(validThru.getYear(), 1, 1)))
                 .collect(Collectors.toList());
         String pistolet = "Pistolet";
         String karabin = "Karabin";
@@ -722,7 +721,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createAnnouncementFromCompetition(UUID tournamentUUID) throws IOException, DocumentException {
+    public FilesEntity createAnnouncementFromCompetition(String tournamentUUID) throws IOException, DocumentException {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
 
 

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/competition")
@@ -38,7 +37,7 @@ public class CompetitionController {
     }
 
     @PutMapping("")
-    public ResponseEntity<?> setScore(@RequestParam UUID scoreUUID, @RequestParam float score, @RequestParam float innerTen, @RequestParam float outerTen) {
+    public ResponseEntity<?> setScore(@RequestParam String scoreUUID, @RequestParam float score, @RequestParam float innerTen, @RequestParam float outerTen) {
 
         if (scoreService.setScore(scoreUUID, score, innerTen, outerTen)) {
             return ResponseEntity.ok().build();
@@ -48,7 +47,7 @@ public class CompetitionController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<?> toggleAmmunitionInScore(@RequestParam UUID scoreUUID) {
+    public ResponseEntity<?> toggleAmmunitionInScore(@RequestParam String scoreUUID) {
 
         if (scoreService.toggleAmmunitionInScore(scoreUUID)) {
             return ResponseEntity.ok().build();

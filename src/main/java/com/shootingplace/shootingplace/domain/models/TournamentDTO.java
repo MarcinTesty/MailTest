@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +13,7 @@ public class TournamentDTO {
 
     private String name;
     private LocalDate date;
-    private UUID tournamentUUID;
+    private String tournamentUUID;
 
     public String getName() {
         return name;
@@ -32,11 +31,11 @@ public class TournamentDTO {
         this.date = date;
     }
 
-    public UUID getTournamentUUID() {
+    public String getTournamentUUID() {
         return tournamentUUID;
     }
 
-    public void setTournamentUUID(UUID tournamentUUID) {
+    public void setTournamentUUID(String tournamentUUID) {
         this.tournamentUUID = tournamentUUID;
     }
 }

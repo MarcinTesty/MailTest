@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.UUID;
 
 @Service
 public class WeaponPermissionService {
@@ -25,7 +24,7 @@ public class WeaponPermissionService {
         this.weaponPermissionRepository = weaponPermissionRepository;
     }
 
-    void addWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
+    void addWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getWeaponPermission() != null) {
             LOG.error("nie można już dodać pozwolenia");
@@ -37,7 +36,7 @@ public class WeaponPermissionService {
         LOG.info("Pozwolenie na broń zostało dodane");
     }
 
-    boolean updateWeaponPermission(UUID memberUUID, WeaponPermission weaponPermission) {
+    boolean updateWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         WeaponPermissionEntity weaponPermissionEntity = memberEntity.getWeaponPermission();
         if (weaponPermission.getNumber() != null && !weaponPermission.getNumber().isEmpty()) {

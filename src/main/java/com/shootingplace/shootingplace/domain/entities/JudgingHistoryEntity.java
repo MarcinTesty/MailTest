@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,24 +17,20 @@ import java.util.UUID;
 public class JudgingHistoryEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
     private String name;
 
-    private UUID tournamentUUID;
+    private String tournamentUUID;
 
     private String function;
 
     private LocalDate date;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {
@@ -46,11 +41,11 @@ public class JudgingHistoryEntity {
         this.name = name;
     }
 
-    public UUID getTournamentUUID() {
+    public String getTournamentUUID() {
         return tournamentUUID;
     }
 
-    public void setTournamentUUID(UUID tournamentUUID) {
+    public void setTournamentUUID(String tournamentUUID) {
         this.tournamentUUID = tournamentUUID;
     }
 

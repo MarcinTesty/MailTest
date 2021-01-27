@@ -6,7 +6,6 @@ import com.shootingplace.shootingplace.services.ElectronicEvidenceService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/evidence")
@@ -30,7 +29,7 @@ public class EvidenceController {
     }
 
     @PatchMapping("/{uuid}")
-    public Boolean addMemberToEvidence(@PathVariable UUID uuid) {
+    public Boolean addMemberToEvidence(@PathVariable String uuid) {
         return evidenceService.addMemberToEvidence(uuid);
     }
 

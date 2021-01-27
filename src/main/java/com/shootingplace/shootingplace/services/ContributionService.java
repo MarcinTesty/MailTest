@@ -4,6 +4,7 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.repositories.ContributionRepository;
+import com.shootingplace.shootingplace.repositories.HistoryRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,21 +23,26 @@ public class ContributionService {
     private final ContributionRepository contributionRepository;
     private final MemberRepository memberRepository;
     private final HistoryService historyService;
+    private final HistoryRepository historyRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService) {
+    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService, HistoryRepository historyRepository) {
         this.contributionRepository = contributionRepository;
         this.memberRepository = memberRepository;
         this.historyService = historyService;
+        this.historyRepository = historyRepository;
     }
 
-    public boolean addContribution(UUID memberUUID, LocalDate contributionPaymentDay) {
+    public boolean addContribution(String memberUUID, LocalDate contributionPaymentDay) {
 
         List<ContributionEntity> contributionEntityList = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory()
                 .getContributionList();
+        System.out.println(1);
+        contributionEntityList.forEach(e -> System.out.println(" 1 " + e.getPaymentDay()));
+
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         LocalDate validThru = getDate(contributionPaymentDay);
@@ -49,7 +55,11 @@ public class ContributionService {
         if (memberEntity.getAdult()) {
             if (contributionEntityList.size() < 1) {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
-                contributionEntity.setValidThru(validThru.plusMonths(6));
+                if (contributionPaymentDay.isBefore(LocalDate.of(validThru.getYear(), 6, 30))) {
+                    contributionEntity.setValidThru(LocalDate.of(validThru.getYear(), 6, 30));
+                } else {
+                    contributionEntity.setValidThru(LocalDate.of(validThru.getYear(), 12, 31));
+                }
             } else {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
                 if (contributionEntityList.get(0).getValidThru().equals(LocalDate.of(validThru.getYear(), 6, 30))) {
@@ -58,13 +68,15 @@ public class ContributionService {
                     contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
                 }
             }
-            contributionRepository.saveAndFlush(contributionEntity);
-            historyService.addContribution(memberUUID, contributionEntity);
-            return true;
         }
         if (!memberEntity.getAdult()) {
             if (contributionEntityList.size() < 1) {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
+                if (contributionPaymentDay.isBefore(LocalDate.of(validThru.getYear(), 2, 28))) {
+                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 2, 28));
+                } else {
+                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 8, 31));
+                }
                 contributionEntity.setValidThru(validThru.plusMonths(6));
             } else {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
@@ -73,11 +85,18 @@ public class ContributionService {
                 }
                 contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
             }
-            contributionRepository.saveAndFlush(contributionEntity);
-            historyService.addContribution(memberUUID, contributionEntity);
-            return true;
         }
-        return false;
+        System.out.println(2);
+        contributionEntityList.forEach(e -> System.out.println(" 2 " + e.getPaymentDay()));
+        contributionRepository.saveAndFlush(contributionEntity);
+        contributionEntityList.add(contributionEntity);
+        contributionEntityList.sort(Comparator.comparing(ContributionEntity::getPaymentDay).reversed());
+        memberEntity.getHistory().setContributionsList(contributionEntityList);
+        historyRepository.saveAndFlush(memberEntity.getHistory());
+//        historyService.addContribution(memberUUID, contributionEntity);
+        System.out.println(3);
+        contributionEntityList.forEach(e -> System.out.println(" 3 " + e.getPaymentDay()));
+        return true;
     }
 
     @NotNull
@@ -92,7 +111,7 @@ public class ContributionService {
     }
 
 
-    public boolean addContributionRecord(UUID memberUUID, LocalDate paymentDate) {
+    public boolean addContributionRecord(String memberUUID, LocalDate paymentDate) {
 
 
         LocalDate validThru = getDate(paymentDate);
@@ -108,14 +127,14 @@ public class ContributionService {
     }
 
 
-    ContributionEntity addFirstContribution(UUID memberUUID, LocalDate contributionPaymentDay) {
+    ContributionEntity addFirstContribution(String memberUUID, LocalDate contributionPaymentDay) {
 
         ContributionEntity contributionEntity = getContributionEntity(memberUUID, contributionPaymentDay);
         LOG.info("utworzono pierwszą składkę");
         return contributionRepository.saveAndFlush(contributionEntity);
     }
 
-    private ContributionEntity getContributionEntity(UUID memberUUID, LocalDate contributionPaymentDay) {
+    private ContributionEntity getContributionEntity(String memberUUID, LocalDate contributionPaymentDay) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         LocalDate validThru = contributionPaymentDay;
@@ -153,7 +172,7 @@ public class ContributionService {
 
     }
 
-    public boolean removeContribution(UUID memberUUID, UUID contributionUUID) {
+    public boolean removeContribution(String memberUUID, String contributionUUID) {
         ContributionEntity contributionEntity = memberRepository
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)

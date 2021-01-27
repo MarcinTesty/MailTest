@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
-import java.util.UUID;
 
 @Service
 public class PersonalEvidenceService {
@@ -29,7 +28,7 @@ public class PersonalEvidenceService {
         this.memberRepository = memberRepository;
     }
 
-    void addPersonalEvidence(UUID memberUUID, PersonalEvidence personalEvidence) {
+    void addPersonalEvidence(String memberUUID, PersonalEvidence personalEvidence) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getPersonalEvidence() != null) {
             LOG.error("nie można już dodać pola");

@@ -5,9 +5,11 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -16,29 +18,15 @@ import java.util.UUID;
 public class PersonalEvidenceEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "uuid")
+    private String uuid;
 
-    @OneToOne
-    private FilesEntity file;
     @OneToMany
     private List<AmmoUsedEntity> ammoList;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public FilesEntity getFile() {
-        return file;
-    }
-
-    public void setFile(FilesEntity file) {
-        this.file = file;
     }
 
     public List<AmmoUsedEntity> getAmmoList() {

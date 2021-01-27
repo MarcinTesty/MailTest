@@ -39,37 +39,37 @@ public class CompetitionService {
     private void createCompetitions() {
 
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("25m Pistolet sportowy bocznego zapłonu 10 strzałów OPEN")
                 .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("25m Pistolet centralnego zapłonu 10 strzałów OPEN")
                 .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("10m Pistolet pneumatyczny 10 strzałów OPEN")
                 .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("50m Pistolet dowolny bocznego zapłonu 10 strzałów OPEN")
                 .discipline(Discipline.PISTOL.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("10m Karabin pneumatyczny 10 strzałów OPEN")
                 .discipline(Discipline.RIFLE.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("10m Strzelba dynamiczna 7 strzałów OPEN")
                 .discipline(Discipline.SHOTGUN.getName())
                 .build());
         competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID())
+                .uuid(UUID.randomUUID().toString())
                 .name("10m Strzelba statyczna 7 strzałów OPEN")
                 .discipline(Discipline.SHOTGUN.getName())
                 .build());
@@ -99,7 +99,7 @@ public class CompetitionService {
         }
     }
 
-    public void deleteCompetition(UUID competitionUUID) {
+    public void deleteCompetition(String competitionUUID) {
         CompetitionEntity competitionEntity = competitionRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
         competitionRepository.delete(competitionEntity);
         LOG.info("Usunięto konkurencję bo była ujowa");
