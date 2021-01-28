@@ -70,12 +70,6 @@ public class HistoryService {
 
         LOG.info("Dodano rekord w historii składek");
         historyRepository.saveAndFlush(historyEntity);
-        System.out.println(2);
-        memberRepository
-                .findById(memberUUID)
-                .orElseThrow(EntityNotFoundException::new)
-                .getHistory()
-                .getContributionList().forEach(e-> System.out.println(" 2 " + e.getPaymentDay()));
     }
 
     void removeContribution(String memberUUID, ContributionEntity contribution) {
@@ -357,7 +351,7 @@ public class HistoryService {
 
         JudgingHistoryEntity any = judgingHistoryEntityList
                 .stream()
-                .filter(e -> e.getTournamentUUID().equals(tournamentUUID) && e.getFunction().equals(function))
+                .filter(e -> e.getTournamentUUID().equals(tournamentUUID) && e.getJudgingFunction().equals(function))
                 .findAny().orElseThrow(EntityNotFoundException::new);
         judgingHistoryEntityList.remove(any);
         HistoryEntity historyEntity = memberRepository
@@ -373,7 +367,7 @@ public class HistoryService {
         return JudgingHistoryEntity.builder()
                 .date(date)
                 .name(name)
-                .function(function)
+                .judgingFunction(function)
                 .tournamentUUID(tournamentUUID)
                 .build();
     }

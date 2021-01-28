@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/address")
-@CrossOrigin(origins = "https://localhost:8081")
 public class AddressController {
 
     private final AddressService addressService;

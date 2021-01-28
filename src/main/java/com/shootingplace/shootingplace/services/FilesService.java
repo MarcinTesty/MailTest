@@ -735,7 +735,7 @@ public class FilesService {
         document.addCreationDate();
         int page = 1;
 
-        Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(14, 1));
+        Paragraph title = new Paragraph(tournamentEntity.getName().toUpperCase() + "\n" + "KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(13, 1));
         Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10, 2));
         Paragraph newLine = new Paragraph("\n", font(10, 0));
 
@@ -801,10 +801,10 @@ public class FilesService {
                 }
                 float score = competitionMembersListEntity.getScoreList().get(j).getScore();
                 PdfPTable playerTableLabel = new PdfPTable(pointColumnWidths);
-                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(12, 0)));
-                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(12, 0)));
-                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(12, 0)));
-                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(12, 0)));
+                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(11, 0)));
+                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(11, 0)));
+                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(11, 0)));
+                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(11, 0)));
 
                 playerCellLabel.setBorder(0);
                 playerCellLabel1.setBorder(0);
@@ -840,14 +840,16 @@ public class FilesService {
             mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
         }
 
-        String arbiterRTS;
-        String arbiterRTSClass;
-        if (tournamentEntity.getCommissionRTSArbiter() != null) {
-            arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
-            arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
-        } else {
-            arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
-            arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+        String arbiterRTS = "";
+        String arbiterRTSClass = "";
+        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getOtherCommissionRTSArbiter() != null) {
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
+                arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
+            } else {
+                arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
+                arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+            }
         }
 
 

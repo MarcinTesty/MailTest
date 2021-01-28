@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/contribution")
-@CrossOrigin(origins = "https://localhost:8081")
 public class ContributionController {
 
     private final ContributionService contributionService;

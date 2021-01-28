@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/competitionMembersList")
-@CrossOrigin(origins = "https://localhost:8081")
 public class CompetitionMembersListController {
 
     private final CompetitionMembersListService competitionMembersListService;

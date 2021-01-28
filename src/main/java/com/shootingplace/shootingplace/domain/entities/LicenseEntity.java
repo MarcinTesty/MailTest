@@ -19,7 +19,7 @@ public class LicenseEntity {
 
     @Id
     @GeneratedValue(generator = "id")
-    @GenericGenerator(name = "id", strategy = "uuid")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
     private String uuid;
     @Pattern(regexp = "[0-9]*")
     private String number;

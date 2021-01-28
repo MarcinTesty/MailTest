@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/permissions")
-@CrossOrigin(origins = "https://localhost:8081")
 public class MemberPermissionsController {
 
     private final MemberPermissionsService memberPermissionsService;

@@ -18,7 +18,7 @@ public class AmmoUsedToEvidenceEntity {
 
     @Id
     @GeneratedValue(generator = "id")
-    @GenericGenerator(name = "id", strategy = "uuid")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
     private String uuid;
 
     private String caliberName;

@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/evidence")
-@CrossOrigin(origins = "https://localhost:8081")
 public class EvidenceController {
 
     private final ElectronicEvidenceService evidenceService;

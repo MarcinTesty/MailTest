@@ -22,7 +22,7 @@ public class OtherPersonEntity {
     private String email;
     @OneToOne
     private ClubEntity club;
-    @OneToOne
+    @OneToOne(orphanRemoval = true)
     private MemberPermissionsEntity permissionsEntity;
 
     public Integer getId() {

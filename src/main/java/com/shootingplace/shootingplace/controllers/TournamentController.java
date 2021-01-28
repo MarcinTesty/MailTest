@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tournament")
-@CrossOrigin(origins = "https://localhost:8081")
 public class TournamentController {
 
     private final TournamentService tournamentService;

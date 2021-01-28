@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/license")
-@CrossOrigin(origins = "https://localhost:8081")
 public class LicenseController {
 
     private final LicenseService licenseService;

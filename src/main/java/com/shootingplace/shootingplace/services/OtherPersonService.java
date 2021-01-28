@@ -70,9 +70,9 @@ public class OtherPersonService {
         }
         OtherPersonEntity otherPersonEntity = OtherPersonEntity.builder()
                 .id(id)
-                .firstName(person.getFirstName())
-                .secondName(person.getSecondName())
-                .phoneNumber(person.getPhoneNumber())
+                .firstName(person.getFirstName().substring(0, 1).toUpperCase() + person.getFirstName().substring(1).toLowerCase())
+                .secondName(person.getSecondName().toUpperCase())
+                .phoneNumber(person.getPhoneNumber().trim())
                 .email(person.getEmail())
                 .permissionsEntity(permissionsEntity)
                 .club(clubEntity)
@@ -110,5 +110,11 @@ public class OtherPersonService {
         otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
                 .forEach(list::add);
         return list;
+    }
+
+    public boolean deletePerson(int id) {
+        otherPersonRepository.deleteById(id);
+        LOG.info("usunięto Nie-Klubowicza");
+        return true;
     }
 }

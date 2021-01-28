@@ -17,16 +17,13 @@ import java.time.LocalDate;
 public class JudgingHistoryEntity {
 
     @Id
-    @GeneratedValue(generator = "id")
-    @GenericGenerator(name = "id", strategy = "uuid")
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private String uuid;
-
     private String name;
 
     private String tournamentUUID;
-
-    private String function;
-
+    private String judgingFunction;
     private LocalDate date;
 
     public String getUuid() {
@@ -49,12 +46,12 @@ public class JudgingHistoryEntity {
         this.tournamentUUID = tournamentUUID;
     }
 
-    public String getFunction() {
-        return function;
+    public String getJudgingFunction() {
+        return judgingFunction;
     }
 
-    public void setFunction(String function) {
-        this.function = function;
+    public void setJudgingFunction(String judgingFunction) {
+        this.judgingFunction = judgingFunction;
     }
 
     public LocalDate getDate() {

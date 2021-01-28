@@ -18,7 +18,7 @@ public class AddressEntity {
 
     @Id
     @GeneratedValue(generator = "id")
-    @GenericGenerator(name = "id", strategy = "uuid")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
     private String uuid;
 
     @Pattern(regexp = "\\d{2}-\\d{3}")

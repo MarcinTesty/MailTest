@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +39,6 @@ public class ContributionService {
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory()
                 .getContributionList();
-        System.out.println(1);
-        contributionEntityList.forEach(e -> System.out.println(" 1 " + e.getPaymentDay()));
 
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
@@ -86,16 +83,8 @@ public class ContributionService {
                 contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
             }
         }
-        System.out.println(2);
-        contributionEntityList.forEach(e -> System.out.println(" 2 " + e.getPaymentDay()));
         contributionRepository.saveAndFlush(contributionEntity);
-        contributionEntityList.add(contributionEntity);
-        contributionEntityList.sort(Comparator.comparing(ContributionEntity::getPaymentDay).reversed());
-        memberEntity.getHistory().setContributionsList(contributionEntityList);
-        historyRepository.saveAndFlush(memberEntity.getHistory());
-//        historyService.addContribution(memberUUID, contributionEntity);
-        System.out.println(3);
-        contributionEntityList.forEach(e -> System.out.println(" 3 " + e.getPaymentDay()));
+        historyService.addContribution(memberUUID, contributionEntity);
         return true;
     }
 

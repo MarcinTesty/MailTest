@@ -28,7 +28,6 @@ public class MemberService {
     private final ShootingPatentRepository shootingPatentRepository;
     private final ContributionService contributionService;
     private final HistoryService historyService;
-    private final HistoryRepository historyRepository;
     private final WeaponPermissionService weaponPermissionService;
     private final WeaponPermissionRepository weaponPermissionRepository;
     private final MemberPermissionsRepository memberPermissionsRepository;
@@ -42,14 +41,13 @@ public class MemberService {
                          AddressRepository addressRepository,
                          LicenseRepository licenseRepository,
                          ShootingPatentRepository shootingPatentRepository, ContributionService contributionService,
-                         HistoryService historyService, HistoryRepository historyRepository, WeaponPermissionService weaponPermissionService, WeaponPermissionRepository weaponPermissionRepository, MemberPermissionsService memberPermissionsService, MemberPermissionsRepository memberPermissionsRepository, PersonalEvidenceService personalEvidenceService, PersonalEvidenceRepository personalEvidenceRepository, FilesService filesService, ClubRepository clubRepository) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, WeaponPermissionRepository weaponPermissionRepository, MemberPermissionsService memberPermissionsService, MemberPermissionsRepository memberPermissionsRepository, PersonalEvidenceService personalEvidenceService, PersonalEvidenceRepository personalEvidenceRepository, FilesService filesService, ClubRepository clubRepository) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
         this.shootingPatentRepository = shootingPatentRepository;
         this.contributionService = contributionService;
         this.historyService = historyService;
-        this.historyRepository = historyRepository;
         this.weaponPermissionService = weaponPermissionService;
         this.weaponPermissionRepository = weaponPermissionRepository;
         this.memberPermissionsRepository = memberPermissionsRepository;
@@ -179,10 +177,13 @@ public class MemberService {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer dowodu osobistego\"");
         } else {
-            memberEntity.setIDCard(member.getIDCard().trim().toUpperCase());
             if (member.getJoinDate() == null) {
                 memberEntity.setJoinDate(LocalDate.now());
                 LOG.info("ustawiono domyślną datę zapisu " + memberEntity.getJoinDate());
+            }
+            else {
+                memberEntity.setJoinDate(member.getJoinDate());
+                LOG.info("ustawiono datę zapisu na w" + memberEntity.getJoinDate());
             }
             if (member.getLegitimationNumber() == null) {
                 int number = 1;
@@ -201,6 +202,9 @@ public class MemberService {
                     memberEntity.setLegitimationNumber(number);
                     LOG.info("ustawiono domyślny numer legitymacji : " + memberEntity.getLegitimationNumber());
                 }
+            }
+            else {
+                memberEntity.setLegitimationNumber(member.getLegitimationNumber());
             }
             String s = "+48";
             if (member.getPhoneNumber() != null) {
@@ -277,6 +281,7 @@ public class MemberService {
                     .build();
             personalEvidenceRepository.save(personalEvidence);
 
+            memberEntity.setIDCard(member.getIDCard().trim().toUpperCase());
             memberEntity.setPesel(member.getPesel());
             memberEntity.setErasedReason(null);
             memberEntity.setClub(clubRepository.findById(1).orElseThrow(EntityNotFoundException::new));
@@ -457,11 +462,7 @@ public class MemberService {
 
     public MemberEntity getMember(int number) {
         LOG.info("Wywołano Klubowicza");
-        MemberEntity memberEntity = memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
-
-        memberEntity.getHistory().getContributionList().forEach(e-> System.out.println(e.getPaymentDay()));
-
-        return memberEntity;
+        return memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
     }
 
     public List<MemberEntity> getErasedMembers() {
