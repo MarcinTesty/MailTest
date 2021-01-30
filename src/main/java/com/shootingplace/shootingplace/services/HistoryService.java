@@ -260,9 +260,6 @@ public class HistoryService {
         }
 
         LOG.info("Dodano wpis w historii startów.");
-//        System.out.println("sortowanie");
-//        List<CompetitionHistoryEntity> sorted = competitionHistoryEntityList.stream().sorted(Comparator.comparing(CompetitionHistoryEntity::getDate)).collect(Collectors.toList());
-//        historyEntity.setCompetitionHistory(sorted);
         historyRepository.saveAndFlush(historyEntity);
 
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
@@ -337,10 +334,6 @@ public class HistoryService {
         historyEntity.setJudgingHistory(judgingHistory);
 
         historyRepository.saveAndFlush(historyEntity);
-        System.out.println("sortowanie");
-        judgingHistory.sort(Comparator.comparing(JudgingHistoryEntity::getDate).reversed());
-        historyEntity.setJudgingHistory(judgingHistory);
-        historyRepository.saveAndFlush(historyEntity);
     }
 
     void removeJudgingRecord(String memberUUID, String tournamentUUID, String function) {
@@ -351,8 +344,9 @@ public class HistoryService {
 
         JudgingHistoryEntity any = judgingHistoryEntityList
                 .stream()
-                .filter(e -> e.getTournamentUUID().equals(tournamentUUID) && e.getJudgingFunction().equals(function))
-                .findAny().orElseThrow(EntityNotFoundException::new);
+                .filter(e -> e.getTournamentUUID().equals(tournamentUUID))
+                .filter(e -> e.getJudgingFunction().equals(function))
+                .findFirst().orElseThrow(EntityNotFoundException::new);
         judgingHistoryEntityList.remove(any);
         HistoryEntity historyEntity = memberRepository
                 .findById(memberUUID)

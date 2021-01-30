@@ -86,7 +86,7 @@ public class OtherPersonService {
 
         List<String> list = new ArrayList<>();
         otherPersonRepository.findAll()
-                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " uuid: " + e.getId())));
+                .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
     }

@@ -39,7 +39,7 @@ public class TournamentEntity {
     private List<OtherPersonEntity> otherArbitersList;
 
 
-    @OneToMany
+    @OneToMany(orphanRemoval = true)
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private boolean open;
 

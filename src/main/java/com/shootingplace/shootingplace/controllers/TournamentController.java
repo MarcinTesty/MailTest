@@ -5,6 +5,7 @@ import com.shootingplace.shootingplace.domain.models.Tournament;
 import com.shootingplace.shootingplace.domain.models.TournamentDTO;
 import com.shootingplace.shootingplace.services.TournamentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -124,6 +125,16 @@ public class TournamentController {
     @PutMapping("/addCompetition/{tournamentUUID}")
     public ResponseEntity<?> addCompetitionListToTournament(@PathVariable String tournamentUUID, @RequestParam String competitionUUID) {
         if (tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Transactional
+    @DeleteMapping("/delete/{tournamentUUID}")
+    public ResponseEntity<?> deleteTournament(@PathVariable String tournamentUUID) {
+        if (tournamentService.deleteTournament(tournamentUUID)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();

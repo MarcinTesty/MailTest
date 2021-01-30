@@ -29,6 +29,17 @@ public class Mapping {
                 .memberPermissions(map(e.getMemberPermissions()))
                 .build();
     }
+    static MemberDTO map2(MemberEntity e){
+        return MemberDTO.builder()
+                .uuid(e.getUuid())
+                .firstName(e.getFirstName())
+                .secondName(e.getSecondName())
+                .adult(e.getAdult())
+                .legitimationNumber(e.getLegitimationNumber())
+                .license(map(e.getLicense()))
+                .joinDate(e.getJoinDate())
+                .build();
+    }
 
     static MemberEntity map(Member e) {
         return MemberEntity.builder()

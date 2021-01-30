@@ -459,4 +459,26 @@ public class TournamentService {
         allDTO.sort(Comparator.comparing(TournamentDTO::getDate).reversed());
         return allDTO;
     }
+
+    public boolean deleteTournament(String tournamentUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        if (tournamentEntity.isOpen()) {
+            if(!tournamentEntity.getCompetitionsList().isEmpty()) {
+                tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().forEach(a -> historyService.removeCompetitionRecord(a.getMember().getUuid(), competitionMembersListRepository.findById(a.getCompetitionMembersListEntityUUID()).orElseThrow(EntityNotFoundException::new))));
+            }
+            if (tournamentEntity.getMainArbiter() != null) {
+                historyService.removeJudgingRecord(tournamentEntity.getMainArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.MAIN_ARBITER.getName());
+            }
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.RTS_ARBITER.getName());
+            }
+            if(!tournamentEntity.getArbitersList().isEmpty()) {
+                tournamentEntity.getArbitersList().forEach(e -> historyService.removeJudgingRecord(e.getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.HELP.getName()));
+            }
+            tournamentRepository.delete(tournamentEntity);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

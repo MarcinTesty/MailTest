@@ -3,6 +3,7 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.LicenseEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.License;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
@@ -11,8 +12,9 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class LicenseService {
@@ -29,15 +31,17 @@ public class LicenseService {
         this.historyService = historyService;
     }
 
-    public Map<String, License> getMembersNamesAndLicense() {
-        Map<String, License> map = new HashMap<>();
+    public List<MemberDTO> getMembersNamesAndLicense() {
+        List<MemberDTO> list = new ArrayList<>();
         memberRepository.findAll()
                 .forEach(e -> {
                     if (e.getLicense().getNumber() != null) {
-                        map.put(e.getFirstName().concat(" " + e.getSecondName()), Mapping.map(e.getLicense()));
+                        list.add(Mapping.map2(e));
                     }
                 });
-        return map;
+        list.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
+        LOG.info("Wysłano listę osób z licencjami");
+        return list;
     }
 
     void addLicenseToMember(String memberUUID, License license) {

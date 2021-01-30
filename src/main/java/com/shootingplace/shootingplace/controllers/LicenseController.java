@@ -1,12 +1,13 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.models.License;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.services.HistoryService;
 import com.shootingplace.shootingplace.services.LicenseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/license")
@@ -21,8 +22,8 @@ public class LicenseController {
     }
 
     @GetMapping("/members")
-    public Map<String, License> getMembersNamesAndLicense() {
-        return licenseService.getMembersNamesAndLicense();
+    public ResponseEntity<List<MemberDTO>> getMembersNamesAndLicense() {
+        return ResponseEntity.ok(licenseService.getMembersNamesAndLicense());
     }
 
     @PutMapping("/{memberUUID}")

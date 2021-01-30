@@ -38,10 +38,6 @@ public class Member {
 
     private PersonalEvidence personalEvidence;
 
-    private FilesModel contributionFile;
-
-    private FilesModel personalCardFile;
-
     public LocalDate getJoinDate() {
         return joinDate;
     }
@@ -194,21 +190,6 @@ public class Member {
         this.personalEvidence = personalEvidence;
     }
 
-    public FilesModel getContributionFile() {
-        return contributionFile;
-    }
-
-    public void setContributionFile(FilesModel contributionFile) {
-        this.contributionFile = contributionFile;
-    }
-
-    public FilesModel getPersonalCardFile() {
-        return personalCardFile;
-    }
-
-    public void setPersonalCardFile(FilesModel personalCardFile) {
-        this.personalCardFile = personalCardFile;
-    }
 
     public String getErasedReason() {
         return erasedReason;
