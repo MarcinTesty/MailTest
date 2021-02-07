@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class CompetitionMembersListService {
@@ -35,7 +34,7 @@ public class CompetitionMembersListService {
         this.scoreService = scoreService;
     }
 
-    public boolean addScoreToCompetitionList(UUID competitionUUID, int legitimationNumber, int otherPerson) {
+    public boolean addScoreToCompetitionList(String competitionUUID, int legitimationNumber, int otherPerson) {
         CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
         List<ScoreEntity> scoreList = list.getScoreList();
 
@@ -79,7 +78,7 @@ public class CompetitionMembersListService {
     }
 
 
-    public boolean removeScoreFromList(UUID competitionUUID, int legitimationNumber, int otherPerson) {
+    public boolean removeScoreFromList(String competitionUUID, int legitimationNumber, int otherPerson) {
         CompetitionMembersListEntity list = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
         MemberEntity member = memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(legitimationNumber)).findFirst().orElse(null);
         OtherPersonEntity otherPersonEntity = otherPersonRepository.findAll().stream().filter(f -> f.getId().equals(otherPerson)).findFirst().orElse(null);
@@ -113,7 +112,7 @@ public class CompetitionMembersListService {
         return false;
     }
 
-    public boolean sortScore(UUID competitionUUID, boolean sort) {
+    public boolean sortScore(String competitionUUID, boolean sort) {
         List<ScoreEntity> scoreList = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new).getScoreList();
         if (sort) {
             scoreList.sort(Comparator.comparing(ScoreEntity::getName));

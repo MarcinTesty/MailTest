@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,25 +17,21 @@ import java.util.UUID;
 public class ShootingPatentEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
     private String patentNumber;
 
-    private Boolean pistolPermission;
+    private boolean pistolPermission;
 
-    private Boolean riflePermission;
+    private boolean riflePermission;
 
-    private Boolean shotgunPermission;
+    private boolean shotgunPermission;
 
     private LocalDate dateOfPosting;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getPatentNumber() {

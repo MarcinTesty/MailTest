@@ -21,6 +21,11 @@ public class StartConfiguration {
                 clubRepository.saveAndFlush(ClubEntity.builder()
                         .id(1)
                         .name("DZIESIĄTKA LOK ŁÓDŹ")
+                        .phoneNumber("+48 538271010".trim())
+                        .email("biuro@ksdziesiatka.pl")
+                        .address("ul. Konstantynowska 1 94-393 Łódź")
+                        .licenseNumber("1233/2021")
+                        .url("http://ksdziesiatka.pl/")
                         .build());
     }
 

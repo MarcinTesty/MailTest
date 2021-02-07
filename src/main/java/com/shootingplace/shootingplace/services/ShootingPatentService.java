@@ -11,9 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-
 import javax.persistence.EntityNotFoundException;
-import java.util.UUID;
 
 @Service
 public class ShootingPatentService {
@@ -34,19 +32,13 @@ public class ShootingPatentService {
     }
 
 
-    void addPatent(UUID memberUUID, ShootingPatent shootingPatent) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getShootingPatent() != null) {
-            LOG.error("nie można już dodać patentu");
-        }
+    void addPatent(ShootingPatent shootingPatent) {
         ShootingPatentEntity shootingPatentEntity = Mapping.map(shootingPatent);
         shootingPatentRepository.saveAndFlush(shootingPatentEntity);
-        memberEntity.setShootingPatent(shootingPatentEntity);
-        memberRepository.saveAndFlush(memberEntity);
         LOG.info("Patent został zapisany");
     }
 
-    public boolean updatePatent(UUID memberUUID, ShootingPatent shootingPatent) {
+    public boolean updatePatent(String memberUUID, ShootingPatent shootingPatent) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         ShootingPatentEntity shootingPatentEntity = shootingPatentRepository.findById(memberEntity
                 .getShootingPatent()

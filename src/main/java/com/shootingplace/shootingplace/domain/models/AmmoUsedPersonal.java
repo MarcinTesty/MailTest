@@ -3,19 +3,17 @@ package com.shootingplace.shootingplace.domain.models;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class AmmoUsedPersonal {
     private String caliberName;
 
-    private UUID memberUUID;
+    private String memberUUID;
 
     private Integer counter;
 
-    private UUID caliberUUID;
+    private String caliberUUID;
 
     public String getCaliberName() {
         return caliberName;
@@ -25,11 +23,11 @@ public class AmmoUsedPersonal {
         this.caliberName = caliberName;
     }
 
-    public UUID getMemberUUID() {
+    public String getMemberUUID() {
         return memberUUID;
     }
 
-    public void setMemberUUID(UUID memberUUID) {
+    public void setMemberUUID(String memberUUID) {
         this.memberUUID = memberUUID;
     }
 
@@ -41,11 +39,11 @@ public class AmmoUsedPersonal {
         this.counter = counter;
     }
 
-    public UUID getCaliberUUID() {
+    public String getCaliberUUID() {
         return caliberUUID;
     }
 
-    public void setCaliberUUID(UUID caliberUUID) {
+    public void setCaliberUUID(String caliberUUID) {
         this.caliberUUID = caliberUUID;
     }
 }

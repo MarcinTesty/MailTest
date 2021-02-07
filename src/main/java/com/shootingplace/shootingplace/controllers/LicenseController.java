@@ -1,17 +1,16 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.models.License;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.services.HistoryService;
 import com.shootingplace.shootingplace.services.LicenseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/license")
-@CrossOrigin(origins = "https://localhost:8081")
 public class LicenseController {
 
     private final LicenseService licenseService;
@@ -22,18 +21,13 @@ public class LicenseController {
         this.historyService = historyService;
     }
 
-    @GetMapping("/")
-    public Map<UUID, License> getLicense() {
-        return licenseService.getLicense();
-    }
-
     @GetMapping("/members")
-    public Map<String, License> getMembersNamesAndLicense() {
-        return licenseService.getMembersNamesAndLicense();
+    public ResponseEntity<List<MemberDTO>> getMembersNamesAndLicense() {
+        return ResponseEntity.ok(licenseService.getMembersNamesAndLicense());
     }
 
     @PutMapping("/{memberUUID}")
-    public ResponseEntity<?> updateLicense(@PathVariable UUID memberUUID, @RequestBody License license) {
+    public ResponseEntity<?> updateLicense(@PathVariable String memberUUID, @RequestBody License license) {
         if (licenseService.updateLicense(memberUUID, license)) {
             return ResponseEntity.ok().build();
         } else {
@@ -42,7 +36,7 @@ public class LicenseController {
     }
 
     @PatchMapping("/{memberUUID}")
-    public ResponseEntity<?> renewLicenseValidDate(@PathVariable UUID memberUUID, @RequestBody License license) {
+    public ResponseEntity<?> renewLicenseValidDate(@PathVariable String memberUUID, @RequestBody License license) {
         if (licenseService.renewLicenseValid(memberUUID, license)) {
             return ResponseEntity.ok().build();
         } else {
@@ -51,7 +45,7 @@ public class LicenseController {
     }
 
     @PutMapping("/history/{memberUUID}")
-    public ResponseEntity<?> addLicensePaymentHistory(@PathVariable UUID memberUUID) {
+    public ResponseEntity<?> addLicensePaymentHistory(@PathVariable String memberUUID) {
         if (historyService.addLicenseHistoryPayment(memberUUID)) {
             return ResponseEntity.ok().build();
         } else {

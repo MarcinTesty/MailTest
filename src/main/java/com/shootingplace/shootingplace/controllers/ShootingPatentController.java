@@ -5,11 +5,8 @@ import com.shootingplace.shootingplace.services.ShootingPatentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/patent")
-@CrossOrigin(origins = "https://localhost:8081")
 public class ShootingPatentController {
 
     private final ShootingPatentService shootingPatentService;
@@ -19,7 +16,7 @@ public class ShootingPatentController {
     }
 
     @PutMapping("/{memberUUID}")
-    public ResponseEntity<?> updatePatent(@PathVariable UUID memberUUID, @RequestBody ShootingPatent shootingPatent) {
+    public ResponseEntity<?> updatePatent(@PathVariable String memberUUID, @RequestBody ShootingPatent shootingPatent) {
         if (shootingPatentService.updatePatent(memberUUID, shootingPatent)) {
             return ResponseEntity.ok().build();
         } else {

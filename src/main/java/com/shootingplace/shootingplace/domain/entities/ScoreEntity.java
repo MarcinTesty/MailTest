@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 @AllArgsConstructor
@@ -15,9 +17,9 @@ import java.util.UUID;
 public class ScoreEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private float score;
 
@@ -28,13 +30,13 @@ public class ScoreEntity {
 
     private boolean ammunition;
 
-    private UUID competitionMembersListEntityUUID;
+    private String competitionMembersListEntityUUID;
     @OneToOne(orphanRemoval = true)
     private MemberEntity member;
     @OneToOne(orphanRemoval = true)
     private OtherPersonEntity otherPersonEntity;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
@@ -62,11 +64,11 @@ public class ScoreEntity {
         this.score = score;
     }
 
-    public UUID getCompetitionMembersListEntityUUID() {
+    public String getCompetitionMembersListEntityUUID() {
         return competitionMembersListEntityUUID;
     }
 
-    public void setCompetitionMembersListEntityUUID(UUID competitionMembersListEntityUUID) {
+    public void setCompetitionMembersListEntityUUID(String competitionMembersListEntityUUID) {
         this.competitionMembersListEntityUUID = competitionMembersListEntityUUID;
     }
 

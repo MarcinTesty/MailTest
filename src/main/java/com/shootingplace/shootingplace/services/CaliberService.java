@@ -58,4 +58,17 @@ public class CaliberService {
         caliberRepository.saveAndFlush(caliberEntity5);
     }
 
+    public boolean createNewCaliber(String caliber) {
+
+        boolean match = caliberRepository.findAll().stream().anyMatch(a -> a.getName().equals(caliber.trim().toLowerCase()));
+        if (!match) {
+            CaliberEntity caliberEntity = CaliberEntity.builder()
+                    .name(caliber.trim().toLowerCase())
+                    .build();
+            caliberRepository.saveAndFlush(caliberEntity);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -8,7 +8,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -16,10 +15,12 @@ import java.util.UUID;
 @Builder
 public class HistoryEntity {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
-    @OneToMany
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("paymentDay DESC,validThru DESC")
     private List<ContributionEntity> contributionList;
     private String[] licenseHistory;
     private LocalDate[] licensePaymentHistory;
@@ -30,18 +31,16 @@ public class HistoryEntity {
     private Integer pistolCounter = 0;
     private Integer rifleCounter = 0;
     private Integer shotgunCounter = 0;
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("date DESC")
     private List<CompetitionHistoryEntity> competitionHistory;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("date DESC")
     private List<JudgingHistoryEntity> judgingHistory;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public List<ContributionEntity> getContributionList() {

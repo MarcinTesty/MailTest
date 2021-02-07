@@ -1,13 +1,14 @@
 package com.shootingplace.shootingplace.domain.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Pattern;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -16,9 +17,9 @@ import java.util.UUID;
 public class AddressEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     @Pattern(regexp = "\\d{2}-\\d{3}")
     private String zipCode;
@@ -27,12 +28,8 @@ public class AddressEntity {
     private String streetNumber;
     private String flatNumber;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getZipCode() {

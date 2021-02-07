@@ -22,10 +22,9 @@ public class License {
 
     private Boolean isValid;
 
-    private Boolean canProlong = false;
+    private Boolean canProlong;
 
     private Boolean isPaid;
-
 
     public String getNumber() {
         return number;

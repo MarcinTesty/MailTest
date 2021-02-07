@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,24 +16,20 @@ import java.util.UUID;
 @Builder
 public class CompetitionHistoryEntity {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private String name;
 
-    private UUID attachedToList;
+    private String attachedToList;
 
     private String discipline;
 
     private LocalDate date;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {
@@ -45,11 +40,11 @@ public class CompetitionHistoryEntity {
         this.name = name;
     }
 
-    public UUID getAttachedToList() {
+    public String getAttachedToList() {
         return attachedToList;
     }
 
-    public void setAttachedToList(UUID attachedToList) {
+    public void setAttachedToList(String attachedToList) {
         this.attachedToList = attachedToList;
     }
 

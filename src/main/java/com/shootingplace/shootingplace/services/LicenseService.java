@@ -3,18 +3,18 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.LicenseEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.License;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class LicenseService {
@@ -31,25 +31,20 @@ public class LicenseService {
         this.historyService = historyService;
     }
 
-    public Map<UUID, License> getLicense() {
-        Map<UUID, License> map = new HashMap<>();
-        licenseRepository.findAllByNumberIsNotNull().forEach(e -> map.put(e.getUuid(), Mapping.map(e)));
-        LOG.info("liczba wpisów do rejestru : " + map.size());
-        return map;
-    }
-
-    public Map<String, License> getMembersNamesAndLicense() {
-        Map<String, License> map = new HashMap<>();
+    public List<MemberDTO> getMembersNamesAndLicense() {
+        List<MemberDTO> list = new ArrayList<>();
         memberRepository.findAll()
                 .forEach(e -> {
                     if (e.getLicense().getNumber() != null) {
-                        map.put(e.getFirstName().concat(" " + e.getSecondName()), Mapping.map(e.getLicense()));
+                        list.add(Mapping.map2(e));
                     }
                 });
-        return map;
+        list.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
+        LOG.info("Wysłano listę osób z licencjami");
+        return list;
     }
 
-    void addLicenseToMember(UUID memberUUID, License license) {
+    void addLicenseToMember(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getLicense() != null) {
             LOG.error("nie można już dodać licencji");
@@ -61,7 +56,7 @@ public class LicenseService {
         LOG.info("Licencja została zapisana");
     }
 
-    public boolean updateLicense(UUID memberUUID, License license) {
+    public boolean updateLicense(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity
                 .getLicense()
@@ -140,11 +135,11 @@ public class LicenseService {
         return "Nie ma na to Patentu";
     }
 
-    public boolean renewLicenseValid(UUID memberUUID, License license) {
+    public boolean renewLicenseValid(String memberUUID, License license) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getActive()
-                && licenseEntity.getNumber() != null && licenseEntity.getPaid()) {
+                && licenseEntity.getNumber() != null && licenseEntity.isPaid()) {
             if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1))) {
                 licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
                 licenseEntity.setValid(true);

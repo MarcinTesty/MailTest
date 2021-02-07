@@ -35,7 +35,7 @@ public class TournamentService {
         this.historyService = historyService;
     }
 
-    public UUID createNewTournament(Tournament tournament) {
+    public String createNewTournament(Tournament tournament) {
         TournamentEntity tournamentEntity = Mapping.map(tournament);
 
         if (tournament.getMainArbiter() == null) {
@@ -54,7 +54,7 @@ public class TournamentService {
         return tournamentEntity.getUuid();
     }
 
-    public boolean updateTournament(UUID tournamentUUID, Tournament tournament) {
+    public boolean updateTournament(String tournamentUUID, Tournament tournament) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID)
                 .orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
@@ -90,7 +90,7 @@ public class TournamentService {
                         .reversed()).collect(Collectors.toList());
     }
 
-    public boolean closeTournament(UUID tournamentUUID) {
+    public boolean closeTournament(String tournamentUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
             LOG.info("Zawody " + tournamentEntity.getName() + " zostały zamknięte");
@@ -102,7 +102,7 @@ public class TournamentService {
         }
     }
 
-    public boolean removeArbiterFromTournament(UUID tournamentUUID, int legitimationNumber) {
+    public boolean removeArbiterFromTournament(String tournamentUUID, int legitimationNumber) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
             String function = ArbiterWorkClass.HELP.getName();
@@ -126,7 +126,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean removeOtherArbiterFromTournament(UUID tournamentUUID, int id) {
+    public boolean removeOtherArbiterFromTournament(String tournamentUUID, int id) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
 
@@ -148,7 +148,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addMainArbiter(UUID tournamentUUID, int legitimationNumber) {
+    public boolean addMainArbiter(String tournamentUUID, int legitimationNumber) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
 
@@ -198,7 +198,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addOtherMainArbiter(UUID tournamentUUID, int id) {
+    public boolean addOtherMainArbiter(String tournamentUUID, int id) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
             String function = ArbiterWorkClass.MAIN_ARBITER.getName();
@@ -244,7 +244,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addRTSArbiter(UUID tournamentUUID, int legitimationNumber) {
+    public boolean addRTSArbiter(String tournamentUUID, int legitimationNumber) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
 
@@ -292,7 +292,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addOtherRTSArbiter(UUID tournamentUUID, int id) {
+    public boolean addOtherRTSArbiter(String tournamentUUID, int id) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
 
@@ -339,7 +339,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addOthersArbiters(UUID tournamentUUID, int legitimationNumber) {
+    public boolean addOthersArbiters(String tournamentUUID, int legitimationNumber) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
             String function = ArbiterWorkClass.HELP.getName();
@@ -381,7 +381,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addPersonOthersArbiters(UUID tournamentUUID, int id) {
+    public boolean addPersonOthersArbiters(String tournamentUUID, int id) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
 
@@ -421,7 +421,7 @@ public class TournamentService {
         return false;
     }
 
-    public boolean addNewCompetitionListToTournament(UUID tournamentUUID, UUID competitionUUID) {
+    public boolean addNewCompetitionListToTournament(String tournamentUUID, String competitionUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         if (tournamentEntity.isOpen()) {
             if (competitionUUID != null) {
@@ -458,5 +458,27 @@ public class TournamentService {
         all.forEach(e -> allDTO.add(Mapping.map1(e)));
         allDTO.sort(Comparator.comparing(TournamentDTO::getDate).reversed());
         return allDTO;
+    }
+
+    public boolean deleteTournament(String tournamentUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        if (tournamentEntity.isOpen()) {
+            if(!tournamentEntity.getCompetitionsList().isEmpty()) {
+                tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().forEach(a -> historyService.removeCompetitionRecord(a.getMember().getUuid(), competitionMembersListRepository.findById(a.getCompetitionMembersListEntityUUID()).orElseThrow(EntityNotFoundException::new))));
+            }
+            if (tournamentEntity.getMainArbiter() != null) {
+                historyService.removeJudgingRecord(tournamentEntity.getMainArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.MAIN_ARBITER.getName());
+            }
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.RTS_ARBITER.getName());
+            }
+            if(!tournamentEntity.getArbitersList().isEmpty()) {
+                tournamentEntity.getArbitersList().forEach(e -> historyService.removeJudgingRecord(e.getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.HELP.getName()));
+            }
+            tournamentRepository.delete(tournamentEntity);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -19,32 +18,23 @@ import java.util.UUID;
 public class LicenseEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
     @Pattern(regexp = "[0-9]*")
     private String number;
-
-    private LocalDate validThru;
-
-    private Boolean pistolPermission;
-    private Boolean riflePermission;
-    private Boolean shotgunPermission;
-
-    private Boolean isValid;
-
-    private Boolean canProlong = false;
-
-    private Boolean isPaid;
+    private LocalDate validThru = null;
+    private boolean pistolPermission = false;
+    private boolean riflePermission = false;
+    private boolean shotgunPermission = false;
+    private boolean valid;
+    private boolean canProlong = false;
+    private boolean paid;
 
 
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getNumber() {
@@ -63,52 +53,51 @@ public class LicenseEntity {
         this.validThru = validThru;
     }
 
-    public Boolean getPistolPermission() {
+    public boolean isPistolPermission() {
         return pistolPermission;
     }
 
-    public void setPistolPermission(Boolean pistolPermission) {
+    public void setPistolPermission(boolean pistolPermission) {
         this.pistolPermission = pistolPermission;
     }
 
-    public Boolean getRiflePermission() {
+    public boolean isRiflePermission() {
         return riflePermission;
     }
 
-    public void setRiflePermission(Boolean riflePermission) {
+    public void setRiflePermission(boolean riflePermission) {
         this.riflePermission = riflePermission;
     }
 
-    public Boolean getShotgunPermission() {
+    public boolean isShotgunPermission() {
         return shotgunPermission;
     }
 
-    public void setShotgunPermission(Boolean shotgunPermission) {
+    public void setShotgunPermission(boolean shotgunPermission) {
         this.shotgunPermission = shotgunPermission;
     }
 
-    public Boolean getValid() {
-        return isValid;
+    public boolean isValid() {
+        return valid;
     }
 
-    public void setValid(Boolean valid) {
-        isValid = valid;
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
-    public Boolean getCanProlong() {
+    public boolean isCanProlong() {
         return canProlong;
     }
 
-    public void setCanProlong(Boolean canProlong) {
+    public void setCanProlong(boolean canProlong) {
         this.canProlong = canProlong;
     }
 
-
-    public Boolean getPaid() {
-        return isPaid;
+    public boolean isPaid() {
+        return paid;
     }
 
-    public void setPaid(Boolean paid) {
-        isPaid = paid;
+    public void setPaid(boolean paid) {
+        this.paid = paid;
     }
 }

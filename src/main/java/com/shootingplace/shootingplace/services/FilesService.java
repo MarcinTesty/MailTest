@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +81,7 @@ public class FilesService {
     }
 
 
-    public FilesEntity contributionConfirm(UUID memberUUID) throws DocumentException, IOException {
+    public FilesEntity contributionConfirm(String memberUUID) throws DocumentException, IOException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LocalDate contribution = memberEntity.getHistory().getContributionList().get(0).getPaymentDay();
         LocalDate validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
@@ -197,7 +196,7 @@ public class FilesService {
         return filesEntity;
     }
 
-    public FilesEntity personalCardFile(UUID memberUUID) throws IOException, DocumentException {
+    public FilesEntity personalCardFile(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
@@ -354,7 +353,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createAmmunitionListDocument(UUID ammoEvidenceUUID) throws IOException, DocumentException {
+    public FilesEntity createAmmunitionListDocument(String ammoEvidenceUUID) throws IOException, DocumentException {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
         List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
 
@@ -461,7 +460,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(UUID memberUUID) throws IOException, DocumentException {
+    public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         String fileName = "Wniosek_" + memberEntity.getFirstName() + " " + memberEntity.getSecondName() + ".pdf";
@@ -542,7 +541,7 @@ public class FilesService {
                 .getCompetitionHistory()
                 .stream()
                 .filter(f -> f.getDate().isBefore(validThru))
-                .filter(f -> f.getDate().isAfter(LocalDate.of(validThru.getYear(), 1, 1)))
+//                .filter(f -> f.getDate().isAfter(LocalDate.of(validThru.getYear(), 1, 1)))
                 .collect(Collectors.toList());
         String pistolet = "Pistolet";
         String karabin = "Karabin";
@@ -722,7 +721,7 @@ public class FilesService {
 
     }
 
-    public FilesEntity createAnnouncementFromCompetition(UUID tournamentUUID) throws IOException, DocumentException {
+    public FilesEntity createAnnouncementFromCompetition(String tournamentUUID) throws IOException, DocumentException {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
 
 
@@ -736,7 +735,7 @@ public class FilesService {
         document.addCreationDate();
         int page = 1;
 
-        Paragraph title = new Paragraph(tournamentEntity.getName() + " KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(14, 1));
+        Paragraph title = new Paragraph(tournamentEntity.getName().toUpperCase() + "\n" + "KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(13, 1));
         Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10, 2));
         Paragraph newLine = new Paragraph("\n", font(10, 0));
 
@@ -802,10 +801,10 @@ public class FilesService {
                 }
                 float score = competitionMembersListEntity.getScoreList().get(j).getScore();
                 PdfPTable playerTableLabel = new PdfPTable(pointColumnWidths);
-                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(12, 0)));
-                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(12, 0)));
-                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(12, 0)));
-                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(12, 0)));
+                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(11, 0)));
+                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(11, 0)));
+                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(11, 0)));
+                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(11, 0)));
 
                 playerCellLabel.setBorder(0);
                 playerCellLabel1.setBorder(0);
@@ -841,14 +840,16 @@ public class FilesService {
             mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
         }
 
-        String arbiterRTS;
-        String arbiterRTSClass;
-        if (tournamentEntity.getCommissionRTSArbiter() != null) {
-            arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
-            arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
-        } else {
-            arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
-            arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+        String arbiterRTS = "";
+        String arbiterRTSClass = "";
+        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getOtherCommissionRTSArbiter() != null) {
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
+                arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
+            } else {
+                arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
+                arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+            }
         }
 
 

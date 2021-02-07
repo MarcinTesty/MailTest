@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,12 +20,12 @@ import java.util.UUID;
 public class CompetitionMembersListEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private String name;
-    private UUID attachedToTournament;
+    private String attachedToTournament;
     private LocalDate date;
 
     private String discipline;
@@ -31,10 +33,9 @@ public class CompetitionMembersListEntity {
     @ManyToMany
     private List<ScoreEntity> scoreList = new ArrayList<>();
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
-
 
     public String getName() {
         return name;
@@ -44,11 +45,11 @@ public class CompetitionMembersListEntity {
         this.name = name;
     }
 
-    public UUID getAttachedToTournament() {
+    public String getAttachedToTournament() {
         return attachedToTournament;
     }
 
-    public void setAttachedToTournament(UUID attachedToTournament) {
+    public void setAttachedToTournament(String attachedToTournament) {
         this.attachedToTournament = attachedToTournament;
     }
 

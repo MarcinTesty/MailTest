@@ -47,7 +47,7 @@ public class ElectronicEvidenceService {
 
     }
 
-    public Boolean addMemberToEvidence(UUID memberUUID) {
+    public Boolean addMemberToEvidence(String memberUUID) {
 
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 

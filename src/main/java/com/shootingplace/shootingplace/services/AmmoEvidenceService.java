@@ -12,7 +12,6 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +36,7 @@ public class AmmoEvidenceService {
         return ammoEvidenceRepository.findAll().stream().filter(f -> f.isOpen() == state).sorted(Comparator.comparing(AmmoEvidenceEntity::getDate).reversed()).collect(Collectors.toList());
     }
 
-    public boolean closeEvidence(UUID evidenceUUID) {
+    public boolean closeEvidence(String evidenceUUID) {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
                 .findById(evidenceUUID)
                 .orElseThrow(EntityNotFoundException::new);
@@ -54,4 +53,5 @@ public class AmmoEvidenceService {
         allDTO.sort(Comparator.comparing(AmmoDTO::getDate).reversed());
         return allDTO;
     }
+
 }

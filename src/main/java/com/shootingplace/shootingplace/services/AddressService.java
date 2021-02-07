@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.UUID;
 
 @Service
 public class AddressService {
@@ -27,7 +26,7 @@ public class AddressService {
     }
 
 
-    void addAddress(UUID memberUUID, Address address) {
+    void addAddress(String memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getAddress() != null) {
             LOG.error("nie można już dodać adresu");
@@ -42,7 +41,7 @@ public class AddressService {
     //--------------------------------------------------------------------------
 
     @SneakyThrows
-    public boolean updateAddress(UUID memberUUID, Address address) {
+    public boolean updateAddress(String memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         AddressEntity addressEntity = addressRepository.findById(memberEntity
                 .getAddress()

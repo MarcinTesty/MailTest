@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 @AllArgsConstructor
@@ -15,13 +17,13 @@ import java.util.UUID;
 public class AmmoUsedToEvidenceEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private String caliberName;
 
-    private UUID caliberUUID;
+    private String caliberUUID;
     @ManyToOne
     private MemberEntity memberEntity;
 
@@ -31,7 +33,7 @@ public class AmmoUsedToEvidenceEntity {
 
     private String name;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
@@ -43,11 +45,11 @@ public class AmmoUsedToEvidenceEntity {
         this.caliberName = caliberName;
     }
 
-    public UUID getCaliberUUID() {
+    public String getCaliberUUID() {
         return caliberUUID;
     }
 
-    public void setCaliberUUID(UUID caliberUUID) {
+    public void setCaliberUUID(String caliberUUID) {
         this.caliberUUID = caliberUUID;
     }
 

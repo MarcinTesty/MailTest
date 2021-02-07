@@ -15,7 +15,6 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/other")
-@CrossOrigin(origins = "https://localhost:8081")
 public class OtherPersonController {
     private final OtherPersonService otherPersonService;
 
@@ -45,17 +44,17 @@ public class OtherPersonController {
             if (arbiterClass.equals("5")) {
                 arbiterClass = (ArbiterClass.CLASS_INTERNATIONAL.getName());
             }
-        LocalDate parse = null;
-        if(!Objects.equals(arbiterPermissionValidThru, "")){
-            parse = LocalDate.parse(arbiterPermissionValidThru);
-        }
-        memberPermissions = MemberPermissions.builder()
-                .arbiterNumber(arbiterNumber)
-                .arbiterClass(arbiterClass)
-                .arbiterPermissionValidThru(parse)
-                .shootingLeaderNumber(null)
-                .instructorNumber(null)
-                .build();
+            LocalDate parse = null;
+            if (!Objects.equals(arbiterPermissionValidThru, "")) {
+                parse = LocalDate.parse(arbiterPermissionValidThru);
+            }
+            memberPermissions = MemberPermissions.builder()
+                    .arbiterNumber(arbiterNumber)
+                    .arbiterClass(arbiterClass)
+                    .arbiterPermissionValidThru(parse)
+                    .shootingLeaderNumber(null)
+                    .instructorNumber(null)
+                    .build();
         }
 
         if (otherPersonService.addPerson(club, person, memberPermissions)) {
@@ -79,6 +78,14 @@ public class OtherPersonController {
     @GetMapping("/all")
     public ResponseEntity<List<OtherPersonEntity>> getAll() {
         return ResponseEntity.ok().body(otherPersonService.getAll());
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity<?> deletePerson(@RequestParam int id) {
+        if (otherPersonService.deletePerson(id)) {
+            return ResponseEntity.ok().build();
+        } else
+            return ResponseEntity.notFound().build();
     }
 
 }

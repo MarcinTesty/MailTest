@@ -30,7 +30,7 @@ public class MemberControllerTest {
     private MemberRepository memberRepository;
 
     private MemberEntity memberEntity;
-    private UUID uuid;
+    private String uuid;
 
     @Before
     public void setUp() {
@@ -117,7 +117,7 @@ public class MemberControllerTest {
                 .pesel("22222222222")
                 .build();
         memberEntity2 = memberRepository.saveAndFlush(memberEntity2);
-        UUID uuid2 = memberEntity2.getUuid();
+        String uuid2 = memberEntity2.getUuid();
 
         Member updatedMember = Member.builder()
                 .firstName("Jasko")

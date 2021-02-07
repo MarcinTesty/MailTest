@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ScoreService {
@@ -24,7 +23,7 @@ public class ScoreService {
         this.competitionMembersListRepository = competitionMembersListRepository;
     }
 
-    ScoreEntity createScore(float score, float innerTen, float outerTen, UUID competitionMembersListEntityUUID, MemberEntity memberEntity, OtherPersonEntity otherPersonEntity) {
+    ScoreEntity createScore(float score, float innerTen, float outerTen, String competitionMembersListEntityUUID, MemberEntity memberEntity, OtherPersonEntity otherPersonEntity) {
         String name;
         if(memberEntity!=null){
             name = memberEntity.getSecondName()+ " " + memberEntity.getFirstName();
@@ -45,7 +44,7 @@ public class ScoreService {
 
     }
 
-    public boolean setScore(UUID scoreUUID, float score, float innerTen, float outerTen) {
+    public boolean setScore(String scoreUUID, float score, float innerTen, float outerTen) {
         ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
         if (score == -1) {
             score = scoreEntity.getScore();
@@ -60,7 +59,7 @@ public class ScoreService {
         scoreEntity.setInnerTen(innerTen);
         scoreEntity.setOuterTen(outerTen);
         scoreRepository.saveAndFlush(scoreEntity);
-        UUID competitionMembersListEntityUUID = scoreEntity.getCompetitionMembersListEntityUUID();
+        String competitionMembersListEntityUUID = scoreEntity.getCompetitionMembersListEntityUUID();
         CompetitionMembersListEntity competitionMembersListEntity = competitionMembersListRepository.findById(competitionMembersListEntityUUID).orElseThrow(EntityNotFoundException::new);
         List<ScoreEntity> scoreList = competitionMembersListEntity.getScoreList();
         scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
@@ -74,7 +73,7 @@ public class ScoreService {
         return true;
     }
 
-    public boolean toggleAmmunitionInScore(UUID scoreUUID) {
+    public boolean toggleAmmunitionInScore(String scoreUUID) {
         ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
         scoreEntity.toggleAmmunition();
         scoreRepository.saveAndFlush(scoreEntity);

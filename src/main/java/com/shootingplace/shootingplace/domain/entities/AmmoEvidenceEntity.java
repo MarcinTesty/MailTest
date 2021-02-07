@@ -8,7 +8,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,29 +16,24 @@ import java.util.UUID;
 public class AmmoEvidenceEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private LocalDate date;
 
     private String number;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<AmmoInEvidenceEntity> ammoInEvidenceEntityList;
 
     private boolean open;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private FilesEntity file;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
 
     public LocalDate getDate() {
         return date;

@@ -5,14 +5,13 @@ import com.shootingplace.shootingplace.domain.models.Tournament;
 import com.shootingplace.shootingplace.domain.models.TournamentDTO;
 import com.shootingplace.shootingplace.services.TournamentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/tournament")
-@CrossOrigin(origins = "https://localhost:8081")
 public class TournamentController {
 
     private final TournamentService tournamentService;
@@ -32,12 +31,12 @@ public class TournamentController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<UUID> addNewTournament(@RequestBody Tournament tournament) {
+    public ResponseEntity<String> addNewTournament(@RequestBody Tournament tournament) {
         return ResponseEntity.status(201).body(tournamentService.createNewTournament(tournament));
     }
 
     @PostMapping("/removeArbiter/{tournamentUUID}")
-    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+    public ResponseEntity<?> removeArbiterFromTournament(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
         if (number > 0) {
             if (tournamentService.removeArbiterFromTournament(tournamentUUID, number)) {
@@ -55,7 +54,7 @@ public class TournamentController {
     }
 
     @PatchMapping("/{tournamentUUID}")
-    public ResponseEntity<?> closeTournament(@PathVariable UUID tournamentUUID) {
+    public ResponseEntity<?> closeTournament(@PathVariable String tournamentUUID) {
         if (tournamentService.closeTournament(tournamentUUID)) {
             return ResponseEntity.ok().build();
         } else {
@@ -64,7 +63,7 @@ public class TournamentController {
     }
 
     @PutMapping("/{tournamentUUID}")
-    public ResponseEntity<?> updateTournament(@PathVariable UUID tournamentUUID, @RequestBody Tournament tournament) {
+    public ResponseEntity<?> updateTournament(@PathVariable String tournamentUUID, @RequestBody Tournament tournament) {
         if (tournamentService.updateTournament(tournamentUUID, tournament)) {
             return ResponseEntity.ok().build();
         } else {
@@ -73,7 +72,7 @@ public class TournamentController {
     }
 
     @PutMapping("/addMainArbiter/{tournamentUUID}")
-    public ResponseEntity<?> addMainArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+    public ResponseEntity<?> addMainArbiter(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
         if (number > 0) {
             if (tournamentService.addMainArbiter(tournamentUUID, number)) {
@@ -90,7 +89,7 @@ public class TournamentController {
     }
 
     @PutMapping("/addRTSArbiter/{tournamentUUID}")
-    public ResponseEntity<?> addRTSArbiter(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+    public ResponseEntity<?> addRTSArbiter(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
         if (number > 0) {
             if (tournamentService.addRTSArbiter(tournamentUUID, number)) {
@@ -107,7 +106,7 @@ public class TournamentController {
     }
 
     @PutMapping("/addOthersArbiters/{tournamentUUID}")
-    public ResponseEntity<?> addOthersArbiters(@PathVariable UUID tournamentUUID, @RequestParam int number, @RequestParam int id) {
+    public ResponseEntity<?> addOthersArbiters(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
         if (number > 0) {
             if (tournamentService.addOthersArbiters(tournamentUUID, number)) {
@@ -124,8 +123,18 @@ public class TournamentController {
     }
 
     @PutMapping("/addCompetition/{tournamentUUID}")
-    public ResponseEntity<?> addCompetitionListToTournament(@PathVariable UUID tournamentUUID, @RequestParam UUID competitionUUID) {
+    public ResponseEntity<?> addCompetitionListToTournament(@PathVariable String tournamentUUID, @RequestParam String competitionUUID) {
         if (tournamentService.addNewCompetitionListToTournament(tournamentUUID, competitionUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Transactional
+    @DeleteMapping("/delete/{tournamentUUID}")
+    public ResponseEntity<?> deleteTournament(@PathVariable String tournamentUUID) {
+        if (tournamentService.deleteTournament(tournamentUUID)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();

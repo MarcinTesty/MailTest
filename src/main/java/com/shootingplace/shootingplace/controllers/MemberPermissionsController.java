@@ -8,11 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/permissions")
-@CrossOrigin(origins = "https://localhost:8081")
 public class MemberPermissionsController {
 
     private final MemberPermissionsService memberPermissionsService;
@@ -30,7 +28,7 @@ public class MemberPermissionsController {
     }
 
     @PutMapping("/{memberUUID}")
-    public ResponseEntity<?> updateMemberPermissions(@PathVariable UUID memberUUID,
+    public ResponseEntity<?> updateMemberPermissions(@PathVariable String memberUUID,
                                                      @RequestBody MemberPermissions memberPermissions, @RequestParam String ordinal) {
         if (memberPermissionsService.updateMemberPermissions(memberUUID, memberPermissions, ordinal)) {
             return ResponseEntity.ok().build();

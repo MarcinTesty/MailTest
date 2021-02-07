@@ -8,7 +8,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,15 +16,15 @@ import java.util.UUID;
 public class AmmoUsedEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private UUID uuid;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
+    private String uuid;
 
     private String caliberName;
 
-    private UUID caliberUUID;
+    private String caliberUUID;
 
-    private UUID memberUUID;
+    private String memberUUID;
 
     private Integer otherPersonEntityID;
 
@@ -33,10 +32,9 @@ public class AmmoUsedEntity {
 
     private Integer counter;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
-
 
     public String getCaliberName() {
         return caliberName;
@@ -46,15 +44,11 @@ public class AmmoUsedEntity {
         this.caliberName = caliberName;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public UUID getMemberUUID() {
+    public String getMemberUUID() {
         return memberUUID;
     }
 
-    public void setMemberUUID(UUID memberUUID) {
+    public void setMemberUUID(String memberUUID) {
         this.memberUUID = memberUUID;
     }
 
@@ -62,11 +56,11 @@ public class AmmoUsedEntity {
         return counter;
     }
 
-    public UUID getCaliberUUID() {
+    public String getCaliberUUID() {
         return caliberUUID;
     }
 
-    public void setCaliberUUID(UUID caliberUUID) {
+    public void setCaliberUUID(String caliberUUID) {
         this.caliberUUID = caliberUUID;
     }
 

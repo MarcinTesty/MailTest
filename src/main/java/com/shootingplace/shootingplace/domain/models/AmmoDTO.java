@@ -5,21 +5,20 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class AmmoDTO {
 
-    private UUID evidenceUUID;
+    private String evidenceUUID;
     private LocalDate date;
 
-    public UUID getEvidenceUUID() {
+    public String getEvidenceUUID() {
         return evidenceUUID;
     }
 
-    public void setEvidenceUUID(UUID evidenceUUID) {
+    public void setEvidenceUUID(String evidenceUUID) {
         this.evidenceUUID = evidenceUUID;
     }
 

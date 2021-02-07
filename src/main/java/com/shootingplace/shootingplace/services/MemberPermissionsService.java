@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 public class MemberPermissionsService {
@@ -27,7 +26,7 @@ public class MemberPermissionsService {
         this.memberRepository = memberRepository;
     }
 
-    void addMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions) {
+    void addMemberPermissions(String memberUUID, MemberPermissions memberPermissions) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (memberEntity.getMemberPermissions() != null) {
             LOG.error("nie można już dodać Encji");
@@ -40,7 +39,7 @@ public class MemberPermissionsService {
         LOG.info("Encja uprawnień została zapisana");
     }
 
-    public Boolean updateMemberPermissions(UUID memberUUID, MemberPermissions memberPermissions, String ordinal) {
+    public Boolean updateMemberPermissions(String memberUUID, MemberPermissions memberPermissions, String ordinal) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         MemberPermissionsEntity memberPermissionsEntity = memberPermissionsRepository.findById(
                 memberEntity.getMemberPermissions().getUuid()).orElseThrow(EntityNotFoundException::new);
