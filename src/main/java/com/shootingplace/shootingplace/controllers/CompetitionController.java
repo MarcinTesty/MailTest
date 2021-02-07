@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/competition")
+@CrossOrigin
 public class CompetitionController {
     private final CompetitionService competitionService;
     private final ScoreService scoreService;

@@ -4,6 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.models.History;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.repositories.*;
 import lombok.SneakyThrows;
@@ -119,6 +120,16 @@ public class MemberService {
 
                 }
             }
+            if (e.getLicense().getNumber() != null) {
+                LicenseEntity license = e.getLicense();
+                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+                    license.setValid(false);
+                    licenseRepository.saveAndFlush(license);
+                } else {
+                    license.setValid(true);
+                    licenseRepository.saveAndFlush(license);
+                }
+            }
         });
         //młodzież
         List<MemberEntity> nonAdultMembers = memberRepository.findAll().stream().filter(f -> !f.getAdult()).filter(MemberEntity::getActive).collect(Collectors.toList());
@@ -134,6 +145,16 @@ public class MemberService {
                     LOG.info("zmieniono " + e.getSecondName());
                     memberRepository.saveAndFlush(e);
 
+                }
+            }
+            if (e.getLicense().getNumber() != null) {
+                LicenseEntity license = e.getLicense();
+                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
+                    license.setValid(false);
+                    licenseRepository.saveAndFlush(license);
+                } else {
+                    license.setValid(true);
+                    licenseRepository.saveAndFlush(license);
                 }
             }
         });
@@ -169,10 +190,10 @@ public class MemberService {
             LOG.error("Ktoś już ma taki numer legitymacji");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
         }
-        if (memberEntityList.stream().anyMatch(e -> "+48".concat(e.getPhoneNumber().replaceAll("\\s", "")).equals(member.getPhoneNumber()))) {
-            LOG.error("Ktoś już ma taki numer telefonu");
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer telefonu\"");
-        }
+//        if (memberEntityList.stream().anyMatch(e -> "+48".concat(e.getPhoneNumber().replaceAll("\\s", "")).equals(member.getPhoneNumber()))) {
+//            LOG.error("Ktoś już ma taki numer telefonu");
+//            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer telefonu\"");
+//        }
         if (memberEntityList.stream().anyMatch(e -> e.getIDCard().trim().toUpperCase().equals(member.getIDCard()))) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer dowodu osobistego\"");
@@ -180,8 +201,7 @@ public class MemberService {
             if (member.getJoinDate() == null) {
                 memberEntity.setJoinDate(LocalDate.now());
                 LOG.info("ustawiono domyślną datę zapisu " + memberEntity.getJoinDate());
-            }
-            else {
+            } else {
                 memberEntity.setJoinDate(member.getJoinDate());
                 LOG.info("ustawiono datę zapisu na w" + memberEntity.getJoinDate());
             }
@@ -202,8 +222,7 @@ public class MemberService {
                     memberEntity.setLegitimationNumber(number);
                     LOG.info("ustawiono domyślny numer legitymacji : " + memberEntity.getLegitimationNumber());
                 }
-            }
-            else {
+            } else {
                 memberEntity.setLegitimationNumber(member.getLegitimationNumber());
             }
             String s = "+48";
@@ -291,9 +310,14 @@ public class MemberService {
             memberEntity.setWeaponPermission(weaponPermission);
             memberEntity.setMemberPermissions(memberPermissions);
             memberEntity.setPersonalEvidence(personalEvidence);
+            memberEntity.setPzss(false);
             memberEntity = memberRepository.save(memberEntity);
             ContributionEntity contributionEntity = contributionService.addFirstContribution(memberEntity.getUuid(), LocalDate.now());
             historyService.addContribution(memberEntity.getUuid(), contributionEntity);
+            memberRepository.findAll().stream().filter(f -> f.getPzss() == null).forEach(e -> {
+                e.setPzss(true);
+                memberRepository.saveAndFlush(e);
+            });
 
         }
         return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("\"" + memberEntity.getUuid() + "\"");
@@ -342,7 +366,9 @@ public class MemberService {
             LOG.info("Klubowicz należy już do grupy powszechnej");
             return ResponseEntity.badRequest().build();
         }
-        memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new).toggleAdult();
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        memberEntity.setAdult(true);
+        memberRepository.saveAndFlush(memberEntity);
         LOG.info("Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
 
         return ResponseEntity.noContent().build();
@@ -529,5 +555,102 @@ public class MemberService {
         list.sort(Comparator.comparing(String::new));
         LOG.info("Lista nazwisk z identyfikatorem");
         return list;
+    }
+
+    public List<String> getAllNames() {
+
+        List<String> list = new ArrayList<>();
+        memberRepository.findAll().stream()
+                .filter(f -> f.getErased().equals(false))
+                .filter(f -> f.getAdult().equals(true))
+                .forEach(e -> {
+                    if (e.getActive().equals(false)) {
+                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " BRAK SKŁADEK " + " leg. " + e.getLegitimationNumber()));
+                    } else {
+                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber()));
+                    }
+                });
+        list.sort(Comparator.comparing(String::new));
+        LOG.info("Lista nazwisk z identyfikatorem");
+        return list;
+
+    }
+
+    public List<Long> getMembersQuantity() {
+        List<Long> list = new ArrayList<>();
+//      ogólnie dorośli
+        long count = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> f.getAdult())
+                .count();
+//      dorośli aktywni
+        long count1 = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> f.getAdult())
+                .filter(f -> f.getActive())
+                .count();
+
+//      dorośli nieaktywni
+        long count2 = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> f.getAdult())
+                .filter(f -> !f.getActive())
+                .count();
+
+//      ogólnie młodzież
+        long count3 = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> !f.getAdult())
+                .count();
+//      młodzież aktywni
+        long count4 = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> !f.getAdult())
+                .filter(f -> f.getActive())
+                .count();
+//      młodzież nieaktywni
+        long count5 = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> !f.getAdult())
+                .filter(f -> !f.getActive())
+                .count();
+
+//      dorośli skreśleni
+        long count6 = memberRepository.findAll().stream()
+                .filter(f -> f.getErased())
+                .filter(f -> f.getAdult())
+                .count();
+//      młodzież skreśleni
+        long count7 = memberRepository.findAll().stream()
+                .filter(f -> f.getErased())
+                .filter(f -> !f.getAdult())
+                .count();
+        list.add(count);
+        list.add(count1);
+        list.add(count2);
+        list.add(count3);
+        list.add(count4);
+        list.add(count5);
+        list.add(count6);
+        list.add(count7);
+
+
+        return list;
+    }
+
+    public List<MemberDTO> getAllMemberDTO() {
+        List<MemberDTO> list = new ArrayList<>();
+
+        memberRepository.findAll().stream().filter(f -> !f.getErased()).forEach(e -> list.add(Mapping.map2(e)));
+        list.sort(Comparator.comparing(MemberDTO::getAdult).reversed().thenComparing(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName)));
+        return list;
+    }
+
+    public boolean changePzss(String uuid) {
+        MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
+        memberEntity.setPzss(true);
+        memberRepository.saveAndFlush(memberEntity);
+        return true;
+
     }
 }

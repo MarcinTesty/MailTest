@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/files")
+@CrossOrigin
 public class FilesController {
 
     private final FilesService filesService;
@@ -85,5 +86,50 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
+
+    @GetMapping("/downloadAllMembersToTable")
+    public ResponseEntity<byte[]> getAllMembersToTable() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllMembersToTable();
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
+    @GetMapping("/downloadCertificateOfClubMembership/{memberUUID}")
+    public ResponseEntity<byte[]> CertificateOfClubMembership(@PathVariable String memberUUID) throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.CertificateOfClubMembership(memberUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+    @GetMapping("/downloadMetric/{tournamentUUID}")
+    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID,@RequestParam String otherID,@PathVariable String tournamentUUID) throws IOException, DocumentException {
+        if (otherID.equals("0")){
+            otherID = null;
+        }else{
+            memberUUID = null;
+        }
+
+        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID,otherID,tournamentUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
 
 }

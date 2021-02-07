@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface WeaponPermissionRepository extends JpaRepository<WeaponPermissionEntity, String> {
     Optional<WeaponPermissionEntity> findByNumber(String number);
+    Optional<WeaponPermissionEntity> findByAdmissionToPossessAWeapon(String number);
 }

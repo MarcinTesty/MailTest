@@ -4,10 +4,7 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.models.FilesModel;
-import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
-import com.shootingplace.shootingplace.repositories.FilesRepository;
-import com.shootingplace.shootingplace.repositories.MemberRepository;
-import com.shootingplace.shootingplace.repositories.TournamentRepository;
+import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
@@ -32,14 +29,18 @@ public class FilesService {
     private final AmmoEvidenceRepository ammoEvidenceRepository;
     private final FilesRepository filesRepository;
     private final TournamentRepository tournamentRepository;
+    private final ClubRepository clubRepository;
+    private final OtherPersonRepository otherPersonRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository) {
+    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository, ClubRepository clubRepository, OtherPersonRepository otherPersonRepository) {
         this.memberRepository = memberRepository;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
         this.filesRepository = filesRepository;
         this.tournamentRepository = tournamentRepository;
+        this.clubRepository = clubRepository;
+        this.otherPersonRepository = otherPersonRepository;
     }
 
     private FilesEntity createContributionFileEntity(FilesModel filesModel) {
@@ -76,6 +77,22 @@ public class FilesService {
 
         FilesEntity filesEntity = Mapping.map(filesModel);
         LOG.info("Komunikat został zapisany");
+        return filesRepository.saveAndFlush(filesEntity);
+
+    }
+
+    private FilesEntity createTableWithMembers(FilesModel filesModel) {
+
+        FilesEntity filesEntity = Mapping.map(filesModel);
+        LOG.info("Tabela została zapisana");
+        return filesRepository.saveAndFlush(filesEntity);
+
+    }
+
+    private FilesEntity createCertificateOfClubMembership(FilesModel filesModel) {
+
+        FilesEntity filesEntity = Mapping.map(filesModel);
+        LOG.info("Tabela została zapisana");
         return filesRepository.saveAndFlush(filesEntity);
 
     }
@@ -151,7 +168,7 @@ public class FilesService {
         h1.add(h2);
         h1.setIndentationLeft(190);
         p2.add(p3);
-        p2.add("                                        ");
+        p2.add("                                    ");
         p4.add(p5);
         p2.add(p4);
         p6.add(p7);
@@ -252,16 +269,16 @@ public class FilesService {
         Paragraph p19 = new Paragraph("\n\n\n\n\n\n.............................................", new Font(czcionka, 11));
         Phrase p20 = new Phrase("                                                              ");
         Phrase p21 = new Phrase("............................................................");
-        Paragraph p22 = new Paragraph("podpis przyjmującego", new Font(czcionka, 11));
+        Paragraph p22 = new Paragraph("miejscowość, data i podpis Klubowicza", new Font(czcionka, 11));
         Phrase p23 = new Phrase("                                                                 ");
-        Phrase p24 = new Phrase("miejscowość, data i podpis Klubowicza");
+        Phrase p24 = new Phrase("podpis przyjmującego");
 
         p1.add("Grupa ");
         p1.add(p2);
         p1.add("\n");
         p1.setIndentationLeft(190);
         p3.add(p4);
-        p3.add("                                        ");
+        p3.add("                                    ");
         p5.add(p6);
         p3.add(p5);
         p7.add(p8);
@@ -309,8 +326,8 @@ public class FilesService {
         }
         p20.add(p21);
         p19.add(p20);
-        p19.setIndentationLeft(25);
-        p22.setIndentationLeft(40);
+        p19.setIndentationLeft(40);
+        p22.setIndentationLeft(25);
         p22.add(p23);
         p22.add(p24);
 
@@ -471,8 +488,9 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
         PdfContentByte cb = writer.getDirectContent();
-
-        PdfReader reader = new PdfReader("C:\\Users\\izebr\\IdeaProjects\\shootingplace\\src\\main\\resources\\Wniosek_o_przedluzenie_licencji_zawodniczej.pdf");
+        String path = "C:\\Users\\izebr\\IdeaProjects\\shootingplace\\src\\main\\resources\\Wniosek_o_przedluzenie_licencji_zawodniczej.pdf";
+        String path1 = "Wniosek_o_przedluzenie_licencji_zawodniczej.pdf";
+        PdfReader reader = new PdfReader(path1);
         PdfImportedPage page = writer.getImportedPage(reader, 1);
 
         document.newPage();
@@ -735,7 +753,7 @@ public class FilesService {
         document.addCreationDate();
         int page = 1;
 
-        Paragraph title = new Paragraph(tournamentEntity.getName().toUpperCase() + "\n" + "KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI", font(13, 1));
+        Paragraph title = new Paragraph(tournamentEntity.getName().toUpperCase() + "\n" + "„DZIESIĄTKA” ŁÓDŹ", font(13, 1));
         Paragraph date = new Paragraph("Łódź, " + dateFormat(tournamentEntity.getDate()), font(10, 2));
         Paragraph newLine = new Paragraph("\n", font(10, 0));
 
@@ -748,86 +766,86 @@ public class FilesService {
 
 
         for (int i = 0; i < tournamentEntity.getCompetitionsList().size(); i++) {
+            if (!tournamentEntity.getCompetitionsList().get(i).getScoreList().isEmpty()) {
+                CompetitionMembersListEntity competitionMembersListEntity = tournamentEntity.getCompetitionsList().get(i);
+                competitionMembersListEntity.getScoreList().sort(Comparator.comparing(ScoreEntity::getScore).reversed());
 
-            CompetitionMembersListEntity competitionMembersListEntity = tournamentEntity.getCompetitionsList().get(i);
-            competitionMembersListEntity.getScoreList().sort(Comparator.comparing(ScoreEntity::getScore).reversed());
+                Paragraph competition = new Paragraph(competitionMembersListEntity.getName(), font(14, 1));
+                competition.add("\n");
+                document.add(competition);
+                float[] pointColumnWidths = {25F, 150F, 150F, 25F};
+                PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
+                PdfPCell cellLabel = new PdfPCell(new Paragraph("M-ce", font(10, 0)));
+                PdfPCell cellLabel1 = new PdfPCell(new Paragraph("Imię i Nazwisko", font(10, 0)));
+                PdfPCell cellLabel2 = new PdfPCell(new Paragraph("Klub", font(10, 0)));
+                PdfPCell cellLabel3 = new PdfPCell(new Paragraph("wynik", font(10, 0)));
 
-            Paragraph competition = new Paragraph(competitionMembersListEntity.getName(), font(14, 1));
-            competition.add("\n");
-            document.add(competition);
-            float[] pointColumnWidths = {25F, 150F, 150F, 25F};
-            PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
-            PdfPCell cellLabel = new PdfPCell(new Paragraph("M-ce", font(10, 0)));
-            PdfPCell cellLabel1 = new PdfPCell(new Paragraph("Imię i Nazwisko", font(10, 0)));
-            PdfPCell cellLabel2 = new PdfPCell(new Paragraph("Klub", font(10, 0)));
-            PdfPCell cellLabel3 = new PdfPCell(new Paragraph("wynik", font(10, 0)));
+                document.add(newLine);
 
-            document.add(newLine);
+                cellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-            cellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cellLabel.setBorder(0);
+                cellLabel1.setBorder(0);
+                cellLabel2.setBorder(0);
+                cellLabel3.setBorder(0);
 
-            cellLabel.setBorder(0);
-            cellLabel1.setBorder(0);
-            cellLabel2.setBorder(0);
-            cellLabel3.setBorder(0);
+                tableLabel.setWidthPercentage(100F);
+                tableLabel.addCell(cellLabel);
+                tableLabel.addCell(cellLabel1);
+                tableLabel.addCell(cellLabel2);
+                tableLabel.addCell(cellLabel3);
 
-            tableLabel.setWidthPercentage(100F);
-            tableLabel.addCell(cellLabel);
-            tableLabel.addCell(cellLabel1);
-            tableLabel.addCell(cellLabel2);
-            tableLabel.addCell(cellLabel3);
-
-            document.add(tableLabel);
+                document.add(tableLabel);
 
 
-            for (int j = 0; j < competitionMembersListEntity.getScoreList().size(); j++) {
+                for (int j = 0; j < competitionMembersListEntity.getScoreList().size(); j++) {
 
-                String secondName;
-                String firstName;
-                String club;
-                if (competitionMembersListEntity.getScoreList().get(j).getMember() != null) {
-                    secondName = competitionMembersListEntity.getScoreList().get(j).getMember().getSecondName();
-                    firstName = competitionMembersListEntity.getScoreList().get(j).getMember().getFirstName();
-                    club = competitionMembersListEntity.getScoreList().get(j).getMember().getClub().getName();
+                    String secondName;
+                    String firstName;
+                    String club;
+                    if (competitionMembersListEntity.getScoreList().get(j).getMember() != null) {
+                        secondName = competitionMembersListEntity.getScoreList().get(j).getMember().getSecondName();
+                        firstName = competitionMembersListEntity.getScoreList().get(j).getMember().getFirstName();
+                        club = competitionMembersListEntity.getScoreList().get(j).getMember().getClub().getName();
 
-                } else {
-                    secondName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getSecondName();
-                    firstName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getFirstName();
-                    club = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getClub().getName();
+                    } else {
+                        secondName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getSecondName();
+                        firstName = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getFirstName();
+                        club = competitionMembersListEntity.getScoreList().get(j).getOtherPersonEntity().getClub().getName();
+
+                    }
+                    float score = competitionMembersListEntity.getScoreList().get(j).getScore();
+                    PdfPTable playerTableLabel = new PdfPTable(pointColumnWidths);
+                    PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(11, 0)));
+                    PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(11, 0)));
+                    PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(11, 0)));
+                    PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(11, 0)));
+
+                    playerCellLabel.setBorder(0);
+                    playerCellLabel1.setBorder(0);
+                    playerCellLabel2.setBorder(0);
+                    playerCellLabel3.setBorder(0);
+
+                    playerCellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    playerCellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    playerCellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    playerCellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+
+                    playerTableLabel.setWidthPercentage(100F);
+
+                    playerTableLabel.addCell(playerCellLabel);
+                    playerTableLabel.addCell(playerCellLabel1);
+                    playerTableLabel.addCell(playerCellLabel2);
+                    playerTableLabel.addCell(playerCellLabel3);
+
+                    document.add(playerTableLabel);
 
                 }
-                float score = competitionMembersListEntity.getScoreList().get(j).getScore();
-                PdfPTable playerTableLabel = new PdfPTable(pointColumnWidths);
-                PdfPCell playerCellLabel = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(11, 0)));
-                PdfPCell playerCellLabel1 = new PdfPCell(new Paragraph(secondName + " " + firstName, font(11, 0)));
-                PdfPCell playerCellLabel2 = new PdfPCell(new Paragraph(club, font(11, 0)));
-                PdfPCell playerCellLabel3 = new PdfPCell(new Paragraph(String.valueOf(score).replace(".0", ""), font(11, 0)));
-
-                playerCellLabel.setBorder(0);
-                playerCellLabel1.setBorder(0);
-                playerCellLabel2.setBorder(0);
-                playerCellLabel3.setBorder(0);
-
-                playerCellLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
-                playerCellLabel1.setHorizontalAlignment(Element.ALIGN_CENTER);
-                playerCellLabel2.setHorizontalAlignment(Element.ALIGN_CENTER);
-                playerCellLabel3.setHorizontalAlignment(Element.ALIGN_CENTER);
-
-
-                playerTableLabel.setWidthPercentage(100F);
-
-                playerTableLabel.addCell(playerCellLabel);
-                playerTableLabel.addCell(playerCellLabel1);
-                playerTableLabel.addCell(playerCellLabel2);
-                playerTableLabel.addCell(playerCellLabel3);
-
-                document.add(playerTableLabel);
-
             }
-
         }
         float[] pointColumnWidths = {220F, 240F, 240F};
         String mainArbiter;
@@ -840,16 +858,14 @@ public class FilesService {
             mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
         }
 
-        String arbiterRTS = "";
-        String arbiterRTSClass = "";
-        if (tournamentEntity.getCommissionRTSArbiter() != null && tournamentEntity.getOtherCommissionRTSArbiter() != null) {
-            if (tournamentEntity.getCommissionRTSArbiter() != null) {
-                arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
-                arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
-            } else {
-                arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
-                arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
-            }
+        String arbiterRTS;
+        String arbiterRTSClass;
+        if (tournamentEntity.getCommissionRTSArbiter() != null) {
+            arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
+            arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
+        } else {
+            arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
+            arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
         }
 
 
@@ -897,9 +913,191 @@ public class FilesService {
         return filesEntity;
     }
 
+    public FilesEntity CertificateOfClubMembership(String memberUUID) throws IOException, DocumentException {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        ClubEntity clubEntity = clubRepository.findById(1).orElseThrow(EntityNotFoundException::new);
+        String fileName = "Zaświadczenie" + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + ".pdf";
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter writer = PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+        PdfPTable mainTable = new PdfPTable(1);
+
+        document.add(mainTable);
+
+        String policeAddress = "\nKomendant Wojewódzki Policji w Łodzi\nWydział Postępowań Administracyjnych\n 90-144 Łódź, ul. Sienkiewicza 26";
+
+        Paragraph date = new Paragraph("Łódź, " + LocalDate.now(), font(12, 0));
+        date.setAlignment(2);
+        Paragraph police = new Paragraph(policeAddress, font(12, 0));
+        police.setAlignment(2);
+        document.add(date);
+        document.add(police);
+
+        Paragraph title = new Paragraph("\n\nZaświadczenie\n\n", font(14, 1));
+        title.setAlignment(1);
+
+        Paragraph par1 = new Paragraph("" + getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " PESEL: " + memberEntity.getPesel() + " jest czynnym członkiem Klubu Strzeleckiego „Dziesiątka” LOK w Łodzi. Numer legitymacji klubowej : 487. " +
+                "Uczestniczy w zawodach i treningach strzeleckich osiągając bardzo dobre wyniki. " +
+                "Czynnie uczestniczy w życiu Klubu. ", font(12, 0));
+        par1.setFirstLineIndent(40);
+
+        Paragraph par2 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " wyraża chęć pogłębiania swojej wiedzy i umiejętności w sporcie strzeleckim przez współzawodnictwo w różnych konkurencjach strzeleckich.", font(12, 0));
+        par2.setFirstLineIndent(40);
+
+        Paragraph par3 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " posiada Patent Strzelecki PZSS oraz ważną Licencję Zawodniczą PZSS na rok " + clubEntity.getLicenseNumber().substring(5), font(12, 0));
+        par3.setFirstLineIndent(40);
+
+        Paragraph par4 = new Paragraph("Klub strzelecki „Dziesiątka” LOK w Łodzi jest członkiem Polskiego Związku Strzelectwa Sportowego i posiada Licencję Klubową nr LK-" + clubEntity.getLicenseNumber() + ", jest również Członkiem Łódzkiego Związku Strzelectwa Sportowego, zarejestrowany pod numerem ewidencyjnym 6.", font(12, 0));
+        par4.setFirstLineIndent(40);
+
+        Paragraph par5 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " wystąpił z prośbą o wydanie niniejszego zaświadczenia, skutkiem którego będzie złożenie wniosku o pozwolenie na broń sportową do celów sportowych. \n\n\n", font(12, 0));
+        par5.setFirstLineIndent(40);
+
+        Paragraph par6 = new Paragraph("Sporządzono w 2 egz. \n\n", font(12, 0));
+
+        Paragraph par7 = new Paragraph("Egz. Nr 1 – a/a\n" +
+                "Egz. Nr 2 – Adresat", font(12, 0));
+        par7.setIndentationLeft(40);
+        document.add(title);
+        document.add(par1);
+        document.add(par2);
+        document.add(par3);
+        document.add(par4);
+        document.add(par5);
+        document.add(par6);
+        document.add(par7);
+
+        document.close();
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createCertificateOfClubMembership(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+    }
+
+    public FilesEntity getStartsMetric(String memberUUID, String otherID, String tournamentUUID) throws IOException, DocumentException {
+        String name = "";
+
+        if (otherID != null) {
+            OtherPersonEntity otherPersonEntity = otherPersonRepository.findById(Integer.valueOf(otherID)).orElseThrow(EntityNotFoundException::new);
+            name = otherPersonEntity.getSecondName().concat(" " + otherPersonEntity.getFirstName() + " " + otherPersonEntity.getClub().getName());
+        } else {
+            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+            name = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " " + memberEntity.getClub().getName());
+        }
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+        ClubEntity clubEntity = clubRepository.findById(1).orElseThrow(EntityNotFoundException::new);
+
+        List<CompetitionMembersListEntity> competitionMembersListEntity = tournamentEntity.getCompetitionsList();
+
+        String fileName = "metryki_" + name + ".pdf";
+
+        Document document = new Document(PageSize.A4.rotate());
+        PdfWriter writer = PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+
+        Paragraph par1 = new Paragraph(tournamentEntity.getName() + " " + clubEntity.getName(), font(14, 0));
+        par1.setAlignment(1);
+
+        Paragraph par2 = new Paragraph(name, font(10, 0));
+        par2.setAlignment(1);
+
+        Paragraph par3 = new Paragraph(competitionMembersListEntity.get(0).getName(), font(10, 0));
+        par3.setAlignment(1);
+        System.out.println("coś");
+
+        float[] pointColumnWidths = {25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 60F};
+        PdfPTable table = new PdfPTable(pointColumnWidths);
+        for (int i = 0; i < table.size(); i++) {
+            Paragraph p = new Paragraph(String.valueOf(i + 1), font(10, 0));
+            PdfPCell cell = new PdfPCell(p);
+            System.out.println("coś2");
+            if (i == table.size() - 1) {
+                p = new Paragraph("Suma", font(10, 0));
+            }
+            table.addCell(cell);
+
+        }
+        document.add(par1);
+        document.add(par2);
+        document.add(par3);
+        document.add(table);
+
+
+        document.close();
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createCertificateOfClubMembership(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+    }
+
+    public FilesEntity getAllMembersToTable() throws IOException, DocumentException {
+
+        String fileName = "Lista klubowiczów na dzień " + LocalDate.now() + ".pdf";
+
+        Document document = new Document(PageSize.A4.rotate());
+        PdfWriter writer = PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+        PdfPTable mainTable = new PdfPTable(1);
+
+        document.add(mainTable);
+
+        document.close();
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createTableWithMembers(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+    }
+
     private String getSex(String pesel) {
-        int i = (int) pesel.charAt(8);
-        if (i % 2 == 1) {
+        int i = (int) pesel.charAt(10);
+        if (i % 2 == 0) {
             return "Pani";
         } else return "Pan";
     }

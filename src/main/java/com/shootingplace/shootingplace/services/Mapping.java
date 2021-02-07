@@ -35,6 +35,9 @@ public class Mapping {
                 .firstName(e.getFirstName())
                 .secondName(e.getSecondName())
                 .adult(e.getAdult())
+                .active(e.getActive())
+                .erased(e.getErased())
+                .pzss(e.getPzss())
                 .legitimationNumber(e.getLegitimationNumber())
                 .license(map(e.getLicense()))
                 .joinDate(e.getJoinDate())
@@ -190,6 +193,8 @@ public class Mapping {
         return Optional.ofNullable(w).map(e -> WeaponPermission.builder()
                 .number(e.getNumber())
                 .isExist(e.getExist())
+                .admissionToPossessAWeapon(e.getAdmissionToPossessAWeapon())
+                .admissionToPossessAWeaponIsExist(e.getAdmissionToPossessAWeaponIsExist())
                 .build()).orElse(null);
     }
 
@@ -197,6 +202,8 @@ public class Mapping {
         return Optional.ofNullable(w).map(e -> WeaponPermissionEntity.builder()
                 .number(e.getNumber())
                 .isExist(e.getExist())
+                .admissionToPossessAWeapon(e.getAdmissionToPossessAWeapon())
+                .admissionToPossessAWeaponIsExist(e.getAdmissionToPossessAWeaponIsExist())
                 .build()).orElse(null);
     }
 

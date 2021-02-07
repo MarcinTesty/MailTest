@@ -23,16 +23,18 @@ public class HistoryService {
     private final CompetitionHistoryRepository competitionHistoryRepository;
     private final TournamentRepository tournamentRepository;
     private final JudgingHistoryRepository judgingHistoryRepository;
+    private final ContributionRepository  contributionRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository, TournamentRepository tournamentRepository, JudgingHistoryRepository judgingHistoryRepository) {
+    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository, TournamentRepository tournamentRepository, JudgingHistoryRepository judgingHistoryRepository, ContributionRepository contributionRepository) {
         this.historyRepository = historyRepository;
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
         this.competitionHistoryRepository = competitionHistoryRepository;
         this.tournamentRepository = tournamentRepository;
         this.judgingHistoryRepository = judgingHistoryRepository;
+        this.contributionRepository = contributionRepository;
     }
 
     //  Basic
@@ -57,7 +59,7 @@ public class HistoryService {
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
-
+        contribution.setHistoryUUID(historyEntity.getUuid());
         List<ContributionEntity> contributionList = historyEntity
                 .getContributionList();
         contributionList
@@ -70,6 +72,11 @@ public class HistoryService {
 
         LOG.info("Dodano rekord w historii składek");
         historyRepository.saveAndFlush(historyEntity);
+        historyRepository.findAll().forEach(e -> e.getContributionList().forEach(f -> {
+            f.setHistoryUUID(e.getUuid());
+            contributionRepository.saveAndFlush(f);
+        }));
+        contributionRepository.findAll().stream().filter(f->f.getHistoryUUID()==null).forEach(contributionRepository::delete);
     }
 
     void removeContribution(String memberUUID, ContributionEntity contribution) {
@@ -80,6 +87,8 @@ public class HistoryService {
         historyEntity
                 .getContributionList()
                 .remove(contribution);
+        contribution.setHistoryUUID(null);
+        contributionRepository.saveAndFlush(contribution);
         LOG.info("Usunięto składkę");
         historyRepository.saveAndFlush(historyEntity);
     }
@@ -155,6 +164,7 @@ public class HistoryService {
     }
 
     public Boolean addLicenseHistoryPayment(String memberUUID) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = memberRepository
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
@@ -163,7 +173,7 @@ public class HistoryService {
         HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
-        if (!licenseEntity.isPaid()) {
+        if (memberEntity.getActive() && !licenseEntity.isPaid()) {
             if (historyEntity.getLicensePaymentHistory() != null) {
                 LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
 

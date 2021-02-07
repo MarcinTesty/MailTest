@@ -39,7 +39,7 @@ public class WeaponPermissionService {
     boolean updateWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         WeaponPermissionEntity weaponPermissionEntity = memberEntity.getWeaponPermission();
-        if (weaponPermission.getNumber() != null && !weaponPermission.getNumber().isEmpty()) {
+        if (weaponPermission.getNumber() != null) {
             if (weaponPermissionRepository.findByNumber(weaponPermission.getNumber()).isPresent()
                     && !memberEntity.getWeaponPermission().getNumber().equals(weaponPermission.getNumber())) {
                 LOG.error("ktoś już ma taki numer pozwolenia");
@@ -49,11 +49,26 @@ public class WeaponPermissionService {
                 LOG.info("Wprowadzono numer pozwolenia");
             }
         }
-        if ((weaponPermission.getNumber() == null||weaponPermission.getNumber().equals("")) && !weaponPermission.getExist()) {
-            weaponPermissionEntity.setNumber("");
-            weaponPermissionEntity.setExist(false);
-            LOG.info("Usunięto pozwolenie");
+        if (weaponPermission.getAdmissionToPossessAWeapon() != null) {
+            if (weaponPermissionRepository.findByAdmissionToPossessAWeapon(weaponPermission.getAdmissionToPossessAWeapon()).isPresent()
+                    && !memberEntity.getWeaponPermission().getAdmissionToPossessAWeapon().equals(weaponPermission.getAdmissionToPossessAWeapon())) {
+                LOG.error("ktoś już ma taki numer dopuszczenia");
+            } else {
+                weaponPermissionEntity.setAdmissionToPossessAWeapon(weaponPermission.getAdmissionToPossessAWeapon());
+                weaponPermissionEntity.setAdmissionToPossessAWeaponIsExist(true);
+                LOG.info("Wprowadzono numer dopuszczenia");
+            }
         }
+//        if (weaponPermission.getNumber().equals("0")) && !weaponPermission.getExist()) {
+//            weaponPermissionEntity.setNumber(null);
+//            weaponPermissionEntity.setExist(false);
+//            LOG.info("Usunięto pozwolenie");
+//        }
+//        if (weaponPermission.getAdmissionToPossessAWeapon().equals("0")) && !weaponPermission.getAdmissionToPossessAWeaponIsExist()) {
+//            weaponPermissionEntity.setAdmissionToPossessAWeapon(null);
+//            weaponPermissionEntity.setAdmissionToPossessAWeaponIsExist(false);
+//            LOG.info("Usunięto dopuszczenie");
+//        }
         weaponPermissionRepository.saveAndFlush(weaponPermissionEntity);
         memberEntity.setWeaponPermission(weaponPermissionEntity);
         memberRepository.saveAndFlush(memberEntity);

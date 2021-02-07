@@ -24,6 +24,9 @@ public class WeaponPermissionEntity {
 
     private Boolean isExist = false;
 
+    private String admissionToPossessAWeapon;
+    private Boolean admissionToPossessAWeaponIsExist = false;
+
     public String getUuid() {
         return uuid;
     }
@@ -36,11 +39,27 @@ public class WeaponPermissionEntity {
         this.number = number;
     }
 
+    public String getAdmissionToPossessAWeapon() {
+        return admissionToPossessAWeapon;
+    }
+
+    public void setAdmissionToPossessAWeapon(String admissionToPossessAWeapon) {
+        this.admissionToPossessAWeapon = admissionToPossessAWeapon;
+    }
+
     public Boolean getExist() {
         return isExist;
     }
 
     public void setExist(Boolean exist) {
         isExist = exist;
+    }
+
+    public Boolean getAdmissionToPossessAWeaponIsExist() {
+        return admissionToPossessAWeaponIsExist;
+    }
+
+    public void setAdmissionToPossessAWeaponIsExist(Boolean admissionToPossessAWeaponIsExist) {
+        this.admissionToPossessAWeaponIsExist = admissionToPossessAWeaponIsExist;
     }
 }

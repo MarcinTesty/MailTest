@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/permissions")
+@CrossOrigin
 public class MemberPermissionsController {
 
     private final MemberPermissionsService memberPermissionsService;

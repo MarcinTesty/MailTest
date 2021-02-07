@@ -32,7 +32,6 @@ public class AmmoInEvidenceService {
 
         List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().filter(AmmoEvidenceEntity::isOpen).collect(Collectors.toList());
 
-
 //      Nie znaleziono żadnej listy
         if (collect.size() < 1 || ammoEvidenceRepository.findAll() == null) {
             if (ammoUsedToEvidenceEntity.getCounter() < 0) {
@@ -49,7 +48,7 @@ public class AmmoInEvidenceService {
                     all.sort(Comparator.comparing(AmmoEvidenceEntity::getNumber).reversed());
                     String number1 = all.get(0).getNumber();
                     String[] split = number1.split("-");
-                    number = Integer.valueOf(split[0])+1;
+                    number = Integer.valueOf(split[0]) + 1;
                 }
                 String evidenceNumber = number + "-LA-" + LocalDate.now().getYear();
                 AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
@@ -102,9 +101,12 @@ public class AmmoInEvidenceService {
                 List<AmmoUsedToEvidenceEntity> ammoUsedToEvidenceEntityList = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList();
 //        Nie znaleziono podanego membera
                 if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getName().equals(ammoUsedToEvidenceEntity.getName()))) {
-                    if (ammoUsedToEvidenceEntity.getCounter() < 0) {
+//                    System.out.println("nie ma membera");
+                    if (ammoUsedToEvidenceEntity.getCounter() <= 0) {
                         System.out.println("nie można dodać ujemnej wartości");
                     } else {
+//                        System.out.println("wartość jest dodatnia");
+                        System.out.println(ammoUsedToEvidenceEntity.getCounter());
                         ammoUsedToEvidenceEntityList.add(ammoUsedToEvidenceEntity);
                         ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
 
@@ -113,6 +115,7 @@ public class AmmoInEvidenceService {
                 }
 //        Znaleziono podanego membera
                 else {
+//                    System.out.println("jest member");
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
                             .filter(f -> f.getName()
@@ -124,9 +127,12 @@ public class AmmoInEvidenceService {
                     ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter());
                     if (ammoUsedToEvidenceEntity1.getCounter() <= 0) {
                         ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().remove(ammoUsedToEvidenceEntity1);
+                        ammoInEvidenceRepository.delete(ammoInEvidenceEntity);
                     }
-                    ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity1);
-                    ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+                    else{
+                        ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity1);
+                        ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
+                    }
 
                 }
 
@@ -152,14 +158,16 @@ public class AmmoInEvidenceService {
 //          Usuwanie listy jeśli ilość sztuk wynosi 0
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
                 .findAll()
-                .stream()
+                .stream().filter(AmmoEvidenceEntity::isOpen)
                 .findFirst()
-                .orElseThrow(EntityNotFoundException::new);
+                .orElse(null);
+        if(ammoEvidenceEntity == null){
+            return;
+        }
 
         if (ammoEvidenceEntity
                 .getAmmoInEvidenceEntityList()
                 .stream()
-                .filter(f -> f.getQuantity() <= 0)
                 .anyMatch(a -> a.getQuantity() <= 0)) {
 
             AmmoInEvidenceEntity ammoInEvidenceEntity = ammoEvidenceEntity
@@ -170,13 +178,13 @@ public class AmmoInEvidenceService {
                     .orElseThrow(EntityNotFoundException::new);
 
             ammoEvidenceEntity.getAmmoInEvidenceEntityList().remove(ammoInEvidenceEntity);
-            ammoEvidenceRepository.saveAndFlush(ammoEvidenceEntity);
+            ammoInEvidenceRepository.delete(ammoInEvidenceEntity);
+            //        Usuwanie ewidencji jeśli nie ma żadnej listy z amunicją
+            if(ammoEvidenceEntity.getAmmoInEvidenceEntityList().isEmpty()){
+                ammoEvidenceRepository.delete(ammoEvidenceEntity);
+            }
+        }
 
-        }
-//        Usuwanie ewidencji jeśli nie ma żadnej listy z amunicją
-        if (ammoEvidenceEntity.getAmmoInEvidenceEntityList().isEmpty()) {
-            ammoEvidenceRepository.deleteById(ammoEvidenceEntity.getUuid());
-        }
     }
 
 

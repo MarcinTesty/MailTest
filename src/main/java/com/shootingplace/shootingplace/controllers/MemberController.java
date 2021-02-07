@@ -3,6 +3,7 @@ package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/member")
+@CrossOrigin
 public class MemberController {
 
     private final MemberService memberService;
@@ -48,8 +50,24 @@ public class MemberController {
         return memberService.getMembersNameAndLegitimationNumber(active, adult, erase);
     }
 
+    @GetMapping("/getAllNames")
+    public List<String> getAllNames() {
+        return memberService.getAllNames();
+    }
+
+    @GetMapping("/getAllMemberDTO")
+    public ResponseEntity<List<MemberDTO>> getAllMemberDTO() {
+        return ResponseEntity.ok(memberService.getAllMemberDTO());
+
+    }
+
+    @GetMapping("/membersQuantity")
+    public List<Long> getMembersQuantity() {
+        return memberService.getMembersQuantity();
+    }
+
     @GetMapping("/getAllActiveMembersNames")
-    public List<String> getAllActiveMembersNames(){
+    public List<String> getAllActiveMembersNames() {
         return memberService.getAllActiveMembersNames();
     }
 
@@ -68,6 +86,7 @@ public class MemberController {
     public String getMembersEmails(@RequestParam Boolean condition) {
         return memberService.getAdultMembersEmails(condition);
     }
+
     @PostMapping("/")
     public ResponseEntity<?> addMember(@RequestBody @Valid Member member) {
         ResponseEntity<?> result;
@@ -103,14 +122,23 @@ public class MemberController {
         return memberService.changeAdult(uuid);
     }
 
+    @PatchMapping("/pzss/{uuid}")
+    public ResponseEntity<?> changePzss(@PathVariable String uuid) {
+        if (memberService.changePzss(uuid)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PatchMapping("/{uuid}")
     public ResponseEntity<?> activateOrDeactivateMember(@PathVariable String uuid) {
         return memberService.activateOrDeactivateMember(uuid);
     }
 
     @PatchMapping("/erase/{uuid}")
-    public ResponseEntity<?> eraseMember(@PathVariable String uuid,@RequestParam String reason) {
-        return memberService.eraseMember(uuid,reason);
+    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String reason) {
+        return memberService.eraseMember(uuid, reason);
     }
 
 

@@ -16,9 +16,12 @@ public class MemberDTO {
     private String firstName;
     private String secondName;
     private License license;
+    private Boolean pzss;
 
 
     private Boolean adult = true;
+    private Boolean active = true;
+    private Boolean erased = true;
 
     public String getUuid() {
         return uuid;
@@ -74,5 +77,29 @@ public class MemberDTO {
 
     public void setAdult(Boolean adult) {
         this.adult = adult;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getErased() {
+        return erased;
+    }
+
+    public void setErased(Boolean erased) {
+        this.erased = erased;
+    }
+
+    public Boolean getPzss() {
+        return pzss;
+    }
+
+    public void setPzss(Boolean pzss) {
+        this.pzss = pzss;
     }
 }

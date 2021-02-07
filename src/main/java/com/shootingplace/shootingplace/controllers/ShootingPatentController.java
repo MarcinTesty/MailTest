@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/patent")
+@CrossOrigin
 public class ShootingPatentController {
 
     private final ShootingPatentService shootingPatentService;

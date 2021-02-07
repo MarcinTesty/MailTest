@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/license")
+@CrossOrigin
 public class LicenseController {
 
     private final LicenseService licenseService;
@@ -21,9 +22,17 @@ public class LicenseController {
         this.historyService = historyService;
     }
 
-    @GetMapping("/members")
+    @GetMapping("/membersWithValidLicense")
     public ResponseEntity<List<MemberDTO>> getMembersNamesAndLicense() {
         return ResponseEntity.ok(licenseService.getMembersNamesAndLicense());
+    }
+    @GetMapping("/membersWithNotValidLicense")
+    public ResponseEntity<List<MemberDTO>> getMembersNamesAndLicenseNotValid() {
+        return ResponseEntity.ok(licenseService.getMembersNamesAndLicenseNotValid());
+    }
+    @GetMapping("/membersQuantity")
+    public List<Long> getMembersQuantity(){
+        return licenseService.getMembersQuantity();
     }
 
     @PutMapping("/{memberUUID}")

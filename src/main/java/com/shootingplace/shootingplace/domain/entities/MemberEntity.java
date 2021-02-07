@@ -57,6 +57,7 @@ public class MemberEntity {
     private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
+    private Boolean pzss = false;
     private String erasedReason;
 
     @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
@@ -238,5 +239,13 @@ public class MemberEntity {
 
     public void setAdult(Boolean adult) {
         this.adult = adult;
+    }
+
+    public Boolean getPzss() {
+        return pzss;
+    }
+
+    public void setPzss(Boolean pzss) {
+        this.pzss = pzss;
     }
 }

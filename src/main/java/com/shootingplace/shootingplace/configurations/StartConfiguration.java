@@ -20,7 +20,7 @@ public class StartConfiguration {
         return args ->
                 clubRepository.saveAndFlush(ClubEntity.builder()
                         .id(1)
-                        .name("DZIESIĄTKA LOK ŁÓDŹ")
+                        .name("DZIESIĄTKA ŁÓDŹ")
                         .phoneNumber("+48 538271010".trim())
                         .email("biuro@ksdziesiatka.pl")
                         .address("ul. Konstantynowska 1 94-393 Łódź")
