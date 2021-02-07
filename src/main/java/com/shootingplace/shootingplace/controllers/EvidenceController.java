@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/evidence")
+@CrossOrigin
 public class EvidenceController {
 
     private final ElectronicEvidenceService evidenceService;

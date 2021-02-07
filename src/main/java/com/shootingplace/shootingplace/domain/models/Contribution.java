@@ -2,7 +2,6 @@ package com.shootingplace.shootingplace.domain.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -14,6 +13,7 @@ public class Contribution {
 
     private LocalDate paymentDay;
     private LocalDate validThru;
+    private String historyUUID;
 
     public LocalDate getPaymentDay() {
         return paymentDay;
@@ -29,5 +29,13 @@ public class Contribution {
 
     public void setValidThru(LocalDate validThru) {
         this.validThru = validThru;
+    }
+
+    public String getHistoryUUID() {
+        return historyUUID;
+    }
+
+    public void setHistoryUUID(String historyUUID) {
+        this.historyUUID = historyUUID;
     }
 }

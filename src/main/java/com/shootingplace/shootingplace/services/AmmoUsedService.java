@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class AmmoUsedService {
@@ -73,7 +72,7 @@ public class AmmoUsedService {
 
             OtherPersonEntity otherPersonEntity = otherPersonRepository
                     .findById(otherID)
-                    .orElse(null);
+                    .orElseThrow(EntityNotFoundException::new);
             name = otherPersonEntity.getSecondName() + " " + otherPersonEntity.getFirstName();
 
 

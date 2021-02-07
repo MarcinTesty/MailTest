@@ -28,9 +28,6 @@ public class AmmoEvidenceEntity {
 
     private boolean open;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private FilesEntity file;
-
     public String getUuid() {
         return uuid;
     }
@@ -41,14 +38,6 @@ public class AmmoEvidenceEntity {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public FilesEntity getFile() {
-        return file;
-    }
-
-    public void setFile(FilesEntity file) {
-        this.file = file;
     }
 
     public String getNumber() {

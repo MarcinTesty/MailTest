@@ -15,6 +15,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/other")
+@CrossOrigin
 public class OtherPersonController {
     private final OtherPersonService otherPersonService;
 

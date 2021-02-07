@@ -25,6 +25,8 @@ public class ContributionEntity {
     private LocalDate paymentDay;
     private LocalDate validThru;
 
+    private String historyUUID;
+
     public String getUuid() {
         return uuid;
     }
@@ -43,5 +45,13 @@ public class ContributionEntity {
 
     public void setValidThru(LocalDate validThru) {
         this.validThru = validThru;
+    }
+
+    public String getHistoryUUID() {
+        return historyUUID;
+    }
+
+    public void setHistoryUUID(String historyUUID) {
+        this.historyUUID = historyUUID;
     }
 }

@@ -7,12 +7,14 @@ import com.shootingplace.shootingplace.services.AmmoEvidenceService;
 import com.shootingplace.shootingplace.services.AmmoUsedService;
 import com.shootingplace.shootingplace.services.CaliberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/ammoEvidence")
+@CrossOrigin
 public class AmmoEvidenceController {
 
     private final AmmoEvidenceService ammoEvidenceService;
@@ -30,19 +32,20 @@ public class AmmoEvidenceController {
     public ResponseEntity<List<CaliberEntity>> getCalibersList() {
         return ResponseEntity.ok(ammoEvidenceService.getCalibersList());
     }
+
     @PostMapping("/calibers")
     public ResponseEntity<?> createNewCaliber(@RequestParam String caliber) {
-        if(caliber.isEmpty()){
+        if (caliber.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        if (caliberService.createNewCaliber(caliber)){
+        if (caliberService.createNewCaliber(caliber)) {
             return ResponseEntity.status(201).build();
-        }else
+        } else
             return ResponseEntity.badRequest().build();
     }
 
     // New ammo used by Member
-
+    @Transactional
     @PostMapping("/ammo")
     public ResponseEntity<?> createAmmoUsed(@RequestParam String caliberUUID, @RequestParam Integer legitimationNumber, @RequestParam int otherID, @RequestParam Integer counter) {
 

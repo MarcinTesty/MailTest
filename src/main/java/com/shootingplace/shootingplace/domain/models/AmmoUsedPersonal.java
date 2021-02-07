@@ -11,6 +11,8 @@ public class AmmoUsedPersonal {
 
     private String memberUUID;
 
+    private String otherId;
+
     private Integer counter;
 
     private String caliberUUID;
@@ -45,5 +47,13 @@ public class AmmoUsedPersonal {
 
     public void setCaliberUUID(String caliberUUID) {
         this.caliberUUID = caliberUUID;
+    }
+
+    public String getOtherId() {
+        return otherId;
+    }
+
+    public void setOtherId(String otherId) {
+        this.otherId = otherId;
     }
 }

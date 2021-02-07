@@ -34,9 +34,13 @@ public class LicenseService {
     public List<MemberDTO> getMembersNamesAndLicense() {
         List<MemberDTO> list = new ArrayList<>();
         memberRepository.findAll()
+                .stream().filter(f -> !f.getErased())
                 .forEach(e -> {
                     if (e.getLicense().getNumber() != null) {
-                        list.add(Mapping.map2(e));
+                        if (e.getLicense().isValid()) {
+
+                            list.add(Mapping.map2(e));
+                        }
                     }
                 });
         list.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
@@ -44,16 +48,21 @@ public class LicenseService {
         return list;
     }
 
-    void addLicenseToMember(String memberUUID, License license) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getLicense() != null) {
-            LOG.error("nie można już dodać licencji");
-        }
-        LicenseEntity licenseEntity = Mapping.map(license);
-        licenseRepository.saveAndFlush(licenseEntity);
-        memberEntity.setLicense(licenseEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Licencja została zapisana");
+    public List<MemberDTO> getMembersNamesAndLicenseNotValid() {
+        List<MemberDTO> list = new ArrayList<>();
+        memberRepository.findAll()
+                .stream().filter(f -> !f.getErased())
+                .forEach(e -> {
+                    if (e.getLicense().getNumber() != null) {
+                        if (!e.getLicense().isValid()) {
+
+                            list.add(Mapping.map2(e));
+                        }
+                    }
+                });
+        list.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
+        LOG.info("Wysłano listę osób z licencjami");
+        return list;
     }
 
     public boolean updateLicense(String memberUUID, License license) {
@@ -72,9 +81,9 @@ public class LicenseService {
         }
         if (license.getNumber() != null
                 && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
-            if(licenseRepository.findAll()
-                    .stream().filter(e-> !(e.getNumber() ==null))
-                    .anyMatch(f->f.getNumber().equals(license.getNumber()))){
+            if (licenseRepository.findAll()
+                    .stream().filter(e -> !(e.getNumber() == null))
+                    .anyMatch(f -> f.getNumber().equals(license.getNumber()))) {
                 LOG.error("Ktoś już ma taki numer licencji");
                 return false;
             } else {
@@ -114,7 +123,7 @@ public class LicenseService {
         }
         if (license.getValidThru() != null) {
             licenseEntity.setValidThru(LocalDate.of(license.getValidThru().getYear(), 12, 31));
-            if(LocalDate.now().getYear()<license.getValidThru().getYear()){
+            if (license.getValidThru().getYear() >= LocalDate.now().getYear()) {
                 licenseEntity.setValid(true);
             }
             LOG.info("zaktualizowano datę licencji");
@@ -136,13 +145,20 @@ public class LicenseService {
     }
 
     public boolean renewLicenseValid(String memberUUID, License license) {
+
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         LicenseEntity licenseEntity = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
+
+
         if (memberEntity.getActive()
                 && licenseEntity.getNumber() != null && licenseEntity.isPaid()) {
-            if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1))) {
+            if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1)) || licenseEntity.getValidThru().isBefore(LocalDate.now())) {
                 licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
-                licenseEntity.setValid(true);
+                if (licenseEntity.getValidThru().getYear() >= LocalDate.now().getYear()) {
+                    licenseEntity.setValid(true);
+                } else {
+                    licenseEntity.setValid(false);
+                }
                 if (license.getPistolPermission() != null) {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
@@ -192,7 +208,35 @@ public class LicenseService {
                 LOG.error("nie można przedłużyć licencji");
                 return false;
             }
+        } else {
+            LOG.error("nie można przedłużyć licencji");
+            return false;
         }
-        return false;
+    }
+
+    public List<Long> getMembersQuantity() {
+
+        long count2 = memberRepository.findAll().stream()
+                .filter(f -> f.getErased())
+                .filter(f -> f.getLicense().getNumber() != null)
+                .filter(f -> !f.getLicense().isValid())
+                .count();
+
+        List<Long> list = new ArrayList<>();
+        //jak wyszukać licencje tylko osób NIE-skreślonych?
+
+        long count = licenseRepository.findAll().stream()
+                .filter(f -> f.getNumber() != null)
+                .filter(f -> !f.isValid())
+                .count();
+        long count1 = licenseRepository.findAll().stream()
+                .filter(f -> f.getNumber() != null)
+                .filter(f -> f.isValid())
+                .count();
+
+        list.add(count-count2);
+        list.add(count1);
+
+        return list;
     }
 }

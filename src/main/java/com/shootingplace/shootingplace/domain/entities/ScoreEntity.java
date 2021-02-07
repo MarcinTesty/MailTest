@@ -28,6 +28,8 @@ public class ScoreEntity {
 
     private String name;
 
+    private int metricNumber;
+
     private boolean ammunition;
 
     private String competitionMembersListEntityUUID;
@@ -102,5 +104,13 @@ public class ScoreEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getMetricNumber() {
+        return metricNumber;
+    }
+
+    public void setMetricNumber(int metricNumber) {
+        this.metricNumber = metricNumber;
     }
 }

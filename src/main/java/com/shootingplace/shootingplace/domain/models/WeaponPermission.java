@@ -14,6 +14,9 @@ public class WeaponPermission {
 
     private Boolean isExist = false;
 
+    private String admissionToPossessAWeapon;
+    private Boolean admissionToPossessAWeaponIsExist = false;
+
     public String getNumber() {
         return number;
     }
@@ -28,5 +31,21 @@ public class WeaponPermission {
 
     public void setExist(Boolean exist) {
         isExist = exist;
+    }
+
+    public String getAdmissionToPossessAWeapon() {
+        return admissionToPossessAWeapon;
+    }
+
+    public void setAdmissionToPossessAWeapon(String admissionToPossessAWeapon) {
+        this.admissionToPossessAWeapon = admissionToPossessAWeapon;
+    }
+
+    public Boolean getAdmissionToPossessAWeaponIsExist() {
+        return admissionToPossessAWeaponIsExist;
+    }
+
+    public void setAdmissionToPossessAWeaponIsExist(Boolean admissionToPossessAWeaponIsExist) {
+        this.admissionToPossessAWeaponIsExist = admissionToPossessAWeaponIsExist;
     }
 }

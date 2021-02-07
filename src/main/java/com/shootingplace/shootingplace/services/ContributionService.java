@@ -173,6 +173,8 @@ public class ContributionService {
 
 
         historyService.removeContribution(memberUUID, contributionEntity);
+        contributionRepository.delete(contributionEntity);
+
         return true;
     }
 }
