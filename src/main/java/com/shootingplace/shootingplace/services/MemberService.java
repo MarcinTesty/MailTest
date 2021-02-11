@@ -33,18 +33,23 @@ public class MemberService {
     private final WeaponPermissionRepository weaponPermissionRepository;
     private final MemberPermissionsRepository memberPermissionsRepository;
     private final PersonalEvidenceRepository personalEvidenceRepository;
-    private final FilesService filesService;
     private final ClubRepository clubRepository;
-    private final HistoryRepository historyRepository;
-    private final ContributionRepository contributionRepository;
+    private final ChangeHistoryService changeHistoryService;
     private final Logger LOG = LogManager.getLogger();
 
 
     public MemberService(MemberRepository memberRepository,
                          AddressRepository addressRepository,
                          LicenseRepository licenseRepository,
-                         ShootingPatentRepository shootingPatentRepository, ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, WeaponPermissionRepository weaponPermissionRepository, MemberPermissionsService memberPermissionsService, MemberPermissionsRepository memberPermissionsRepository, PersonalEvidenceService personalEvidenceService, PersonalEvidenceRepository personalEvidenceRepository, FilesService filesService, ClubRepository clubRepository, HistoryRepository historyRepository, ContributionRepository contributionRepository) {
+                         ShootingPatentRepository shootingPatentRepository,
+                         ContributionService contributionService,
+                         HistoryService historyService,
+                         WeaponPermissionService weaponPermissionService,
+                         WeaponPermissionRepository weaponPermissionRepository,
+                         MemberPermissionsRepository memberPermissionsRepository,
+                         PersonalEvidenceRepository personalEvidenceRepository,
+                         ClubRepository clubRepository,
+                         ChangeHistoryService changeHistoryService) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
@@ -55,10 +60,8 @@ public class MemberService {
         this.weaponPermissionRepository = weaponPermissionRepository;
         this.memberPermissionsRepository = memberPermissionsRepository;
         this.personalEvidenceRepository = personalEvidenceRepository;
-        this.filesService = filesService;
         this.clubRepository = clubRepository;
-        this.historyRepository = historyRepository;
-        this.contributionRepository = contributionRepository;
+        this.changeHistoryService = changeHistoryService;
     }
 
 
@@ -179,7 +182,7 @@ public class MemberService {
     }
 
     //--------------------------------------------------------------------------
-    public ResponseEntity<?> addNewMember(Member member) {
+    public ResponseEntity<?> addNewMember(Member member,String pinCode) {
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setActive(true);
 
@@ -326,6 +329,8 @@ public class MemberService {
             historyService.addContribution(memberEntity.getUuid(), contributionEntity);
 
         }
+        changeHistoryService.addRecordToChangeHistory(pinCode,memberEntity.getClass().getSimpleName() + " addNewMember",memberEntity.getUuid());
+
         return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("\"" + memberEntity.getUuid() + "\"");
 
 
@@ -350,7 +355,7 @@ public class MemberService {
 
     //--------------------------------------------------------------------------
     // @Patch
-    public ResponseEntity<?> activateOrDeactivateMember(String memberUUID) {
+    public ResponseEntity<?> activateOrDeactivateMember(String memberUUID,String pinCode) {
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
@@ -359,11 +364,11 @@ public class MemberService {
         memberEntity.toggleActive();
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Zmieniono status");
-
-        return ResponseEntity.noContent().build();
+        changeHistoryService.addRecordToChangeHistory(pinCode,memberEntity.getClass().getSimpleName() + " activateOrDeactivateMember",memberEntity.getUuid());
+        return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> changeAdult(String memberUUID) {
+    public ResponseEntity<?> changeAdult(String memberUUID,String pinCode) {
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
@@ -376,11 +381,11 @@ public class MemberService {
         memberEntity.setAdult(true);
         memberRepository.saveAndFlush(memberEntity);
         LOG.info("Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
-
+        changeHistoryService.addRecordToChangeHistory(pinCode,memberEntity.getClass().getSimpleName() + " changeAdult",memberEntity.getUuid());
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<?> eraseMember(String memberUUID, String reason) {
+    public ResponseEntity<?> eraseMember(String memberUUID, String reason,String pinCode) {
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
@@ -396,6 +401,7 @@ public class MemberService {
             LOG.info("Klubowicz przywrócony : " + LocalDate.now());
         }
         memberRepository.saveAndFlush(memberEntity);
+        changeHistoryService.addRecordToChangeHistory(pinCode,memberEntity.getClass().getSimpleName() + " eraseMember",memberEntity.getUuid());
         return ResponseEntity.noContent().build();
     }
 
@@ -477,7 +483,6 @@ public class MemberService {
         }
 
         memberRepository.saveAndFlush(memberEntity);
-        filesService.personalCardFile(memberEntity.getUuid());
 
         return ResponseEntity.ok().build();
     }
