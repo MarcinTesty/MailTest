@@ -5,6 +5,7 @@ import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
+import com.shootingplace.shootingplace.services.ChangeHistoryService;
 import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,12 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ChangeHistoryService changeHistoryService;
 
-    public MemberController(MemberService memberService) {
+
+    public MemberController(MemberService memberService, ChangeHistoryService changeHistoryService) {
         this.memberService = memberService;
+        this.changeHistoryService = changeHistoryService;
     }
 
     @GetMapping("/{number}")
@@ -60,9 +64,10 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getAllMemberDTO());
 
     }
+
     @GetMapping("/getAllMemberDTOWithArgs")
-    public ResponseEntity<List<MemberDTO>> getAllMemberDTO(@RequestParam boolean adult,@RequestParam boolean active,@RequestParam boolean erase) {
-        return ResponseEntity.ok(memberService.getAllMemberDTO(adult,active,erase));
+    public ResponseEntity<List<MemberDTO>> getAllMemberDTO(@RequestParam boolean adult, @RequestParam boolean active, @RequestParam boolean erase) {
+        return ResponseEntity.ok(memberService.getAllMemberDTO(adult, active, erase));
 
     }
 
@@ -93,14 +98,18 @@ public class MemberController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addMember(@RequestBody @Valid Member member) {
-        ResponseEntity<?> result;
-        try {
-            result = memberService.addNewMember(member);
-        } catch (IllegalArgumentException e) {
-            result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<?> addMember(@RequestBody @Valid Member member,@RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            ResponseEntity<?> result;
+            try {
+                result = memberService.addNewMember(member,pinCode);
+            } catch (IllegalArgumentException e) {
+                result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            return result;
+        }else {
+            return ResponseEntity.status(403).body("Brak dostępu");
         }
-        return result;
     }
 
     @PutMapping("/{uuid}")
@@ -123,8 +132,13 @@ public class MemberController {
     }
 
     @PatchMapping("/adult/{uuid}")
-    public ResponseEntity<?> changeAdult(@PathVariable String uuid) {
-        return memberService.changeAdult(uuid);
+    public ResponseEntity<?> changeAdult(@PathVariable String uuid, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+
+            return memberService.changeAdult(uuid, pinCode);
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
     }
 
     @PatchMapping("/pzss/{uuid}")
@@ -137,12 +151,20 @@ public class MemberController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<?> activateOrDeactivateMember(@PathVariable String uuid) {
-        return memberService.activateOrDeactivateMember(uuid);
+    public ResponseEntity<?> activateOrDeactivateMember(@PathVariable String uuid, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            return memberService.activateOrDeactivateMember(uuid, pinCode);
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
     }
 
     @PatchMapping("/erase/{uuid}")
-    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String reason) {
-        return memberService.eraseMember(uuid, reason);
+    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String reason, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            return memberService.eraseMember(uuid, reason, pinCode);
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
     }
 }

@@ -25,21 +25,6 @@ public class AddressService {
         this.filesService = filesService;
     }
 
-
-    void addAddress(String memberUUID, Address address) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getAddress() != null) {
-            LOG.error("nie można już dodać adresu");
-        }
-        AddressEntity addressEntity = Mapping.map(address);
-        addressRepository.saveAndFlush(addressEntity);
-        memberEntity.setAddress(addressEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Adres został zapisany");
-    }
-
-    //--------------------------------------------------------------------------
-
     @SneakyThrows
     public boolean updateAddress(String memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
@@ -60,11 +45,11 @@ public class AddressService {
             LOG.info("Dodano Ulica");
         }
         if (address.getStreetNumber() != null && !address.getStreetNumber().isEmpty()) {
-            addressEntity.setStreetNumber(address.getStreetNumber());
+            addressEntity.setStreetNumber(address.getStreetNumber().toUpperCase());
             LOG.info("Dodano Numer ulicy");
         }
         if (address.getFlatNumber() != null && !address.getFlatNumber().isEmpty()) {
-            addressEntity.setFlatNumber(address.getFlatNumber());
+            addressEntity.setFlatNumber(address.getFlatNumber().toUpperCase());
             LOG.info("Dodano Numer mieszkania");
         }
         addressRepository.saveAndFlush(addressEntity);
