@@ -16,6 +16,11 @@ public class CompetitionMembersListController {
         this.competitionMembersListService = competitionMembersListService;
     }
 
+    @GetMapping("/getID")
+    public ResponseEntity<String> getIDByName(@RequestParam String name){
+        return ResponseEntity.ok(competitionMembersListService.getIDByName(name));
+    }
+
     @PutMapping("/addMember")
     public ResponseEntity<?> addScoreToCompetitionMembersList(@RequestParam String competitionUUID, @RequestParam int legitimationNumber, @RequestParam @Nullable int otherPerson) {
         if (competitionMembersListService.addScoreToCompetitionList(competitionUUID, legitimationNumber, otherPerson)) {
@@ -37,6 +42,14 @@ public class CompetitionMembersListController {
         if (competitionMembersListService.sortScore(competitionUUID,sort)) {
             return ResponseEntity.ok().build();
         } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> removeMembersListFromTournament(@RequestParam String competitionUUID,@RequestParam String tournamentUUID){
+        if(competitionMembersListService.removeListFromTournament(tournamentUUID,competitionUUID)){
+            return ResponseEntity.ok().build();
+        }else {
             return ResponseEntity.badRequest().build();
         }
     }

@@ -72,11 +72,7 @@ public class HistoryService {
 
         LOG.info("Dodano rekord w historii składek");
         historyRepository.saveAndFlush(historyEntity);
-        historyRepository.findAll().forEach(e -> e.getContributionList().forEach(f -> {
-            f.setHistoryUUID(e.getUuid());
-            contributionRepository.saveAndFlush(f);
-        }));
-        contributionRepository.findAll().stream().filter(f->f.getHistoryUUID()==null).forEach(contributionRepository::delete);
+
     }
 
     void removeContribution(String memberUUID, ContributionEntity contribution) {

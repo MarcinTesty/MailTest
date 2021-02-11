@@ -115,21 +115,26 @@ public class AmmoInEvidenceService {
                 }
 //        Znaleziono podanego membera
                 else {
-//                    System.out.println("jest member");
                     AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity1 = ammoUsedToEvidenceEntityList
                             .stream()
                             .filter(f -> f.getName()
                                     .equals(ammoUsedToEvidenceEntity.getName()))
                             .findFirst()
                             .orElseThrow(EntityNotFoundException::new);
+                    if (ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter() <= 0) {
+                        ammoUsedToEvidenceEntity1.setCounter(-ammoUsedToEvidenceEntity1.getCounter());
+                    } else {
+                        ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter());
+                    }
 
-                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
-                    ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter());
+                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity()+ammoUsedToEvidenceEntity.getCounter());
+
+
+                    System.out.println(ammoUsedToEvidenceEntity1.getCounter());
                     if (ammoUsedToEvidenceEntity1.getCounter() <= 0) {
                         ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().remove(ammoUsedToEvidenceEntity1);
                         ammoInEvidenceRepository.delete(ammoInEvidenceEntity);
-                    }
-                    else{
+                    } else {
                         ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity1);
                         ammoInEvidenceRepository.saveAndFlush(ammoInEvidenceEntity);
                     }
@@ -161,7 +166,7 @@ public class AmmoInEvidenceService {
                 .stream().filter(AmmoEvidenceEntity::isOpen)
                 .findFirst()
                 .orElse(null);
-        if(ammoEvidenceEntity == null){
+        if (ammoEvidenceEntity == null) {
             return;
         }
 
@@ -180,7 +185,7 @@ public class AmmoInEvidenceService {
             ammoEvidenceEntity.getAmmoInEvidenceEntityList().remove(ammoInEvidenceEntity);
             ammoInEvidenceRepository.delete(ammoInEvidenceEntity);
             //        Usuwanie ewidencji jeśli nie ma żadnej listy z amunicją
-            if(ammoEvidenceEntity.getAmmoInEvidenceEntityList().isEmpty()){
+            if (ammoEvidenceEntity.getAmmoInEvidenceEntityList().isEmpty()) {
                 ammoEvidenceRepository.delete(ammoEvidenceEntity);
             }
         }

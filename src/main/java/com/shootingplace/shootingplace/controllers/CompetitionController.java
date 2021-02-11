@@ -28,6 +28,9 @@ public class CompetitionController {
 
     @PostMapping("")
     public ResponseEntity<?> createCompetition(@RequestParam String name, @RequestParam String discipline) {
+        if (name.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         String trim = discipline.trim();
         if (competitionService.createNewCompetition(name, trim)) {
             return ResponseEntity.status(201).build();

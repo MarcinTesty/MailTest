@@ -60,6 +60,11 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getAllMemberDTO());
 
     }
+    @GetMapping("/getAllMemberDTOWithArgs")
+    public ResponseEntity<List<MemberDTO>> getAllMemberDTO(@RequestParam boolean adult,@RequestParam boolean active,@RequestParam boolean erase) {
+        return ResponseEntity.ok(memberService.getAllMemberDTO(adult,active,erase));
+
+    }
 
     @GetMapping("/membersQuantity")
     public List<Long> getMembersQuantity() {
@@ -140,6 +145,4 @@ public class MemberController {
     public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String reason) {
         return memberService.eraseMember(uuid, reason);
     }
-
-
 }

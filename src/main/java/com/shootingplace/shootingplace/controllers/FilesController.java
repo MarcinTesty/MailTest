@@ -87,9 +87,45 @@ public class FilesController {
         }
     }
 
-    @GetMapping("/downloadAllMembersToTable")
+    @GetMapping("/downloadAllMembers")
     public ResponseEntity<byte[]> getAllMembersToTable() throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.getAllMembersToTable();
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+    @GetMapping("/downloadAllMembersWithNoValidLicenseNoContribution")
+    public ResponseEntity<byte[]> getAllMembersWithLicenceNotValidAndContributionNotValid() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllMembersWithLicenceNotValidAndContributionNotValid();
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+    @GetMapping("/downloadAllMembersWithValidLicenseNoContribution")
+    public ResponseEntity<byte[]> getAllMembersWithLicenceValidAndContributionNotValid() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllMembersWithLicenceValidAndContributionNotValid();
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+    @GetMapping("/downloadAllMembersToErased")
+    public ResponseEntity<byte[]> getAllMembersToErased() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllMembersToErased();
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
@@ -121,6 +157,19 @@ public class FilesController {
         }
 
         FilesEntity filesEntity = filesService.getStartsMetric(memberUUID,otherID,tournamentUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+    @GetMapping("/downloadJudge/{tournamentUUID}")
+    public ResponseEntity<byte[]> getJudge(@PathVariable String tournamentUUID) throws IOException, DocumentException {
+
+        FilesEntity filesEntity = filesService.getJudge(tournamentUUID);
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
