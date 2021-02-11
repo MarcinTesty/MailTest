@@ -35,6 +35,8 @@ public class MemberService {
     private final PersonalEvidenceRepository personalEvidenceRepository;
     private final FilesService filesService;
     private final ClubRepository clubRepository;
+    private final HistoryRepository historyRepository;
+    private final ContributionRepository contributionRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -42,7 +44,7 @@ public class MemberService {
                          AddressRepository addressRepository,
                          LicenseRepository licenseRepository,
                          ShootingPatentRepository shootingPatentRepository, ContributionService contributionService,
-                         HistoryService historyService, WeaponPermissionService weaponPermissionService, WeaponPermissionRepository weaponPermissionRepository, MemberPermissionsService memberPermissionsService, MemberPermissionsRepository memberPermissionsRepository, PersonalEvidenceService personalEvidenceService, PersonalEvidenceRepository personalEvidenceRepository, FilesService filesService, ClubRepository clubRepository) {
+                         HistoryService historyService, WeaponPermissionService weaponPermissionService, WeaponPermissionRepository weaponPermissionRepository, MemberPermissionsService memberPermissionsService, MemberPermissionsRepository memberPermissionsRepository, PersonalEvidenceService personalEvidenceService, PersonalEvidenceRepository personalEvidenceRepository, FilesService filesService, ClubRepository clubRepository, HistoryRepository historyRepository, ContributionRepository contributionRepository) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
@@ -55,11 +57,15 @@ public class MemberService {
         this.personalEvidenceRepository = personalEvidenceRepository;
         this.filesService = filesService;
         this.clubRepository = clubRepository;
+        this.historyRepository = historyRepository;
+        this.contributionRepository = contributionRepository;
     }
 
 
     //--------------------------------------------------------------------------
     public List<MemberEntity> getMembersList(Boolean active, Boolean adult, Boolean erase) {
+        checkMembers();
+
 
         List<MemberEntity> list = new ArrayList<>(memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase));
         String c = "aktywnych";
@@ -97,6 +103,18 @@ public class MemberService {
     }
 
     public List<String> getMembersNameAndLegitimationNumber(Boolean active, Boolean adult, Boolean erase) {
+        checkMembers();
+
+        List<String> list = new ArrayList<>();
+        memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase)
+                .forEach(e ->
+                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
+        list.sort(Comparator.comparing(String::new));
+        LOG.info("Lista nazwisk z identyfikatorem");
+        return list;
+    }
+
+    private void checkMembers() {
 
         // dorośli
         List<MemberEntity> adultMembers = memberRepository
@@ -158,14 +176,6 @@ public class MemberService {
                 }
             }
         });
-
-        List<String> list = new ArrayList<>();
-        memberRepository.findAllByActiveAndAdultAndErased(active, adult, erase)
-                .forEach(e ->
-                        list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
-        list.sort(Comparator.comparing(String::new));
-        LOG.info("Lista nazwisk z identyfikatorem");
-        return list;
     }
 
     //--------------------------------------------------------------------------
@@ -314,10 +324,6 @@ public class MemberService {
             memberEntity = memberRepository.save(memberEntity);
             ContributionEntity contributionEntity = contributionService.addFirstContribution(memberEntity.getUuid(), LocalDate.now());
             historyService.addContribution(memberEntity.getUuid(), contributionEntity);
-            memberRepository.findAll().stream().filter(f -> f.getPzss() == null).forEach(e -> {
-                e.setPzss(true);
-                memberRepository.saveAndFlush(e);
-            });
 
         }
         return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("\"" + memberEntity.getUuid() + "\"");
@@ -548,6 +554,8 @@ public class MemberService {
     }
 
     public List<String> getAllActiveMembersNames() {
+        checkMembers();
+
         List<String> list = new ArrayList<>();
         memberRepository.findAll().stream().filter(MemberEntity::getActive)
                 .forEach(e ->
@@ -558,6 +566,8 @@ public class MemberService {
     }
 
     public List<String> getAllNames() {
+        checkMembers();
+
 
         List<String> list = new ArrayList<>();
         memberRepository.findAll().stream()
@@ -639,9 +649,25 @@ public class MemberService {
     }
 
     public List<MemberDTO> getAllMemberDTO() {
+        checkMembers();
+
         List<MemberDTO> list = new ArrayList<>();
 
         memberRepository.findAll().stream().filter(f -> !f.getErased()).forEach(e -> list.add(Mapping.map2(e)));
+        list.sort(Comparator.comparing(MemberDTO::getAdult).reversed().thenComparing(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName)));
+        return list;
+    }
+
+    public List<MemberDTO> getAllMemberDTO(boolean adult, boolean active, boolean erase) {
+        checkMembers();
+
+        List<MemberDTO> list = new ArrayList<>();
+
+        memberRepository.findAll().stream()
+                .filter(f -> f.getErased().equals(erase))
+                .filter(f -> f.getAdult().equals(adult))
+                .filter(f -> f.getActive().equals(active))
+                .forEach(e -> list.add(Mapping.map2(e)));
         list.sort(Comparator.comparing(MemberDTO::getAdult).reversed().thenComparing(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName)));
         return list;
     }

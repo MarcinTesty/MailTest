@@ -1,10 +1,7 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
-import com.shootingplace.shootingplace.repositories.CompetitionMembersListRepository;
-import com.shootingplace.shootingplace.repositories.MemberRepository;
-import com.shootingplace.shootingplace.repositories.OtherPersonRepository;
-import com.shootingplace.shootingplace.repositories.ScoreRepository;
+import com.shootingplace.shootingplace.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -22,16 +19,18 @@ public class CompetitionMembersListService {
     private final OtherPersonRepository otherPersonRepository;
     private final ScoreService scoreService;
     private final ScoreRepository scoreRepository;
+    private final TournamentRepository tournamentRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
-    public CompetitionMembersListService(MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, HistoryService historyService, OtherPersonRepository otherPersonRepository, ScoreService scoreService, ScoreRepository scoreRepository) {
+    public CompetitionMembersListService(MemberRepository memberRepository, CompetitionMembersListRepository competitionMembersListRepository, HistoryService historyService, OtherPersonRepository otherPersonRepository, ScoreService scoreService, ScoreRepository scoreRepository, TournamentRepository tournamentRepository) {
         this.memberRepository = memberRepository;
         this.competitionMembersListRepository = competitionMembersListRepository;
         this.historyService = historyService;
         this.otherPersonRepository = otherPersonRepository;
         this.scoreService = scoreService;
         this.scoreRepository = scoreRepository;
+        this.tournamentRepository = tournamentRepository;
     }
 
     public boolean addScoreToCompetitionList(String competitionUUID, int legitimationNumber, int otherPerson) {
@@ -48,7 +47,7 @@ public class CompetitionMembersListService {
             } else {
                 ScoreEntity score = scoreService.createScore(0, 0, 0, competitionUUID, member, null);
                 scoreList.add(score);
-                scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed());
+                scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed().thenComparing(ScoreEntity::getInnerTen).reversed().thenComparing(ScoreEntity::getOuterTen).reversed());
                 competitionMembersListRepository.saveAndFlush(list);
                 LOG.info("Dodano Klubowicza do Listy");
                 historyService.addCompetitionRecord(member.getUuid(), list);
@@ -65,7 +64,7 @@ public class CompetitionMembersListService {
                 } else {
                     ScoreEntity score = scoreService.createScore(0, 0, 0, competitionUUID, null, otherPersonEntity);
                     scoreList.add(score);
-                    scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed());
+                    scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed().thenComparing(ScoreEntity::getInnerTen).reversed().thenComparing(ScoreEntity::getOuterTen).reversed());
                     LOG.info("Dodano Obcego Klubowicza do Listy");
                     competitionMembersListRepository.saveAndFlush(list);
                     return true;
@@ -121,14 +120,33 @@ public class CompetitionMembersListService {
         } else {
             scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
                     .reversed()
-                    .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
+                    .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
                             .reversed()
-                            .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
+                            .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
                                     .reversed().thenComparing(ScoreEntity::getName)
                             )));
         }
         competitionMembersListRepository.saveAndFlush(competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new));
 
         return true;
+    }
+
+    public String getIDByName(String name) {
+        return "\"" + competitionMembersListRepository.findAll().stream().filter(f -> f.getName().equals(name)).findFirst().orElseThrow(EntityNotFoundException::new).getUuid() + "\"";
+    }
+
+    public boolean removeListFromTournament(String tournamentUUID, String competitionUUID) {
+        CompetitionMembersListEntity competitionMembersListEntity = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+        if (competitionMembersListEntity.getScoreList().isEmpty()) {
+            tournamentEntity.getCompetitionsList().remove(competitionMembersListEntity);
+            tournamentRepository.saveAndFlush(tournamentEntity);
+            competitionMembersListRepository.delete(competitionMembersListEntity);
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

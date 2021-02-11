@@ -53,7 +53,7 @@ public class OtherPersonService {
             Integer id = (all.get(0).getId()) + 1;
             clubEntity = ClubEntity.builder()
                     .id(id)
-                    .name(club.toUpperCase()).build();
+                    .name(club).build();
             clubRepository.saveAndFlush(clubEntity);
         }
         List<OtherPersonEntity> all = otherPersonRepository.findAll();

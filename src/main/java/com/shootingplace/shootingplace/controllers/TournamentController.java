@@ -30,6 +30,10 @@ public class TournamentController {
     public ResponseEntity<List<TournamentDTO>> getListOfClosedTournaments() {
         return ResponseEntity.ok().body(tournamentService.getClosedTournaments());
     }
+    @GetMapping("/competitions")
+    public ResponseEntity<List<String>> getCompetitionsListInTournament(@RequestParam String tournamentUUID){
+        return ResponseEntity.ok().body(tournamentService.getCompetitionsListInTournament(tournamentUUID));
+    }
 
     @PostMapping("/")
     public ResponseEntity<String> addNewTournament(@RequestBody Tournament tournament) {
@@ -46,6 +50,23 @@ public class TournamentController {
         }
         if (id > 0) {
             if (tournamentService.removeOtherArbiterFromTournament(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.status(418).body("I'm a teapot");
+
+    }
+    @PostMapping("/removeRTSArbiter/{tournamentUUID}")
+    public ResponseEntity<?> removeRTSArbiterFromTournament(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.removeRTSArbiterFromTournament(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.removeRTSOtherArbiterFromTournament(tournamentUUID, id)) {
                 return ResponseEntity.ok().build();
             }
         }
@@ -116,6 +137,22 @@ public class TournamentController {
         }
         if (id > 0) {
             if (tournamentService.addPersonOthersArbiters(tournamentUUID, id)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+    @PutMapping("/addOthersRTSArbiters/{tournamentUUID}")
+    public ResponseEntity<?> addOthersRTSArbiters(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
+
+        if (number > 0) {
+            if (tournamentService.addOthersRTSArbiters(tournamentUUID, number)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        if (id > 0) {
+            if (tournamentService.addPersonOthersRTSArbiters(tournamentUUID, id)) {
                 return ResponseEntity.ok().build();
             }
         }

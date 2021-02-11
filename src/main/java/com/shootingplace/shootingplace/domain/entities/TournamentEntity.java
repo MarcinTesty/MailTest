@@ -30,6 +30,8 @@ public class TournamentEntity {
     private MemberEntity commissionRTSArbiter;
     @ManyToMany
     private List<MemberEntity> arbitersList;
+    @ManyToMany
+    private List<MemberEntity> arbitersRTSList;
 
     @ManyToOne
     private OtherPersonEntity otherMainArbiter;
@@ -37,9 +39,12 @@ public class TournamentEntity {
     private OtherPersonEntity otherCommissionRTSArbiter;
     @ManyToMany
     private List<OtherPersonEntity> otherArbitersList;
+    @ManyToMany
+    private List<OtherPersonEntity> otherArbitersRTSList;
 
 
     @OneToMany(orphanRemoval = true)
+    @OrderBy("discipline ASC")
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private boolean open;
 
@@ -125,5 +130,21 @@ public class TournamentEntity {
 
     public void setOtherArbitersList(List<OtherPersonEntity> otherArbitersList) {
         this.otherArbitersList = otherArbitersList;
+    }
+
+    public List<MemberEntity> getArbitersRTSList() {
+        return arbitersRTSList;
+    }
+
+    public void setArbitersRTSList(List<MemberEntity> arbitersRTSList) {
+        this.arbitersRTSList = arbitersRTSList;
+    }
+
+    public List<OtherPersonEntity> getOtherArbitersRTSList() {
+        return otherArbitersRTSList;
+    }
+
+    public void setOtherArbitersRTSList(List<OtherPersonEntity> otherArbitersRTSList) {
+        this.otherArbitersRTSList = otherArbitersRTSList;
     }
 }
