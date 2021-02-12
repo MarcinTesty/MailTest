@@ -81,9 +81,9 @@ public class OtherPersonController {
         return ResponseEntity.ok().body(otherPersonService.getAll());
     }
 
-    @DeleteMapping("/")
-    public ResponseEntity<?> deletePerson(@RequestParam int id) {
-        if (otherPersonService.deletePerson(id)) {
+    @PostMapping("/")
+    public ResponseEntity<?> deactivatePerson(@RequestParam int id) {
+        if (otherPersonService.deactivatePerson(id)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.notFound().build();

@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OtherPersonService {
@@ -73,6 +74,7 @@ public class OtherPersonService {
                 .firstName(person.getFirstName().substring(0, 1).toUpperCase() + person.getFirstName().substring(1).toLowerCase())
                 .secondName(person.getSecondName().toUpperCase())
                 .phoneNumber(person.getPhoneNumber().trim())
+                .active(true)
                 .email(person.getEmail())
                 .permissionsEntity(permissionsEntity)
                 .club(clubEntity)
@@ -102,7 +104,7 @@ public class OtherPersonService {
 
     public List<OtherPersonEntity> getAll() {
         LOG.info("Wywołano wszystkich Nie-Klubowiczów");
-        return otherPersonRepository.findAll();
+        return otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive).collect(Collectors.toList());
     }
 
     public List<OtherPersonEntity> getOthersWithPermissions() {
@@ -112,9 +114,12 @@ public class OtherPersonService {
         return list;
     }
 
-    public boolean deletePerson(int id) {
-        otherPersonRepository.deleteById(id);
-        LOG.info("usunięto Nie-Klubowicza");
+    public boolean deactivatePerson(int id) {
+        OtherPersonEntity otherPersonEntity = otherPersonRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
+        otherPersonEntity.setActive(false);
+        otherPersonRepository.saveAndFlush(otherPersonEntity);
+        LOG.info("Dezaktywowano Nie-Klubowicza");
         return true;
     }
 }
