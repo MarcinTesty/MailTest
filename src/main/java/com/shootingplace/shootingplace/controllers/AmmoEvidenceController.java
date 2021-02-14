@@ -63,6 +63,10 @@ public class AmmoEvidenceController {
     public ResponseEntity<List<AmmoEvidenceEntity>> getAllEvidences(@RequestParam boolean state) {
         return ResponseEntity.ok(ammoEvidenceService.getAllEvidences(state));
     }
+    @GetMapping("/oneEvidence")
+    public ResponseEntity<AmmoEvidenceEntity> getEvidence() {
+        return ResponseEntity.ok(ammoEvidenceService.getEvidence());
+    }
 
     @GetMapping("/closedEvidences")
     public ResponseEntity<List<AmmoDTO>> getClosedEvidence() {

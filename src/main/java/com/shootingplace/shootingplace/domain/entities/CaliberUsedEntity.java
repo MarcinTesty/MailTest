@@ -8,53 +8,49 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import java.util.List;
-
+import java.time.LocalDate;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CaliberEntity {
+public class CaliberUsedEntity {
+
     @Id
     @GeneratedValue(generator = "id")
     @GenericGenerator(name = "id", strategy = "org.hibernate.id.UUIDGenerator")
     private String uuid;
 
-    private String name;
-    private Integer quantity;
-    @OneToMany
-    private List<CaliberUsedEntity> ammoUsed;
-    @OneToMany
-    private List<CalibersAddedEntity> ammoAdded;
+    private String belongTo;
+
+    private LocalDate date;
+    private Integer ammoUsed;
 
     public String getUuid() {
         return uuid;
     }
 
-    public String getName() {
-        return name;
+    public String getBelongTo() {
+        return belongTo;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBelongTo(String belongTo) {
+        this.belongTo = belongTo;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
-    public List<CaliberUsedEntity> getAmmoUsed() {
+    public Integer getAmmoUsed() {
         return ammoUsed;
     }
 
-    public void setAmmoUsed(List<CaliberUsedEntity> ammoUsed) {
+    public void setAmmoUsed(Integer ammoUsed) {
         this.ammoUsed = ammoUsed;
     }
-
 }

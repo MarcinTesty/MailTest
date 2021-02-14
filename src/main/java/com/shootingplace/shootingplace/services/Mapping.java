@@ -287,7 +287,6 @@ public class Mapping {
         return Optional.ofNullable(c).map(e -> Caliber.builder()
                 .name(e.getName())
                 .quantity(e.getQuantity())
-                .ammoUsed(e.getAmmoUsed())
                 .build()).orElse(null);
     }
 
@@ -295,7 +294,6 @@ public class Mapping {
         return Optional.ofNullable(c).map(e -> CaliberEntity.builder()
                 .name(e.getName())
                 .quantity(e.getQuantity())
-                .ammoUsed(e.getAmmoUsed())
                 .build()).orElse(null);
     }
 

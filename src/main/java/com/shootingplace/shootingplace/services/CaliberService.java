@@ -25,6 +25,7 @@ public class CaliberService {
         if (caliberEntityList.isEmpty()) {
             createAllCalibersEntities();
         }
+
         caliberEntityList.sort(Comparator.comparing(CaliberEntity::getName));
         LOG.info("Wyświetlono listę kalibrów");
         return caliberEntityList;

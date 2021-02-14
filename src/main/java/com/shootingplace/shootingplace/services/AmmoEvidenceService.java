@@ -35,6 +35,10 @@ public class AmmoEvidenceService {
     public List<AmmoEvidenceEntity> getAllEvidences(boolean state) {
         return ammoEvidenceRepository.findAll().stream().filter(f -> f.isOpen() == state).sorted(Comparator.comparing(AmmoEvidenceEntity::getDate).reversed()).collect(Collectors.toList());
     }
+    public AmmoEvidenceEntity getEvidence() {
+        List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().sorted(Comparator.comparing(AmmoEvidenceEntity::getDate).reversed()).collect(Collectors.toList());
+        return collect.stream().findFirst().orElseThrow(EntityNotFoundException::new);
+    }
 
     public boolean closeEvidence(String evidenceUUID) {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
