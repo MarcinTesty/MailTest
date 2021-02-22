@@ -93,21 +93,26 @@ public class MemberController {
 
 
     @GetMapping("/membersEmails")
-    public String getMembersEmails(@RequestParam Boolean condition) {
-        return memberService.getAdultMembersEmails(condition);
+    public ResponseEntity<?> getMembersEmails(@RequestParam Boolean condition) {
+        System.out.println("jestem");
+        return ResponseEntity.ok(memberService.getMembersEmails(condition));
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addMember(@RequestBody @Valid Member member,@RequestParam String pinCode) {
+    public ResponseEntity<?> addMember(@RequestBody @Valid Member member, @RequestParam String pinCode) {
         if (changeHistoryService.comparePinCode(pinCode)) {
             ResponseEntity<?> result;
-            try {
-                result = memberService.addNewMember(member,pinCode);
-            } catch (IllegalArgumentException e) {
-                result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+            if (member.getPesel().isEmpty() || member.getPhoneNumber().isEmpty() || member.getFirstName().isEmpty() || member.getSecondName().isEmpty() || member.getIDCard().isEmpty()) {
+                result = ResponseEntity.status(406).body("\"Uwaga! Nie podano wszystkich lub żadnej informacji\"");
+            } else {
+                try {
+                    result = memberService.addNewMember(member, pinCode);
+                } catch (IllegalArgumentException e) {
+                    result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+                }
             }
             return result;
-        }else {
+        } else {
             return ResponseEntity.status(403).body("Brak dostępu");
         }
     }

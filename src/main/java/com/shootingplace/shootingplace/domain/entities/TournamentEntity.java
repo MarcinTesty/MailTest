@@ -147,4 +147,6 @@ public class TournamentEntity {
     public void setOtherArbitersRTSList(List<OtherPersonEntity> otherArbitersRTSList) {
         this.otherArbitersRTSList = otherArbitersRTSList;
     }
+
+
 }

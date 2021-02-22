@@ -117,7 +117,7 @@ public class MemberService {
         return list;
     }
 
-    private void checkMembers() {
+    void checkMembers() {
 
         // dorośli
         List<MemberEntity> adultMembers = memberRepository
@@ -140,16 +140,14 @@ public class MemberService {
                     memberRepository.saveAndFlush(e);
 
                 }
+                else {
+                    e.setActive(true);
+                }
             }
             if (e.getLicense().getNumber() != null) {
                 LicenseEntity license = e.getLicense();
-                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-                    license.setValid(false);
-                    licenseRepository.saveAndFlush(license);
-                } else {
-                    license.setValid(true);
-                    licenseRepository.saveAndFlush(license);
-                }
+                license.setValid(!e.getLicense().getValidThru().isBefore(LocalDate.now()));
+                licenseRepository.saveAndFlush(license);
             }
         });
         //młodzież
@@ -170,13 +168,8 @@ public class MemberService {
             }
             if (e.getLicense().getNumber() != null) {
                 LicenseEntity license = e.getLicense();
-                if (e.getLicense().getValidThru().isBefore(LocalDate.now())) {
-                    license.setValid(false);
-                    licenseRepository.saveAndFlush(license);
-                } else {
-                    license.setValid(true);
-                    licenseRepository.saveAndFlush(license);
-                }
+                license.setValid(!e.getLicense().getValidThru().isBefore(LocalDate.now()));
+                licenseRepository.saveAndFlush(license);
             }
         });
     }
@@ -203,10 +196,7 @@ public class MemberService {
             LOG.error("Ktoś już ma taki numer legitymacji");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
         }
-//        if (memberEntityList.stream().anyMatch(e -> "+48".concat(e.getPhoneNumber().replaceAll("\\s", "")).equals(member.getPhoneNumber()))) {
-//            LOG.error("Ktoś już ma taki numer telefonu");
-//            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer telefonu\"");
-//        }
+
         if (memberEntityList.stream().anyMatch(e -> e.getIDCard().trim().toUpperCase().equals(member.getIDCard()))) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer dowodu osobistego\"");
@@ -219,7 +209,7 @@ public class MemberService {
                 LOG.info("ustawiono datę zapisu na w" + memberEntity.getJoinDate());
             }
             if (member.getLegitimationNumber() == null) {
-                int number = 1;
+                int number;
                 if (memberEntityList.isEmpty()) {
                     memberEntity.setLegitimationNumber(1);
                     number = 1;
@@ -338,22 +328,6 @@ public class MemberService {
 
 
     //--------------------------------------------------------------------------
-
-    public boolean deleteMember(String uuid) {
-        MemberEntity memberEntity = memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
-        if (memberRepository.existsById(uuid) && !memberEntity.getActive()) {
-            memberRepository.deleteById(uuid);
-            LOG.info("Usunięto członka klubu");
-            return true;
-        } else if (memberRepository.existsById(uuid) && memberEntity.getActive()) {
-            LOG.warn("Klubowicz jest aktywny");
-            return false;
-        } else
-            LOG.error("Nie znaleziono takiego klubowicza");
-        return false;
-    }
-
-    //--------------------------------------------------------------------------
     // @Patch
     public ResponseEntity<?> activateOrDeactivateMember(String memberUUID,String pinCode) {
         if (!memberRepository.existsById(memberUUID)) {
@@ -394,6 +368,7 @@ public class MemberService {
         if (!memberEntity.getErased()) {
             memberEntity.setErasedReason(reason);
             memberEntity.toggleErase();
+            memberEntity.setPzss(false);
             LOG.info("Klubowicz skreślony : " + LocalDate.now());
         } else {
             memberEntity.setErasedReason(null);
@@ -507,14 +482,14 @@ public class MemberService {
         return memberRepository.findAllByErasedIsTrue();
     }
 
-    public String getAdultMembersEmails(Boolean condition) {
+    public List<String> getMembersEmails(Boolean condition) {
         List<String> list = new ArrayList<>();
         memberRepository.findAll().forEach(e -> {
             if ((e.getEmail() != null && !e.getEmail().isEmpty()) && e.getAdult() == condition) {
                 list.add(e.getEmail().concat(";"));
             }
         });
-        return list.toString().replaceAll(",", "");
+        return list;
     }
 
 
@@ -531,14 +506,6 @@ public class MemberService {
         LOG.info(goodMessage() + "Data przystąpienia do klubu");
         return ResponseEntity.ok().build();
 
-    }
-
-    public String hardDelete(String memberUUID) {
-        if (!memberRepository.existsById(memberUUID)) {
-            return "Brak takiego Klubowicza";
-        }
-        memberRepository.deleteById(memberUUID);
-        return "Usunięto";
     }
 
     public List<String> getMembersWithLicense(Boolean license) {
@@ -596,19 +563,19 @@ public class MemberService {
 //      ogólnie dorośli
         long count = memberRepository.findAll().stream()
                 .filter(f -> !f.getErased())
-                .filter(f -> f.getAdult())
+                .filter(MemberEntity::getAdult)
                 .count();
 //      dorośli aktywni
         long count1 = memberRepository.findAll().stream()
                 .filter(f -> !f.getErased())
-                .filter(f -> f.getAdult())
-                .filter(f -> f.getActive())
+                .filter(MemberEntity::getAdult)
+                .filter(MemberEntity::getActive)
                 .count();
 
 //      dorośli nieaktywni
         long count2 = memberRepository.findAll().stream()
                 .filter(f -> !f.getErased())
-                .filter(f -> f.getAdult())
+                .filter(MemberEntity::getAdult)
                 .filter(f -> !f.getActive())
                 .count();
 
@@ -621,7 +588,7 @@ public class MemberService {
         long count4 = memberRepository.findAll().stream()
                 .filter(f -> !f.getErased())
                 .filter(f -> !f.getAdult())
-                .filter(f -> f.getActive())
+                .filter(MemberEntity::getActive)
                 .count();
 //      młodzież nieaktywni
         long count5 = memberRepository.findAll().stream()
@@ -632,12 +599,12 @@ public class MemberService {
 
 //      dorośli skreśleni
         long count6 = memberRepository.findAll().stream()
-                .filter(f -> f.getErased())
-                .filter(f -> f.getAdult())
+                .filter(MemberEntity::getErased)
+                .filter(MemberEntity::getAdult)
                 .count();
 //      młodzież skreśleni
         long count7 = memberRepository.findAll().stream()
-                .filter(f -> f.getErased())
+                .filter(MemberEntity::getErased)
                 .filter(f -> !f.getAdult())
                 .count();
         list.add(count);

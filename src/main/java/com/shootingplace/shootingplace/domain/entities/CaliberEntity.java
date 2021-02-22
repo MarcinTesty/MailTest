@@ -57,4 +57,11 @@ public class CaliberEntity {
         this.ammoUsed = ammoUsed;
     }
 
+    public List<CalibersAddedEntity> getAmmoAdded() {
+        return ammoAdded;
+    }
+
+    public void setAmmoAdded(List<CalibersAddedEntity> ammoAdded) {
+        this.ammoAdded = ammoAdded;
+    }
 }

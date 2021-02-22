@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/files")
@@ -88,8 +90,8 @@ public class FilesController {
     }
 
     @GetMapping("/downloadAllMembers")
-    public ResponseEntity<byte[]> getAllMembersToTable() throws IOException, DocumentException {
-        FilesEntity filesEntity = filesService.getAllMembersToTable();
+    public ResponseEntity<byte[]> getAllMembersToTable(@RequestParam boolean condition) throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllMembersToTable(condition);
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
@@ -99,6 +101,7 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
+
     @GetMapping("/downloadAllMembersWithNoValidLicenseNoContribution")
     public ResponseEntity<byte[]> getAllMembersWithLicenceNotValidAndContributionNotValid() throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.getAllMembersWithLicenceNotValidAndContributionNotValid();
@@ -111,6 +114,7 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
+
     @GetMapping("/downloadAllMembersWithValidLicenseNoContribution")
     public ResponseEntity<byte[]> getAllMembersWithLicenceValidAndContributionNotValid() throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.getAllMembersWithLicenceValidAndContributionNotValid();
@@ -123,6 +127,7 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
+
     @GetMapping("/downloadAllMembersToErased")
     public ResponseEntity<byte[]> getAllMembersToErased() throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.getAllMembersToErased();
@@ -148,15 +153,10 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
-    @GetMapping("/downloadMetric/{tournamentUUID}")
-    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID,@RequestParam String otherID,@PathVariable String tournamentUUID) throws IOException, DocumentException {
-        if (otherID.equals("0")){
-            otherID = null;
-        }else{
-            memberUUID = null;
-        }
 
-        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID,otherID,tournamentUUID);
+    @GetMapping("/downloadGunRegistry")
+    public ResponseEntity<byte[]> getGunRegistry() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getGunRegistry();
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
@@ -166,6 +166,41 @@ public class FilesController {
             filesService.delete(filesEntity);
         }
     }
+
+    @GetMapping("/downloadGunTransportCertificate")
+    public ResponseEntity<byte[]> getGunTransportCertificate(@RequestParam List<String> guns, @RequestParam String date,@RequestParam String date1) throws IOException, DocumentException {
+        LocalDate parse = LocalDate.parse(date);
+        LocalDate parse1 = LocalDate.parse(date1);
+        FilesEntity filesEntity = filesService.getGunTransportCertificate(guns, parse,parse1);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
+    @GetMapping("/downloadMetric/{tournamentUUID}")
+    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID, @RequestParam String otherID, @PathVariable String tournamentUUID) throws IOException, DocumentException {
+        if (otherID.equals("0")) {
+            otherID = null;
+        } else {
+            memberUUID = null;
+        }
+
+        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID, otherID, tournamentUUID);
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
     @GetMapping("/downloadJudge/{tournamentUUID}")
     public ResponseEntity<byte[]> getJudge(@PathVariable String tournamentUUID) throws IOException, DocumentException {
 

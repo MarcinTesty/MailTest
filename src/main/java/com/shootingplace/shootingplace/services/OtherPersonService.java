@@ -104,7 +104,7 @@ public class OtherPersonService {
 
     public List<OtherPersonEntity> getAll() {
         LOG.info("Wywołano wszystkich Nie-Klubowiczów");
-        return otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive).collect(Collectors.toList());
+        return otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive).sorted(Comparator.comparing(OtherPersonEntity::getSecondName).thenComparing(OtherPersonEntity::getFirstName)).collect(Collectors.toList());
     }
 
     public List<OtherPersonEntity> getOthersWithPermissions() {

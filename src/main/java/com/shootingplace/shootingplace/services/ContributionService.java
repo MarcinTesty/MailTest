@@ -4,6 +4,7 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.repositories.ContributionRepository;
+import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,17 +23,19 @@ public class ContributionService {
     private final MemberRepository memberRepository;
     private final HistoryService historyService;
     private final ChangeHistoryService changeHistoryService;
+    private final LicenseRepository licenseRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService, ChangeHistoryService changeHistoryService) {
+    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService, ChangeHistoryService changeHistoryService, LicenseRepository licenseRepository) {
         this.contributionRepository = contributionRepository;
         this.memberRepository = memberRepository;
         this.historyService = historyService;
         this.changeHistoryService = changeHistoryService;
+        this.licenseRepository = licenseRepository;
     }
 
-    public boolean addContribution(String memberUUID, LocalDate contributionPaymentDay,String pinCode) {
+    public boolean addContribution(String memberUUID, LocalDate contributionPaymentDay, String pinCode) {
 
         List<ContributionEntity> contributionEntityList = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
@@ -84,7 +87,10 @@ public class ContributionService {
         }
         contributionRepository.saveAndFlush(contributionEntity);
         historyService.addContribution(memberUUID, contributionEntity);
-        changeHistoryService.addRecordToChangeHistory(pinCode,contributionEntity.getClass().getSimpleName() + " addContribution",memberUUID);
+        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " addContribution", memberUUID);
+        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
+        LOG.info("zmieniono " + memberEntity.getSecondName());
+        memberRepository.saveAndFlush(memberEntity);
         return true;
     }
 
@@ -100,8 +106,8 @@ public class ContributionService {
     }
 
 
-    public boolean addContributionRecord(String memberUUID, LocalDate paymentDate,String pinCode) {
-
+    public boolean addContributionRecord(String memberUUID, LocalDate paymentDate, String pinCode) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         LocalDate validThru = getDate(paymentDate);
 
@@ -111,8 +117,10 @@ public class ContributionService {
                 .build();
         contributionRepository.saveAndFlush(contributionEntity);
         historyService.addContribution(memberUUID, contributionEntity);
-        changeHistoryService.addRecordToChangeHistory(pinCode,contributionEntity.getClass().getSimpleName() + " addContributionRecord",memberUUID);
-
+        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " addContributionRecord", memberUUID);
+        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
+        LOG.info("zmieniono " + memberEntity.getSecondName());
+        memberRepository.saveAndFlush(memberEntity);
         return true;
     }
 
@@ -162,7 +170,9 @@ public class ContributionService {
 
     }
 
-    public boolean removeContribution(String memberUUID, String contributionUUID,String pinCode) {
+    public boolean removeContribution(String memberUUID, String contributionUUID, String pinCode) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
         ContributionEntity contributionEntity = memberRepository
                 .findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
@@ -175,9 +185,12 @@ public class ContributionService {
 
         historyService.removeContribution(memberUUID, contributionEntity);
         contributionRepository.delete(contributionEntity);
-        changeHistoryService.addRecordToChangeHistory(pinCode,contributionEntity.getClass().getSimpleName() + " removeContributiond",memberUUID);
-
+        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " removeContributiond", memberUUID);
+        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
+        LOG.info("zmieniono " + memberEntity.getSecondName());
+        memberRepository.saveAndFlush(memberEntity);
 
         return true;
+
     }
 }

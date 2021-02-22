@@ -57,6 +57,9 @@ public class OtherPersonController {
                     .instructorNumber(null)
                     .build();
         }
+        if (club.isEmpty()){
+            club = "BRAK";
+        }
 
         if (otherPersonService.addPerson(club, person, memberPermissions)) {
             return ResponseEntity.status(201).build();

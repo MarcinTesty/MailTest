@@ -22,9 +22,13 @@ public class CalibersAddedEntity {
     private String uuid;
 
     private String belongTo;
+    private String description;
 
     private LocalDate date;
     private Integer ammoAdded;
+
+    private Integer stateForAddedDay;
+    private Integer finalStateForAddedDay;
 
     public String getUuid() {
         return uuid;
@@ -52,5 +56,29 @@ public class CalibersAddedEntity {
 
     public void setAmmoAdded(Integer ammoAdded) {
         this.ammoAdded = ammoAdded;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getStateForAddedDay() {
+        return stateForAddedDay;
+    }
+
+    public void setStateForAddedDay(Integer stateForAddedDay) {
+        this.stateForAddedDay = stateForAddedDay;
+    }
+
+    public Integer getFinalStateForAddedDay() {
+        return finalStateForAddedDay;
+    }
+
+    public void setFinalStateForAddedDay(Integer finalStateForAddedDay) {
+        this.finalStateForAddedDay = finalStateForAddedDay;
     }
 }

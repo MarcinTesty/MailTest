@@ -19,12 +19,14 @@ import java.util.stream.Collectors;
 public class AmmoInEvidenceService {
     private final AmmoInEvidenceRepository ammoInEvidenceRepository;
     private final AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository;
+    private final ArmoryService armoryService;
 
     private final AmmoEvidenceRepository ammoEvidenceRepository;
 
-    public AmmoInEvidenceService(AmmoInEvidenceRepository ammoInEvidenceRepository, AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository, AmmoEvidenceRepository ammoEvidenceRepository) {
+    public AmmoInEvidenceService(AmmoInEvidenceRepository ammoInEvidenceRepository, AmmoUsedToEvidenceEntityRepository ammoUsedToEvidenceEntityRepository, ArmoryService armoryService, AmmoEvidenceRepository ammoEvidenceRepository) {
         this.ammoInEvidenceRepository = ammoInEvidenceRepository;
         this.ammoUsedToEvidenceEntityRepository = ammoUsedToEvidenceEntityRepository;
+        this.armoryService = armoryService;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
     }
 
@@ -130,7 +132,6 @@ public class AmmoInEvidenceService {
                     ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity()+ammoUsedToEvidenceEntity.getCounter());
 
 
-                    System.out.println(ammoUsedToEvidenceEntity1.getCounter());
                     if (ammoUsedToEvidenceEntity1.getCounter() <= 0) {
                         ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().remove(ammoUsedToEvidenceEntity1);
                         ammoInEvidenceRepository.delete(ammoInEvidenceEntity);
@@ -189,6 +190,7 @@ public class AmmoInEvidenceService {
                 ammoEvidenceRepository.delete(ammoEvidenceEntity);
             }
         }
+        armoryService.substratAmmo(ammoUsedToEvidenceEntity.getCaliberUUID(),ammoUsedToEvidenceEntity.getCounter());
 
     }
 

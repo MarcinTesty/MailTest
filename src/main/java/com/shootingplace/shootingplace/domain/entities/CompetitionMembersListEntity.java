@@ -76,4 +76,6 @@ public class CompetitionMembersListEntity {
     public void setDiscipline(String discipline) {
         this.discipline = discipline;
     }
+
+
 }
