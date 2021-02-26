@@ -49,10 +49,20 @@ public class CompetitionController {
         }
     }
 
-    @PatchMapping("/")
+    @PatchMapping("/ammo")
     public ResponseEntity<?> toggleAmmunitionInScore(@RequestParam String scoreUUID) {
 
         if (scoreService.toggleAmmunitionInScore(scoreUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/gun")
+    public ResponseEntity<?> toggleGunInScore(@RequestParam String scoreUUID) {
+
+        if (scoreService.toggleGunInScore(scoreUUID)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();

@@ -183,14 +183,14 @@ public class FilesController {
     }
 
     @GetMapping("/downloadMetric/{tournamentUUID}")
-    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID, @RequestParam String otherID, @PathVariable String tournamentUUID) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID, @RequestParam String otherID, @PathVariable String tournamentUUID,@RequestParam List<String> competitions,@RequestParam String startNumber) throws IOException, DocumentException {
         if (otherID.equals("0")) {
             otherID = null;
         } else {
             memberUUID = null;
         }
 
-        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID, otherID, tournamentUUID);
+        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID, otherID, tournamentUUID, competitions,startNumber);
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))

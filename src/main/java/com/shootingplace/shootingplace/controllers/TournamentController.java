@@ -34,6 +34,10 @@ public class TournamentController {
     public ResponseEntity<List<String>> getCompetitionsListInTournament(@RequestParam String tournamentUUID){
         return ResponseEntity.ok().body(tournamentService.getCompetitionsListInTournament(tournamentUUID));
     }
+    @GetMapping("/stat")
+    public ResponseEntity<List<String>> getStatistics(@RequestParam String tournamentUUID){
+        return ResponseEntity.ok().body(tournamentService.getStatistics(tournamentUUID));
+    }
 
     @PostMapping("/")
     public ResponseEntity<String> addNewTournament(@RequestBody Tournament tournament) {

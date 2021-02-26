@@ -31,6 +31,7 @@ public class ScoreEntity {
     private int metricNumber;
 
     private boolean ammunition;
+    private boolean gun;
 
     private String competitionMembersListEntityUUID;
     @OneToOne(orphanRemoval = true)
@@ -96,6 +97,14 @@ public class ScoreEntity {
 
     public void toggleAmmunition() {
         this.ammunition = !this.ammunition;
+    }
+
+    public boolean isGun() {
+        return gun;
+    }
+
+    public void toggleGun() {
+        this.gun = !this.gun;
     }
 
     public String getName() {

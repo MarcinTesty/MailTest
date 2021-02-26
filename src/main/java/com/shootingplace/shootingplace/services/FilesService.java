@@ -973,7 +973,7 @@ public class FilesService {
         return filesEntity;
     }
 
-    public FilesEntity getStartsMetric(String memberUUID, String otherID, String tournamentUUID) throws IOException, DocumentException {
+    public FilesEntity getStartsMetric(String memberUUID, String otherID, String tournamentUUID, List<String> competitions, String startNumber) throws IOException, DocumentException {
         String name;
 
         if (otherID != null) {
@@ -987,44 +987,80 @@ public class FilesService {
 
         ClubEntity clubEntity = clubRepository.findById(1).orElseThrow(EntityNotFoundException::new);
 
-        List<CompetitionMembersListEntity> competitionMembersListEntity = tournamentEntity.getCompetitionsList();
-
         String fileName = "metryki_" + name + ".pdf";
 
-        Document document = new Document(PageSize.A4.rotate());
+        Document document = new Document(PageSize.A4);
         PdfWriter writer = PdfWriter.getInstance(document,
                 new FileOutputStream(fileName));
         document.open();
         document.addTitle(fileName);
         document.addCreationDate();
 
-        Paragraph par1 = new Paragraph(tournamentEntity.getName() + " " + clubEntity.getName(), font(14, 0));
-        par1.setAlignment(1);
+        Paragraph newLine = new Paragraph("\n", font(12, 0));
+        for (int j = 0; j < competitions.size(); j++) {
+            Paragraph par1 = new Paragraph(tournamentEntity.getName().toUpperCase() + " " + clubEntity.getName(), font(12, 1));
+            par1.setAlignment(1);
 
-        Paragraph par2 = new Paragraph(name, font(10, 0));
-        par2.setAlignment(1);
+            Paragraph par2 = new Paragraph(name.toUpperCase(), font(12, 0));
+            par2.setAlignment(1);
 
-        Paragraph par3 = new Paragraph(competitionMembersListEntity.get(0).getName(), font(10, 0));
-        par3.setAlignment(1);
-        System.out.println("coś");
+            Chunk chunk = new Chunk("                              Nr. " + startNumber, font(18, 1));
+            par2.add(chunk);
 
-        float[] pointColumnWidths = {25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 60F};
-        PdfPTable table = new PdfPTable(pointColumnWidths);
-        for (int i = 0; i < table.size(); i++) {
-            Paragraph p = new Paragraph(String.valueOf(i + 1), font(10, 0));
-            PdfPCell cell = new PdfPCell(p);
-            System.out.println("coś2");
-            if (i == table.size() - 1) {
-                p = new Paragraph("Suma", font(10, 0));
+            Paragraph par3 = new Paragraph(competitions.get(j), font(12, 1));
+            par3.setAlignment(1);
+
+            Paragraph par4 = new Paragraph("Podpis sędziego .............................", font(12, 0));
+            Chunk chunk1 = new Chunk("                                   Podpis zawodnika .............................          ", font(12, 0));
+            Chunk chunk2 = new Chunk(" Nr. " + startNumber, font(18, 1));
+
+            par4.add(chunk1);
+            par4.add(chunk2);
+
+            float[] pointColumnWidths = {25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 25F, 60F};
+            PdfPTable table = new PdfPTable(pointColumnWidths);
+            PdfPTable table1 = new PdfPTable(pointColumnWidths);
+
+            for (int i = 0; i <= 11; i++) {
+                Paragraph p;
+                if (i < 10) {
+                    p = new Paragraph(String.valueOf(i + 1), font(14, 0));
+                } else {
+                    p = new Paragraph("SUMA", font(14, 1));
+
+                }
+                PdfPCell cell = new PdfPCell(p);
+                cell.setHorizontalAlignment(1);
+                table.addCell(cell);
+
             }
-            table.addCell(cell);
+            for (int i = 0; i <= 11; i++) {
+//                if (i < 10) {
+                String s = " ";
+                    Chunk c = new Chunk(s,font(28,0));
+                Paragraph p = new Paragraph(c);
+//                    p = new Paragraph("_", font(28, 0));
+//                } else {
+//                    p = new Paragraph("_____", font(28, 0));
+//                }
+                PdfPCell cell = new PdfPCell(p);
+                table1.addCell(cell);
 
+            }
+
+            document.add(par1);
+            document.add(par2);
+            document.add(par3);
+            document.add(newLine);
+            document.add(table);
+            document.add(table1);
+            document.add(newLine);
+            document.add(par4);
+            if (j < 7) {
+                document.add(newLine);
+                document.add(newLine);
+            }
         }
-        document.add(par1);
-        document.add(par2);
-        document.add(par3);
-        document.add(table);
-
 
         document.close();
 
@@ -1932,7 +1968,7 @@ public class FilesService {
 
     private String getSex(String pesel) {
         int i = pesel.charAt(10);
-        if (i % 2 == 0) {
+        if (i % 2 == 1) {
             return "Pani";
         } else return "Pan";
     }

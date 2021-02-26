@@ -74,36 +74,6 @@ public class ScoreService {
                 }
             }
         }
-//// cały czas któreś nie działa i nie wiem czemu...
-//        if (otherPersonEntity != null) {
-//
-//            // chodzi o ten warunek...
-//            if (scoreEntityList.stream().anyMatch(e -> e.getOtherPersonEntity().equals(otherPersonEntity))) {
-//                System.out.println("znaleziono");
-//                number = scoreEntityList.stream().filter(f -> f.getOtherPersonEntity().equals(otherPersonEntity)).findFirst().get().getMetricNumber();
-//                System.out.println(number);
-//            } else {
-//                System.out.println("nie znaleziono");
-//                number = scoreEntity.getMetricNumber() + 1;
-//            }
-//        }
-//        if (memberEntity != null) {
-//
-//            // lub ten warunek...
-//            // jeśli na liście są już membery to nie mogę dodać othera i odwrotnie
-//            // DLACZEGO?!?
-//            // NullPointerException
-//            if (scoreEntityList.stream().anyMatch(e -> e.getMember().equals(memberEntity))) {
-//                System.out.println("znaleziono");
-//                number = scoreEntityList.stream().filter(f -> f.getMember().equals(memberEntity)).findFirst().get().getMetricNumber();
-//                System.out.println(number);
-//            } else {
-//                System.out.println("nie znaleziono");
-//                number = scoreEntity.getMetricNumber() + 1;
-//            }
-//
-//
-//        }
 
         return scoreRepository.saveAndFlush(ScoreEntity.builder()
                 .competitionMembersListEntityUUID(competitionMembersListEntityUUID)
@@ -113,6 +83,7 @@ public class ScoreService {
                 .innerTen(innerTen)
                 .outerTen(outerTen)
                 .ammunition(false)
+                .gun(false)
                 .name(name)
                 .metricNumber(number)
                 .build());
@@ -151,6 +122,13 @@ public class ScoreService {
     public boolean toggleAmmunitionInScore(String scoreUUID) {
         ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
         scoreEntity.toggleAmmunition();
+        scoreRepository.saveAndFlush(scoreEntity);
+        return true;
+    }
+
+    public boolean toggleGunInScore(String scoreUUID) {
+        ScoreEntity scoreEntity = scoreRepository.findById(scoreUUID).orElseThrow(EntityNotFoundException::new);
+        scoreEntity.toggleGun();
         scoreRepository.saveAndFlush(scoreEntity);
         return true;
     }
