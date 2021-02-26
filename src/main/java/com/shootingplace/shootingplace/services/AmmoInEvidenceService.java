@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,22 +34,19 @@ public class AmmoInEvidenceService {
         List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().filter(AmmoEvidenceEntity::isOpen).collect(Collectors.toList());
 
 //      Nie znaleziono żadnej listy
-        if (collect.size() < 1 || ammoEvidenceRepository.findAll() == null) {
+        if (collect.size() < 1) {
             if (ammoUsedToEvidenceEntity.getCounter() < 0) {
                 System.out.println("nie można dodać ujemnej wartości");
             } else {
 //                nadawanie numeru listy
                 int number;
 //                nadawanie numeru od zera
-                if (ammoEvidenceRepository.findAll().size() < 1 || ammoEvidenceRepository.findAll() == null) {
+                if (ammoEvidenceRepository.findAll().size() < 1) {
                     number = 1;
 //                    nadawanie kolejnego numeru
                 } else {
                     List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll();
-                    all.sort(Comparator.comparing(AmmoEvidenceEntity::getNumber).reversed());
-                    String number1 = all.get(0).getNumber();
-                    String[] split = number1.split("-");
-                    number = Integer.valueOf(split[0]) + 1;
+                    number = all.size();
                 }
                 String evidenceNumber = number + "-LA-" + LocalDate.now().getYear();
                 AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
@@ -80,6 +76,7 @@ public class AmmoInEvidenceService {
         }
 //      Znaleziono jakąś otwartą listę
         else {
+            ammoEvidenceRepository.findAll();
             AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository
                     .findAll()
                     .stream()
@@ -129,7 +126,7 @@ public class AmmoInEvidenceService {
                         ammoUsedToEvidenceEntity1.setCounter(ammoUsedToEvidenceEntity1.getCounter() + ammoUsedToEvidenceEntity.getCounter());
                     }
 
-                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity()+ammoUsedToEvidenceEntity.getCounter());
+                    ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
 
 
                     if (ammoUsedToEvidenceEntity1.getCounter() <= 0) {
@@ -190,7 +187,7 @@ public class AmmoInEvidenceService {
                 ammoEvidenceRepository.delete(ammoEvidenceEntity);
             }
         }
-        armoryService.substratAmmo(ammoUsedToEvidenceEntity.getCaliberUUID(),ammoUsedToEvidenceEntity.getCounter());
+        armoryService.substratAmmo(ammoUsedToEvidenceEntity.getCaliberUUID(), ammoUsedToEvidenceEntity.getCounter());
 
     }
 

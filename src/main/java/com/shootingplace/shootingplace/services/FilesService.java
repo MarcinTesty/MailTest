@@ -1035,14 +1035,9 @@ public class FilesService {
 
             }
             for (int i = 0; i <= 11; i++) {
-//                if (i < 10) {
                 String s = " ";
                     Chunk c = new Chunk(s,font(28,0));
                 Paragraph p = new Paragraph(c);
-//                    p = new Paragraph("_", font(28, 0));
-//                } else {
-//                    p = new Paragraph("_____", font(28, 0));
-//                }
                 PdfPCell cell = new PdfPCell(p);
                 table1.addCell(cell);
 
