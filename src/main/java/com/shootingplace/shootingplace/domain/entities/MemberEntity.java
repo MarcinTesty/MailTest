@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -31,9 +32,9 @@ public class MemberEntity {
     private String firstName;
     @NotBlank
     private String secondName;
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private LicenseEntity license;
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ShootingPatentEntity shootingPatent;
     @Email
     private String email = "";
@@ -43,30 +44,32 @@ public class MemberEntity {
     private String pesel;
     @NotBlank
     private String IDCard;
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ClubEntity club;
 
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AddressEntity address;
     @NotBlank
     @Pattern(regexp = "^\\+[0-9]{11}$")
     private String phoneNumber;
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private WeaponPermissionEntity weaponPermission;
 
     private Boolean active = true;
     private Boolean adult = true;
     private Boolean erased = false;
     private Boolean pzss = false;
-    private String erasedReason;
+    @Nullable
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ErasedEntity erasedEntity;
 
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private HistoryEntity history;
 
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberPermissionsEntity memberPermissions;
 
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PersonalEvidenceEntity personalEvidence;
 
     public String getUuid() {
@@ -169,12 +172,12 @@ public class MemberEntity {
         this.weaponPermission = weaponPermission;
     }
 
-    public String getErasedReason() {
-        return erasedReason;
+    public ErasedEntity getErasedEntity() {
+        return erasedEntity;
     }
 
-    public void setErasedReason(String erasedReason) {
-        this.erasedReason = erasedReason;
+    public void setErasedEntity(ErasedEntity erasedEntity) {
+        this.erasedEntity = erasedEntity;
     }
 
     public Boolean getActive() {
@@ -191,10 +194,6 @@ public class MemberEntity {
 
     public Boolean getAdult() {
         return adult;
-    }
-
-    public void toggleAdult() {
-        this.adult = true;
     }
 
     public Boolean getErased() {

@@ -36,10 +36,11 @@ public class FilesService {
     private final ClubRepository clubRepository;
     private final OtherPersonRepository otherPersonRepository;
     private final GunRepository gunRepository;
+    private final CompetitionMembersListRepository competitionMembersListRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository, ClubRepository clubRepository, OtherPersonRepository otherPersonRepository, GunRepository gunRepository) {
+    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository, ClubRepository clubRepository, OtherPersonRepository otherPersonRepository, GunRepository gunRepository, CompetitionMembersListRepository competitionMembersListRepository) {
         this.memberRepository = memberRepository;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
         this.filesRepository = filesRepository;
@@ -47,6 +48,7 @@ public class FilesService {
         this.clubRepository = clubRepository;
         this.otherPersonRepository = otherPersonRepository;
         this.gunRepository = gunRepository;
+        this.competitionMembersListRepository = competitionMembersListRepository;
     }
 
     private FilesEntity createFileEntity(FilesModel filesModel) {
@@ -331,7 +333,44 @@ public class FilesService {
 
     public FilesEntity createAmmunitionListDocument(String ammoEvidenceUUID) throws IOException, DocumentException {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
+
+        List<AmmoInEvidenceEntity> ammoInEvidenceEntityList1 = new ArrayList<>();
+
         List<AmmoInEvidenceEntity> ammoInEvidenceEntityList = ammoEvidenceEntity.getAmmoInEvidenceEntityList();
+
+        AmmoInEvidenceEntity ammoInEvidenceEntity1 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals("5,6mm")).findFirst().orElse(null);
+        AmmoInEvidenceEntity ammoInEvidenceEntity2 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals("9x19mm")).findFirst().orElse(null);
+        AmmoInEvidenceEntity ammoInEvidenceEntity3 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals("12/76")).findFirst().orElse(null);
+        AmmoInEvidenceEntity ammoInEvidenceEntity4 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals(".357")).findFirst().orElse(null);
+        AmmoInEvidenceEntity ammoInEvidenceEntity5 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals(".38")).findFirst().orElse(null);
+        AmmoInEvidenceEntity ammoInEvidenceEntity6 = ammoInEvidenceEntityList.stream().filter(f -> f.getCaliberName().equals("7,62x39mm")).findFirst().orElse(null);
+        if (ammoInEvidenceEntity1 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity1);
+        }
+        if (ammoInEvidenceEntity2 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity2);
+        }
+        if (ammoInEvidenceEntity3 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity3);
+        }
+        if (ammoInEvidenceEntity4 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity4);
+        }
+        if (ammoInEvidenceEntity5 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity5);
+        }
+        if (ammoInEvidenceEntity6 != null) {
+
+            ammoInEvidenceEntityList1.add(ammoInEvidenceEntity6);
+        }
+
+
+        ammoInEvidenceEntityList.sort(Comparator.comparing(AmmoInEvidenceEntity::getCaliberName));
 
         String fileName = "Lista_Amunicyjna_" + ammoEvidenceEntity.getDate() + ".pdf";
 
@@ -351,8 +390,8 @@ public class FilesService {
 
 
         Paragraph number = new Paragraph(ammoEvidenceEntity.getNumber(), font(10, 4));
-        Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", new Font(czcionka, 14, Font.BOLD));
-        Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), new Font(czcionka, 12, Font.ITALIC));
+        Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", font(14, 1));
+        Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), font(12, 2));
 
         number.setIndentationLeft(450);
         p.setIndentationLeft(100);
@@ -362,16 +401,16 @@ public class FilesService {
         document.add(number);
         document.add(p);
         document.add(p1);
-        for (AmmoInEvidenceEntity ammoInEvidenceEntity : ammoInEvidenceEntityList) {
+        for (AmmoInEvidenceEntity ammoInEvidenceEntity : ammoInEvidenceEntityList1) {
             Paragraph p2 = new Paragraph("Kaliber : " + ammoInEvidenceEntity.getCaliberName() + "\n", font(12, 1));
             p2.add("\n");
             p2.setIndentationLeft(230);
             document.add(p2);
             float[] pointColumnWidths = {20F, 255F, 25};
             PdfPTable tableLabel = new PdfPTable(pointColumnWidths);
-            PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", new Font(czcionka, 10, Font.ITALIC))));
-            PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", new Font(czcionka, 10, Font.ITALIC))));
-            PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cellLabel = new PdfPCell(new Paragraph(new Paragraph("lp.", font(10, 2))));
+            PdfPCell cell1Label = new PdfPCell(new Paragraph(new Paragraph("Imię i Nazwisko", font(10, 2))));
+            PdfPCell cell2Label = new PdfPCell(new Paragraph(new Paragraph("ilość sztuk", font(10, 2))));
 
 
             tableLabel.addCell(cellLabel);
@@ -456,8 +495,8 @@ public class FilesService {
 
         String licenseNumber = memberEntity.getLicense().getNumber();
         char[] P = memberEntity.getPesel().toCharArray();
-        String phone = memberEntity.getPhoneNumber();
         String name = memberEntity.getSecondName().toUpperCase() + "  " + memberEntity.getFirstName().toUpperCase();
+        String phone = memberEntity.getPhoneNumber();
         String split = phone.substring(0, 3) + " ";
         String split1 = phone.substring(3, 6) + " ";
         String split2 = phone.substring(6, 9) + " ";
@@ -975,13 +1014,16 @@ public class FilesService {
 
     public FilesEntity getStartsMetric(String memberUUID, String otherID, String tournamentUUID, List<String> competitions, String startNumber) throws IOException, DocumentException {
         String name;
+        String club;
 
         if (otherID != null) {
             OtherPersonEntity otherPersonEntity = otherPersonRepository.findById(Integer.valueOf(otherID)).orElseThrow(EntityNotFoundException::new);
-            name = otherPersonEntity.getSecondName().concat(" " + otherPersonEntity.getFirstName() + " " + otherPersonEntity.getClub().getName());
+            name = otherPersonEntity.getSecondName().concat(" " + otherPersonEntity.getFirstName() + " ");
+            club = otherPersonEntity.getClub().getName();
         } else {
             MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-            name = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " " + memberEntity.getClub().getName());
+            name = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " ");
+            club = memberEntity.getClub().getName();
         }
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
 
@@ -996,22 +1038,41 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
+        List<String> comp = competitions.stream().filter(value -> !value.contains(" pneumatyczny ")).sorted().collect(Collectors.toList());
+        competitions.stream().filter(competition -> competition.contains(" pneumatyczny ")).sorted().forEach(comp::add);
         Paragraph newLine = new Paragraph("\n", font(12, 0));
-        for (int j = 0; j < competitions.size(); j++) {
+        for (int j = 0; j < comp.size(); j++) {
+
+            int d = Integer.parseInt(startNumber);
+
+            int finalJ = j;
+
+            ScoreEntity score = tournamentEntity.getCompetitionsList().stream().filter(f -> f.getName().equals(comp.get(finalJ))).findFirst().orElseThrow(EntityNotFoundException::new).getScoreList().stream().filter(f -> f.getMetricNumber() == d).findFirst().orElseThrow(EntityNotFoundException::new);
+
             Paragraph par1 = new Paragraph(tournamentEntity.getName().toUpperCase() + " " + clubEntity.getName(), font(12, 1));
             par1.setAlignment(1);
 
-            Paragraph par2 = new Paragraph(name.toUpperCase(), font(12, 0));
+            Paragraph par2 = new Paragraph(name.toUpperCase(), font(13, 1));
             par2.setAlignment(1);
-
-            Chunk chunk = new Chunk("                              Nr. " + startNumber, font(18, 1));
+            String a = "";
+            String b = "";
+            if (score.isAmmunition()) {
+                a = "A";
+                b = "";
+            }
+            if (!score.isAmmunition() && score.isGun()) {
+                b = "B";
+            }
+            Chunk clubChunk = new Chunk(club, font(10, 0));
+            par2.add(clubChunk);
+            Chunk chunk = new Chunk("                            " + a + " " + b + "  Nr. " + startNumber, font(18, 1));
             par2.add(chunk);
 
-            Paragraph par3 = new Paragraph(competitions.get(j), font(12, 1));
+            Paragraph par3 = new Paragraph(comp.get(j), font(12, 1));
             par3.setAlignment(1);
 
             Paragraph par4 = new Paragraph("Podpis sędziego .............................", font(12, 0));
-            Chunk chunk1 = new Chunk("                                   Podpis zawodnika .............................          ", font(12, 0));
+            Chunk chunk1 = new Chunk("                                   Podpis zawodnika .............................       ", font(12, 0));
             Chunk chunk2 = new Chunk(" Nr. " + startNumber, font(18, 1));
 
             par4.add(chunk1);
@@ -1036,12 +1097,14 @@ public class FilesService {
             }
             for (int i = 0; i <= 11; i++) {
                 String s = " ";
-                    Chunk c = new Chunk(s,font(28,0));
+                Chunk c = new Chunk(s, font(28, 0));
                 Paragraph p = new Paragraph(c);
                 PdfPCell cell = new PdfPCell(p);
                 table1.addCell(cell);
 
             }
+
+            Paragraph par5 = new Paragraph("_______________________________________________________________________________________", font(12, 0));
 
             document.add(par1);
             document.add(par2);
@@ -1052,7 +1115,7 @@ public class FilesService {
             document.add(newLine);
             document.add(par4);
             if (j < 7) {
-                document.add(newLine);
+                document.add(par5);
                 document.add(newLine);
             }
         }
@@ -1329,17 +1392,17 @@ public class FilesService {
                 .filter(f -> f.getLicense().getNumber() != null)
                 .filter(f -> !f.getLicense().isValid())
                 .filter(f -> f.getLicense().getValidThru().isBefore(notValidLicense))
-                .filter(f -> f.getHistory().getContributionList().get(0).getValidThru().isBefore(notValidContribution))
+//                .filter(f -> f.getHistory().getContributionList().get(0).getValidThru().isBefore(notValidContribution))
                 .sorted(Comparator.comparing(MemberEntity::getSecondName))
                 .collect(Collectors.toList());
-        // [lp] [Naz imię leg] [licNum] [licDate] [contrDate]
-        float[] pointColumnWidths = {4F, 54F, 14F, 14F, 14F};
+        float[] pointColumnWidths = {4F, 42F, 14F, 14F, 14F, 14F};
 
 
         PdfPTable titleTable = new PdfPTable(pointColumnWidths);
 
         PdfPCell lp = new PdfPCell(new Paragraph("lp", font(12, 0)));
-        PdfPCell nameWithLegitimation = new PdfPCell(new Paragraph("Nazwisko Imię legitymacja", font(12, 0)));
+        PdfPCell name = new PdfPCell(new Paragraph("Nazwisko Imię", font(12, 0)));
+        PdfPCell legitimation = new PdfPCell(new Paragraph("legitymacja", font(12, 0)));
         PdfPCell licenceNumber = new PdfPCell(new Paragraph("numer licencji", font(12, 0)));
         PdfPCell licenceDate = new PdfPCell(new Paragraph("licencja ważna do", font(12, 0)));
         PdfPCell contributionDate = new PdfPCell(new Paragraph("Składka ważna do", font(12, 0)));
@@ -1347,7 +1410,8 @@ public class FilesService {
         titleTable.setWidthPercentage(100);
 
         titleTable.addCell(lp);
-        titleTable.addCell(nameWithLegitimation);
+        titleTable.addCell(name);
+        titleTable.addCell(legitimation);
         titleTable.addCell(licenceNumber);
         titleTable.addCell(licenceDate);
         titleTable.addCell(contributionDate);
@@ -1360,12 +1424,13 @@ public class FilesService {
 
             MemberEntity memberEntity = memberEntityList.get(i);
 
-            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " " + memberEntity.getLegitimationNumber());
+            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName());
 
             PdfPTable memberTable = new PdfPTable(pointColumnWidths);
 
             PdfPCell lpCell = new PdfPCell(new Paragraph(String.valueOf(i + 1), font(12, 0)));
-            PdfPCell nameWithLegitimationCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell nameCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell legitimationCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLegitimationNumber()), font(12, 0)));
             PdfPCell licenceNumberCell = new PdfPCell(new Paragraph(memberEntity.getLicense().getNumber(), font(12, 0)));
             PdfPCell licenceDateCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLicense().getValidThru()), font(12, 0)));
             PdfPCell contributionDateCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getHistory().getContributionList().get(0).getValidThru()), font(12, 0)));
@@ -1373,7 +1438,8 @@ public class FilesService {
             memberTable.setWidthPercentage(100);
 
             memberTable.addCell(lpCell);
-            memberTable.addCell(nameWithLegitimationCell);
+            memberTable.addCell(nameCell);
+            memberTable.addCell(legitimationCell);
             memberTable.addCell(licenceNumberCell);
             memberTable.addCell(licenceDateCell);
             memberTable.addCell(contributionDateCell);
@@ -1433,14 +1499,14 @@ public class FilesService {
                 .filter(f -> !f.getHistory().getContributionList().isEmpty() && f.getHistory().getContributionList().get(0).getValidThru().minusDays(1).isBefore(notValidContribution))
                 .sorted(Comparator.comparing(MemberEntity::getSecondName))
                 .collect(Collectors.toList());
-        // [lp] [Naz imię leg] [licNum] [licDate] [contrDate]
-        float[] pointColumnWidths = {4F, 54F, 14F, 14F, 14F};
+        float[] pointColumnWidths = {4F, 42F, 14F, 14F, 14F, 14F};
 
 
         PdfPTable titleTable = new PdfPTable(pointColumnWidths);
 
         PdfPCell lp = new PdfPCell(new Paragraph("lp", font(12, 0)));
-        PdfPCell nameWithLegitimation = new PdfPCell(new Paragraph("Nazwisko Imię legitymacja", font(12, 0)));
+        PdfPCell name = new PdfPCell(new Paragraph("Nazwisko Imię", font(12, 0)));
+        PdfPCell legitimation = new PdfPCell(new Paragraph("legitymacja", font(12, 0)));
         PdfPCell licenceNumber = new PdfPCell(new Paragraph("numer licencji", font(12, 0)));
         PdfPCell licenceDate = new PdfPCell(new Paragraph("licencja ważna do", font(12, 0)));
         PdfPCell contributionDate = new PdfPCell(new Paragraph("Składka ważna do", font(12, 0)));
@@ -1448,7 +1514,8 @@ public class FilesService {
         titleTable.setWidthPercentage(100);
 
         titleTable.addCell(lp);
-        titleTable.addCell(nameWithLegitimation);
+        titleTable.addCell(name);
+        titleTable.addCell(legitimation);
         titleTable.addCell(licenceNumber);
         titleTable.addCell(licenceDate);
         titleTable.addCell(contributionDate);
@@ -1461,12 +1528,13 @@ public class FilesService {
 
             MemberEntity memberEntity = memberEntityList.get(i);
 
-            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " " + memberEntity.getLegitimationNumber());
+            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName());
 
             PdfPTable memberTable = new PdfPTable(pointColumnWidths);
 
             PdfPCell lpCell = new PdfPCell(new Paragraph(String.valueOf(i + 1), font(12, 0)));
-            PdfPCell nameWithLegitimationCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell nameCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell legitimationCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLegitimationNumber()), font(12, 0)));
             PdfPCell licenceNumberCell;
             if (memberEntity.getLicense().getNumber() != null) {
                 licenceNumberCell = new PdfPCell(new Paragraph(memberEntity.getLicense().getNumber(), font(12, 0)));
@@ -1488,7 +1556,8 @@ public class FilesService {
             memberTable.setWidthPercentage(100);
 
             memberTable.addCell(lpCell);
-            memberTable.addCell(nameWithLegitimationCell);
+            memberTable.addCell(nameCell);
+            memberTable.addCell(legitimationCell);
             memberTable.addCell(licenceNumberCell);
             memberTable.addCell(licenceDateCell);
             memberTable.addCell(contributionDateCell);
@@ -1549,14 +1618,14 @@ public class FilesService {
                 .filter(f -> !f.getActive())
                 .sorted(Comparator.comparing(MemberEntity::getSecondName))
                 .collect(Collectors.toList());
-        // [lp] [Naz imię leg] [licNum] [licDate] [contrDate]
-        float[] pointColumnWidths = {4F, 54F, 14F, 14F, 14F};
+        float[] pointColumnWidths = {4F, 42F, 14F, 14F, 14F, 14F};
 
 
         PdfPTable titleTable = new PdfPTable(pointColumnWidths);
 
         PdfPCell lp = new PdfPCell(new Paragraph("lp", font(12, 0)));
-        PdfPCell nameWithLegitimation = new PdfPCell(new Paragraph("Nazwisko Imię legitymacja", font(12, 0)));
+        PdfPCell name = new PdfPCell(new Paragraph("Nazwisko Imię", font(12, 0)));
+        PdfPCell legitimation = new PdfPCell(new Paragraph("legitymacja", font(12, 0)));
         PdfPCell licenceNumber = new PdfPCell(new Paragraph("numer licencji", font(12, 0)));
         PdfPCell licenceDate = new PdfPCell(new Paragraph("licencja ważna do", font(12, 0)));
         PdfPCell contributionDate = new PdfPCell(new Paragraph("Składka ważna do", font(12, 0)));
@@ -1564,7 +1633,8 @@ public class FilesService {
         titleTable.setWidthPercentage(100);
 
         titleTable.addCell(lp);
-        titleTable.addCell(nameWithLegitimation);
+        titleTable.addCell(name);
+        titleTable.addCell(legitimation);
         titleTable.addCell(licenceNumber);
         titleTable.addCell(licenceDate);
         titleTable.addCell(contributionDate);
@@ -1577,12 +1647,13 @@ public class FilesService {
 
             MemberEntity memberEntity = memberEntityList.get(i);
 
-            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName() + " " + memberEntity.getLegitimationNumber());
+            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName());
 
             PdfPTable memberTable = new PdfPTable(pointColumnWidths);
 
             PdfPCell lpCell = new PdfPCell(new Paragraph(String.valueOf(i + 1), font(12, 0)));
-            PdfPCell nameWithLegitimationCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell nameCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell legitimationCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLegitimationNumber()), font(12, 0)));
             PdfPCell licenceNumberCell = new PdfPCell(new Paragraph(memberEntity.getLicense().getNumber(), font(12, 0)));
             PdfPCell licenceDateCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLicense().getValidThru()), font(12, 0)));
             PdfPCell contributionDateCell;
@@ -1594,7 +1665,8 @@ public class FilesService {
             memberTable.setWidthPercentage(100);
 
             memberTable.addCell(lpCell);
-            memberTable.addCell(nameWithLegitimationCell);
+            memberTable.addCell(nameCell);
+            memberTable.addCell(legitimationCell);
             memberTable.addCell(licenceNumberCell);
             memberTable.addCell(licenceDateCell);
             memberTable.addCell(contributionDateCell);
@@ -1960,6 +2032,131 @@ public class FilesService {
         file.delete();
         return filesEntity;
     }
+
+
+    public FilesEntity getAllErasedMembers() throws IOException, DocumentException {
+
+
+        String fileName = "Lista_osób_skreślonych_na_dzień" + LocalDate.now() + ".pdf";
+
+        Document document = new Document(PageSize.A4.rotate());
+        PdfWriter writer = PdfWriter.getInstance(document,
+                new FileOutputStream(fileName));
+        document.open();
+        document.addTitle(fileName);
+        document.addCreationDate();
+        String minute;
+        if (LocalTime.now().getMinute() < 10) {
+            minute = "0" + LocalTime.now().getMinute();
+        } else {
+            minute = String.valueOf(LocalTime.now().getMinute());
+        }
+        String now = LocalTime.now().getHour() + ":" + minute;
+        Paragraph title = new Paragraph("Lista osób bez składek z ważnymi licencjami na dzień " + LocalDate.now() + " " + now, font(14, 1));
+        Paragraph newLine = new Paragraph("\n", font(14, 0));
+
+
+        document.add(title);
+        document.add(newLine);
+
+        List<MemberEntity> memberEntityList = memberRepository.findAll().stream()
+                .filter(MemberEntity::getErased)
+                .sorted(Comparator.comparing(MemberEntity::getSecondName))
+                .collect(Collectors.toList());
+        float[] pointColumnWidths = {4F, 28F, 10F, 10F, 14F, 14F,36F};
+
+
+        PdfPTable titleTable = new PdfPTable(pointColumnWidths);
+
+        PdfPCell lp = new PdfPCell(new Paragraph("lp", font(12, 0)));
+        PdfPCell name = new PdfPCell(new Paragraph("Nazwisko Imię", font(12, 0)));
+        PdfPCell legitimation = new PdfPCell(new Paragraph("legitymacja", font(12, 0)));
+        PdfPCell licenceNumber = new PdfPCell(new Paragraph("numer licencji", font(12, 0)));
+        PdfPCell licenceDate = new PdfPCell(new Paragraph("licencja ważna do", font(12, 0)));
+        PdfPCell contributionDate = new PdfPCell(new Paragraph("Składka ważna do", font(12, 0)));
+        PdfPCell erasedReason = new PdfPCell(new Paragraph("Przyczyna skreślenia", font(12, 0)));
+
+        titleTable.setWidthPercentage(100);
+
+        titleTable.addCell(lp);
+        titleTable.addCell(name);
+        titleTable.addCell(legitimation);
+        titleTable.addCell(licenceNumber);
+        titleTable.addCell(licenceDate);
+        titleTable.addCell(contributionDate);
+        titleTable.addCell(erasedReason);
+
+        document.add(titleTable);
+
+        document.add(newLine);
+
+        for (int i = 0; i < memberEntityList.size(); i++) {
+
+            MemberEntity memberEntity = memberEntityList.get(i);
+
+            String memberEntityName = memberEntity.getSecondName().concat(" " + memberEntity.getFirstName());
+
+            PdfPTable memberTable = new PdfPTable(pointColumnWidths);
+
+            PdfPCell lpCell = new PdfPCell(new Paragraph(String.valueOf(i + 1), font(12, 0)));
+            PdfPCell nameCell = new PdfPCell(new Paragraph(memberEntityName, font(12, 0)));
+            PdfPCell legitimationCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLegitimationNumber()), font(12, 0)));
+            PdfPCell licenceNumberCell;
+            if (memberEntity.getLicense().getNumber() != null) {
+                licenceNumberCell = new PdfPCell(new Paragraph(memberEntity.getLicense().getNumber(), font(12, 0)));
+            } else {
+                licenceNumberCell = new PdfPCell(new Paragraph("", font(12, 0)));
+            }
+            PdfPCell licenceDateCell;
+            if(memberEntity.getLicense().getValidThru()!=null){
+                licenceDateCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getLicense().getValidThru()), font(12, 0)));
+            }
+            else {
+                licenceDateCell = new PdfPCell(new Paragraph("", font(12, 0)));
+            }
+            PdfPCell contributionDateCell;
+            if (memberEntity.getHistory().getContributionList().size() > 0) {
+                contributionDateCell = new PdfPCell(new Paragraph(String.valueOf(memberEntity.getHistory().getContributionList().get(0).getValidThru()), font(12, 0)));
+            } else {
+                contributionDateCell = new PdfPCell(new Paragraph("BRAK SKŁADEK", font(12, 0)));
+            }
+            PdfPCell erasedReasonCell = new PdfPCell(new Paragraph(memberEntity.getErasedEntity().getErasedType() + " " + memberEntity.getErasedEntity().getDate(), font(12, 0)));
+
+            memberTable.setWidthPercentage(100);
+
+            memberTable.addCell(lpCell);
+            memberTable.addCell(nameCell);
+            memberTable.addCell(legitimationCell);
+            memberTable.addCell(licenceNumberCell);
+            memberTable.addCell(licenceDateCell);
+            memberTable.addCell(contributionDateCell);
+            memberTable.addCell(erasedReasonCell);
+
+            document.add(memberTable);
+
+        }
+
+
+        document.close();
+
+
+        byte[] data = convertToByteArray(fileName);
+        FilesModel filesModel = FilesModel.builder()
+                .name(fileName)
+                .data(data)
+                .type(String.valueOf(MediaType.APPLICATION_PDF))
+                .build();
+
+        FilesEntity filesEntity =
+                createFileEntity(filesModel);
+
+        File file = new File(fileName);
+
+        file.delete();
+        return filesEntity;
+
+    }
+
 
     private String getSex(String pesel) {
         int i = pesel.charAt(10);

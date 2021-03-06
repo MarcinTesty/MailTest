@@ -3,8 +3,8 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.ContributionEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
+import com.shootingplace.shootingplace.domain.models.MemberDTO;
 import com.shootingplace.shootingplace.repositories.ContributionRepository;
-import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,16 +25,14 @@ public class ContributionService {
     private final MemberRepository memberRepository;
     private final HistoryService historyService;
     private final ChangeHistoryService changeHistoryService;
-    private final LicenseRepository licenseRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService, ChangeHistoryService changeHistoryService, LicenseRepository licenseRepository) {
+    public ContributionService(ContributionRepository contributionRepository, MemberRepository memberRepository, HistoryService historyService, ChangeHistoryService changeHistoryService) {
         this.contributionRepository = contributionRepository;
         this.memberRepository = memberRepository;
         this.historyService = historyService;
         this.changeHistoryService = changeHistoryService;
-        this.licenseRepository = licenseRepository;
     }
 
     public boolean addContribution(String memberUUID, LocalDate contributionPaymentDay, String pinCode) {
@@ -191,6 +191,61 @@ public class ContributionService {
         memberRepository.saveAndFlush(memberEntity);
 
         return true;
+
+    }
+
+    public List<MemberDTO> getContributionSum(LocalDate firstDate, LocalDate secondDate, boolean condition) {
+
+        List<MemberEntity> memberEntities = memberRepository.findAll();
+
+        memberEntities.forEach(t -> t.getHistory().getContributionList().forEach(g -> {
+            if (g.getHistoryUUID() == null) {
+                g.setHistoryUUID(t.getUuid());
+                contributionRepository.saveAndFlush(g);
+            }
+        }));
+
+        contributionRepository.findAll().forEach(e -> {
+            if (e.getHistoryUUID() == null) {
+                contributionRepository.delete(e);
+            }
+        });
+
+        List<MemberDTO> collect1 = new ArrayList<>();
+
+        memberRepository.findAll().stream().filter(f -> f.getAdult().equals(condition))
+                .forEach(e -> e.getHistory().getContributionList()
+                        .stream()
+                        .filter(f -> f.getHistoryUUID() != null)
+                        .filter(f -> f.getPaymentDay().isAfter(firstDate.minusDays(1)))
+                        .filter(f -> f.getPaymentDay().isBefore(secondDate.plusDays(1)))
+                        .forEach(d -> collect1.add(Mapping.map2(e))));
+
+        collect1.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
+
+        return collect1;
+
+    }
+
+    public List<MemberDTO> getJoinDateSum(LocalDate firstDate, LocalDate secondDate) {
+
+        return memberRepository.findAll().stream()
+                .filter(f -> f.getJoinDate().isAfter(firstDate.minusDays(1)))
+                .filter(f -> f.getJoinDate().isBefore(secondDate.plusDays(1)))
+                .map(Mapping::map2)
+                .sorted(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
+                .collect(Collectors.toList());
+    }
+
+    public List<MemberDTO> getErasedMembersSum(LocalDate firstDate, LocalDate secondDate) {
+
+        return memberRepository.findAll().stream()
+                .filter(f -> f.getErasedEntity() != null)
+                .filter(f -> f.getErasedEntity().getDate().isAfter(firstDate.minusDays(1)))
+                .filter(f -> f.getErasedEntity().getDate().isBefore(secondDate.plusDays(1)))
+                .map(Mapping::map2)
+                .sorted(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
+                .collect(Collectors.toList());
 
     }
 }

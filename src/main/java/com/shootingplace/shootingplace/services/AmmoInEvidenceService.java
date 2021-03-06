@@ -29,7 +29,7 @@ public class AmmoInEvidenceService {
         this.ammoEvidenceRepository = ammoEvidenceRepository;
     }
 
-    void addAmmoUsedEntityToAmmoInEvidenceEntity(AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity) {
+    boolean addAmmoUsedEntityToAmmoInEvidenceEntity(AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity) {
 
         List<AmmoEvidenceEntity> collect = ammoEvidenceRepository.findAll().stream().filter(AmmoEvidenceEntity::isOpen).collect(Collectors.toList());
 
@@ -37,6 +37,7 @@ public class AmmoInEvidenceService {
         if (collect.size() < 1) {
             if (ammoUsedToEvidenceEntity.getCounter() < 0) {
                 System.out.println("nie można dodać ujemnej wartości");
+                return false;
             } else {
 //                nadawanie numeru listy
                 int number;
@@ -46,7 +47,7 @@ public class AmmoInEvidenceService {
 //                    nadawanie kolejnego numeru
                 } else {
                     List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll();
-                    number = all.size();
+                    number = all.size()+1;
                 }
                 String evidenceNumber = number + "-LA-" + LocalDate.now().getYear();
                 AmmoEvidenceEntity buildEvidence = AmmoEvidenceEntity.builder()
@@ -98,14 +99,11 @@ public class AmmoInEvidenceService {
                         .orElseThrow(EntityNotFoundException::new);
 
                 List<AmmoUsedToEvidenceEntity> ammoUsedToEvidenceEntityList = ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList();
-//        Nie znaleziono podanego membera
                 if (ammoUsedToEvidenceEntityList.stream().noneMatch(f -> f.getName().equals(ammoUsedToEvidenceEntity.getName()))) {
-//                    System.out.println("nie ma membera");
                     if (ammoUsedToEvidenceEntity.getCounter() <= 0) {
                         System.out.println("nie można dodać ujemnej wartości");
+                        return false;
                     } else {
-//                        System.out.println("wartość jest dodatnia");
-                        System.out.println(ammoUsedToEvidenceEntity.getCounter());
                         ammoUsedToEvidenceEntityList.add(ammoUsedToEvidenceEntity);
                         ammoInEvidenceEntity.setQuantity(ammoInEvidenceEntity.getQuantity() + ammoUsedToEvidenceEntity.getCounter());
 
@@ -165,7 +163,7 @@ public class AmmoInEvidenceService {
                 .findFirst()
                 .orElse(null);
         if (ammoEvidenceEntity == null) {
-            return;
+            return false;
         }
 
         if (ammoEvidenceEntity
@@ -187,7 +185,7 @@ public class AmmoInEvidenceService {
                 ammoEvidenceRepository.delete(ammoEvidenceEntity);
             }
         }
-        armoryService.substratAmmo(ammoUsedToEvidenceEntity.getCaliberUUID(), ammoUsedToEvidenceEntity.getCounter());
+        return armoryService.substratAmmo(ammoUsedToEvidenceEntity.getCaliberUUID(), ammoUsedToEvidenceEntity.getCounter());
 
     }
 

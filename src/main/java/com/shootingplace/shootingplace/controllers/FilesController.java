@@ -115,6 +115,19 @@ public class FilesController {
         }
     }
 
+    @GetMapping("/downloadAllErasedMembers")
+    public ResponseEntity<byte[]> getAllErasedMembers() throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.getAllErasedMembers();
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(filesEntity.getType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .body(filesEntity.getData());
+        } finally {
+            filesService.delete(filesEntity);
+        }
+    }
+
     @GetMapping("/downloadAllMembersWithValidLicenseNoContribution")
     public ResponseEntity<byte[]> getAllMembersWithLicenceValidAndContributionNotValid() throws IOException, DocumentException {
         FilesEntity filesEntity = filesService.getAllMembersWithLicenceValidAndContributionNotValid();
@@ -168,10 +181,10 @@ public class FilesController {
     }
 
     @GetMapping("/downloadGunTransportCertificate")
-    public ResponseEntity<byte[]> getGunTransportCertificate(@RequestParam List<String> guns, @RequestParam String date,@RequestParam String date1) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getGunTransportCertificate(@RequestParam List<String> guns, @RequestParam String date, @RequestParam String date1) throws IOException, DocumentException {
         LocalDate parse = LocalDate.parse(date);
         LocalDate parse1 = LocalDate.parse(date1);
-        FilesEntity filesEntity = filesService.getGunTransportCertificate(guns, parse,parse1);
+        FilesEntity filesEntity = filesService.getGunTransportCertificate(guns, parse, parse1);
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
@@ -183,14 +196,14 @@ public class FilesController {
     }
 
     @GetMapping("/downloadMetric/{tournamentUUID}")
-    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID, @RequestParam String otherID, @PathVariable String tournamentUUID,@RequestParam List<String> competitions,@RequestParam String startNumber) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> getMemberMetrics(@RequestParam String memberUUID, @RequestParam String otherID, @PathVariable String tournamentUUID, @RequestParam List<String> competitions, @RequestParam String startNumber) throws IOException, DocumentException {
         if (otherID.equals("0")) {
             otherID = null;
         } else {
             memberUUID = null;
         }
 
-        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID, otherID, tournamentUUID, competitions,startNumber);
+        FilesEntity filesEntity = filesService.getStartsMetric(memberUUID, otherID, tournamentUUID, competitions, startNumber);
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))

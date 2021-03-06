@@ -44,32 +44,30 @@ public class ScoreService {
 
         ScoreEntity scoreEntity = scoreEntityList.stream().max(Comparator.comparing(ScoreEntity::getMetricNumber)).orElse(null);
 
-        boolean match = scoreEntityList.stream().anyMatch(a->a.getMember()==(memberEntity));
+        boolean match = scoreEntityList.stream().anyMatch(a -> a.getMember() == (memberEntity));
 
-        boolean match1 = scoreEntityList.stream().anyMatch(a->a.getOtherPersonEntity()==(otherPersonEntity));
+        boolean match1 = scoreEntityList.stream().anyMatch(a -> a.getOtherPersonEntity() == (otherPersonEntity));
 
         if (memberEntity != null) {
             if (match) {
-                number = scoreEntityList.stream().filter(f -> f.getMember()==(memberEntity)).findFirst().get().getMetricNumber();
-            }
-            else{
-                if(scoreEntity != null){
-                number = scoreEntity.getMetricNumber()+1;
+                number = scoreEntityList.stream().filter(f -> f.getMember() == (memberEntity)).findFirst().get().getMetricNumber();
+            } else {
+                if (scoreEntity != null) {
+                    number = scoreEntity.getMetricNumber() + 1;
 
-                }else {
+                } else {
                     number = 1;
                 }
             }
         }
         if (otherPersonEntity != null) {
             if (match1) {
-                number = scoreEntityList.stream().filter(f -> f.getOtherPersonEntity()==(otherPersonEntity)).findFirst().get().getMetricNumber();
-            }
-            else{
-                if(scoreEntity != null){
-                    number = scoreEntity.getMetricNumber()+1;
+                number = scoreEntityList.stream().filter(f -> f.getOtherPersonEntity() == (otherPersonEntity)).findFirst().get().getMetricNumber();
+            } else {
+                if (scoreEntity != null) {
+                    number = scoreEntity.getMetricNumber() + 1;
 
-                }else {
+                } else {
                     number = 1;
                 }
             }

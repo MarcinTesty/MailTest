@@ -1,5 +1,6 @@
 package com.shootingplace.shootingplace.domain.models;
 
+import com.shootingplace.shootingplace.domain.enums.ErasedType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,10 @@ public class MemberDTO {
     private Integer legitimationNumber;
     private String firstName;
     private String secondName;
+    private ErasedType erasedType;
+    private Erased erasedEntity;
     private License license;
+    private Club club;
     private Boolean pzss;
 
 
@@ -101,5 +105,29 @@ public class MemberDTO {
 
     public void setPzss(Boolean pzss) {
         this.pzss = pzss;
+    }
+
+    public Erased getErasedEntity() {
+        return erasedEntity;
+    }
+
+    public void setErasedEntity(Erased erasedEntity) {
+        this.erasedEntity = erasedEntity;
+    }
+
+    public Club getClub() {
+        return club;
+    }
+
+    public void setClub(Club club) {
+        this.club = club;
+    }
+
+    public ErasedType getErasedType() {
+        return erasedType;
+    }
+
+    public void setErasedType(ErasedType erasedType) {
+        this.erasedType = erasedType;
     }
 }

@@ -21,6 +21,27 @@ public class ContributionController {
         this.changeHistoryService = changeHistoryService;
     }
 
+    @GetMapping("/contributionSum")
+    public ResponseEntity<?> getContributionSum(@RequestParam String firstDate, @RequestParam String secondDate,@RequestParam boolean condition) {
+        LocalDate parseFirstDate = LocalDate.parse(firstDate);
+        LocalDate parseSecondDate = LocalDate.parse(secondDate);
+        return ResponseEntity.ok(contributionService.getContributionSum(parseFirstDate, parseSecondDate,condition));
+    }
+
+    @GetMapping("/joinDateSum")
+    public ResponseEntity<?> getJoinDateSum(@RequestParam String firstDate, @RequestParam String secondDate) {
+        LocalDate parseFirstDate = LocalDate.parse(firstDate);
+        LocalDate parseSecondDate = LocalDate.parse(secondDate);
+        return ResponseEntity.ok(contributionService.getJoinDateSum(parseFirstDate, parseSecondDate));
+    }
+
+    @GetMapping("/erasedSum")
+    public ResponseEntity<?> getErasedMembersSum(@RequestParam String firstDate, @RequestParam String secondDate) {
+        LocalDate parseFirstDate = LocalDate.parse(firstDate);
+        LocalDate parseSecondDate = LocalDate.parse(secondDate);
+        return ResponseEntity.ok(contributionService.getErasedMembersSum(parseFirstDate, parseSecondDate));
+    }
+
     @Transactional
     @PostMapping("/history/{memberUUID}")
     public ResponseEntity<?> addHistoryContributionRecord(@PathVariable String memberUUID, @RequestParam String date, @RequestParam String pinCode) {

@@ -87,7 +87,6 @@ public class ChangeHistoryService {
                 userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Igor")).findFirst().orElse(null);
 
             }
-            System.out.println("dodaję");
             userEntity.getList().add(addRecord(userEntity, classNamePlusMethod,uuid));
             userRepository.save(userEntity);
         }

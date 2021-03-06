@@ -87,7 +87,7 @@ public class OtherPersonService {
     public List<String> getAllOthers() {
 
         List<String> list = new ArrayList<>();
-        otherPersonRepository.findAll()
+        otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive)
                 .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
@@ -96,7 +96,7 @@ public class OtherPersonService {
     public List<String> getAllOthersArbiters() {
 
         List<String> list = new ArrayList<>();
-        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
+        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null).filter(OtherPersonEntity::isActive)
                 .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;

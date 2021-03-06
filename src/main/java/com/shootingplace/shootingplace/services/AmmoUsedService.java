@@ -64,8 +64,8 @@ public class AmmoUsedService {
                     .caliberUUID(caliberUUID)
                     .build();
             validateAmmo(ammoUsedPersonal);
-            starEvidence(ammoUsedEvidence);
-            return true;
+            return starEvidence(ammoUsedEvidence);
+//            return true;
 
         }
         if (otherID > 0) {
@@ -84,8 +84,8 @@ public class AmmoUsedService {
                     .userName(name)
                     .caliberUUID(caliberUUID)
                     .build();
-            starEvidence(ammoUsedEvidence);
-            return true;
+            return starEvidence(ammoUsedEvidence);
+//            return true;
 
         }
 
@@ -135,12 +135,12 @@ public class AmmoUsedService {
 
     }
 
-    private void starEvidence(AmmoUsedEvidence ammoUsedEvidence) {
+    private boolean starEvidence(AmmoUsedEvidence ammoUsedEvidence) {
 
         AmmoUsedToEvidenceEntity ammoUsedToEvidenceEntity = createAmmoUsedToEvidenceEntity(ammoUsedEvidence);
 
         ammoUsedToEvidenceEntityRepository.saveAndFlush(ammoUsedToEvidenceEntity);
-        ammoInEvidenceService.addAmmoUsedEntityToAmmoInEvidenceEntity(ammoUsedToEvidenceEntity);
+        return ammoInEvidenceService.addAmmoUsedEntityToAmmoInEvidenceEntity(ammoUsedToEvidenceEntity);
 
     }
 

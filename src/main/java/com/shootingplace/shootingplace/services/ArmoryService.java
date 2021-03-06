@@ -122,11 +122,12 @@ public class ArmoryService {
 
     }
 
-    public void substratAmmo(String caliberUUID, Integer quantity) {
+    public boolean substratAmmo(String caliberUUID, Integer quantity) {
 
         CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
         if (caliberEntity.getQuantity() - quantity < 0) {
-            throw new IllegalArgumentException();
+//            throw new IllegalArgumentException();
+            return false;
         }
         CaliberUsedEntity caliberUsedEntity = CaliberUsedEntity.builder()
                 .date(LocalDate.now())
@@ -141,6 +142,7 @@ public class ArmoryService {
         caliberEntity.setQuantity(caliberEntity.getQuantity() - caliberUsedEntity.getAmmoUsed());
         caliberRepository.saveAndFlush(caliberEntity);
 
+        return true;
     }
 
     public List<CalibersAddedEntity> getHistoryOfCaliber(String caliberUUID) {

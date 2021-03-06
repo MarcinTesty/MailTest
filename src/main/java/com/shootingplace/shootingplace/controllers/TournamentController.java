@@ -1,8 +1,8 @@
 package com.shootingplace.shootingplace.controllers;
 
-import com.shootingplace.shootingplace.domain.entities.TournamentEntity;
 import com.shootingplace.shootingplace.domain.models.Tournament;
 import com.shootingplace.shootingplace.domain.models.TournamentDTO;
+import com.shootingplace.shootingplace.services.ChangeHistoryService;
 import com.shootingplace.shootingplace.services.TournamentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,13 +16,15 @@ import java.util.List;
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final ChangeHistoryService changeHistoryService;
 
-    public TournamentController(TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService, ChangeHistoryService changeHistoryService) {
         this.tournamentService = tournamentService;
+        this.changeHistoryService = changeHistoryService;
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<TournamentEntity>> getListOfTournaments() {
+    public ResponseEntity<List<Tournament>> getListOfTournaments() {
         return ResponseEntity.ok(tournamentService.getListOfTournaments());
     }
 
@@ -30,12 +32,14 @@ public class TournamentController {
     public ResponseEntity<List<TournamentDTO>> getListOfClosedTournaments() {
         return ResponseEntity.ok().body(tournamentService.getClosedTournaments());
     }
+
     @GetMapping("/competitions")
-    public ResponseEntity<List<String>> getCompetitionsListInTournament(@RequestParam String tournamentUUID){
+    public ResponseEntity<List<String>> getCompetitionsListInTournament(@RequestParam String tournamentUUID) {
         return ResponseEntity.ok().body(tournamentService.getCompetitionsListInTournament(tournamentUUID));
     }
+
     @GetMapping("/stat")
-    public ResponseEntity<List<String>> getStatistics(@RequestParam String tournamentUUID){
+    public ResponseEntity<List<String>> getStatistics(@RequestParam String tournamentUUID) {
         return ResponseEntity.ok().body(tournamentService.getStatistics(tournamentUUID));
     }
 
@@ -61,6 +65,7 @@ public class TournamentController {
         return ResponseEntity.status(418).body("I'm a teapot");
 
     }
+
     @PostMapping("/removeRTSArbiter/{tournamentUUID}")
     public ResponseEntity<?> removeRTSArbiterFromTournament(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
@@ -85,6 +90,19 @@ public class TournamentController {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(418).body("I'm a teapot");
+        }
+    }
+
+    @PatchMapping("/open/{tournamentUUID}")
+    public ResponseEntity<?> openTournament(@PathVariable String tournamentUUID,@RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            if (tournamentService.openTournament(tournamentUUID,pinCode)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(418).body("I'm a teapot");
+            }
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
         }
     }
 
@@ -147,6 +165,7 @@ public class TournamentController {
 
         return ResponseEntity.badRequest().build();
     }
+
     @PutMapping("/addOthersRTSArbiters/{tournamentUUID}")
     public ResponseEntity<?> addOthersRTSArbiters(@PathVariable String tournamentUUID, @RequestParam int number, @RequestParam int id) {
 
