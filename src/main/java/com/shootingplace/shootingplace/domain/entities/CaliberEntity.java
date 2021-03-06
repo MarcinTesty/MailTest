@@ -8,6 +8,9 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.List;
+
 
 @Entity
 @AllArgsConstructor
@@ -21,7 +24,10 @@ public class CaliberEntity {
 
     private String name;
     private Integer quantity;
-    private Integer[] ammoUsed;
+    @OneToMany
+    private List<CaliberUsedEntity> ammoUsed;
+    @OneToMany
+    private List<CalibersAddedEntity> ammoAdded;
 
     public String getUuid() {
         return uuid;
@@ -43,12 +49,19 @@ public class CaliberEntity {
         this.quantity = quantity;
     }
 
-    public Integer[] getAmmoUsed() {
+    public List<CaliberUsedEntity> getAmmoUsed() {
         return ammoUsed;
     }
 
-    public void setAmmoUsed(Integer[] ammoUsed) {
+    public void setAmmoUsed(List<CaliberUsedEntity> ammoUsed) {
         this.ammoUsed = ammoUsed;
     }
 
+    public List<CalibersAddedEntity> getAmmoAdded() {
+        return ammoAdded;
+    }
+
+    public void setAmmoAdded(List<CalibersAddedEntity> ammoAdded) {
+        this.ammoAdded = ammoAdded;
+    }
 }

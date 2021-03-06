@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -50,7 +51,9 @@ public class CompetitionMembersListService {
                 scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed().thenComparing(ScoreEntity::getInnerTen).reversed().thenComparing(ScoreEntity::getOuterTen).reversed());
                 competitionMembersListRepository.saveAndFlush(list);
                 LOG.info("Dodano Klubowicza do Listy");
-                historyService.addCompetitionRecord(member.getUuid(), list);
+                if (member != null) {
+                    historyService.addCompetitionRecord(member.getUuid(), list);
+                }
                 return true;
             }
         }
@@ -131,8 +134,9 @@ public class CompetitionMembersListService {
         return true;
     }
 
-    public String getIDByName(String name) {
-        return "\"" + competitionMembersListRepository.findAll().stream().filter(f -> f.getName().equals(name)).findFirst().orElseThrow(EntityNotFoundException::new).getUuid() + "\"";
+    public String getIDByName(String name, String tournamentUUID) {
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        return "\"" + tournamentEntity.getCompetitionsList().stream().filter(f -> f.getName().equals(name)).findFirst().orElseThrow(EntityNotFoundException::new).getUuid() + "\"";
     }
 
     public boolean removeListFromTournament(String tournamentUUID, String competitionUUID) {
@@ -147,6 +151,32 @@ public class CompetitionMembersListService {
         } else {
             return false;
         }
+
+    }
+
+    public List<String> getMemberStartsInTournament(String memberUUID, int otherID, String tournamentUUID) {
+
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        List<String> list = new ArrayList<>();
+
+        if (otherID > 0) {
+            OtherPersonEntity otherPersonEntity = otherPersonRepository.findById(otherID).orElseThrow(EntityNotFoundException::new);
+
+            tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().stream().filter(f->f.getOtherPersonEntity()!=null).forEach(g -> {
+                if (g.getOtherPersonEntity().getId().equals(otherPersonEntity.getId())) {
+                    list.add(e.getName());
+                }
+            }));
+        } else {
+            MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+
+            tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().stream().filter(f->f.getMember()!=null).forEach(g -> {
+                if (g.getMember().getUuid().equals(memberEntity.getUuid())) {
+                    list.add(e.getName());
+                }
+            }));
+        }
+        return list;
 
     }
 }

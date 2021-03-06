@@ -5,6 +5,7 @@ import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Mapping {
 
@@ -29,8 +30,45 @@ public class Mapping {
                 .memberPermissions(map(e.getMemberPermissions()))
                 .build();
     }
-    static MemberDTO map2(MemberEntity e){
-        return MemberDTO.builder()
+
+    static MemberDTO map2(MemberEntity e) {
+        if (e.getErasedEntity() != null) {
+            return Optional.of(e).map(o ->
+                    MemberDTO.builder()
+                            .uuid(e.getUuid())
+                            .firstName(e.getFirstName())
+                            .secondName(e.getSecondName())
+                            .adult(e.getAdult())
+                            .active(e.getActive())
+                            .erased(e.getErased())
+                            .erasedEntity(map(e.getErasedEntity()))
+                            .pzss(e.getPzss())
+                            .legitimationNumber(e.getLegitimationNumber())
+                            .license(map(e.getLicense()))
+                            .club(Mapping.map(e.getClub()))
+                            .joinDate(e.getJoinDate())
+                            .build()).orElse(null);
+        } else {
+            return Optional.of(e).map(o ->
+                    MemberDTO.builder()
+                            .uuid(e.getUuid())
+                            .firstName(e.getFirstName())
+                            .secondName(e.getSecondName())
+                            .adult(e.getAdult())
+                            .active(e.getActive())
+                            .erased(e.getErased())
+                            .pzss(e.getPzss())
+                            .legitimationNumber(e.getLegitimationNumber())
+                            .license(map(e.getLicense()))
+                            .club(Mapping.map(e.getClub()))
+                            .joinDate(e.getJoinDate())
+                            .build()).orElse(null);
+        }
+
+    }
+
+    static MemberEntity map2(MemberDTO e) {
+        return MemberEntity.builder()
                 .uuid(e.getUuid())
                 .firstName(e.getFirstName())
                 .secondName(e.getSecondName())
@@ -39,7 +77,6 @@ public class Mapping {
                 .erased(e.getErased())
                 .pzss(e.getPzss())
                 .legitimationNumber(e.getLegitimationNumber())
-                .license(map(e.getLicense()))
                 .joinDate(e.getJoinDate())
                 .build();
     }
@@ -64,6 +101,15 @@ public class Mapping {
                 .history(map(e.getHistory()))
                 .memberPermissions(map(e.getMemberPermissions()))
                 .build();
+    }
+
+    static Erased map(ErasedEntity a) {
+        return Optional.ofNullable(a).map(e -> Erased.builder()
+                .additionalDescription(a.getAdditionalDescription())
+                .erasedType(a.getErasedType())
+                .date(a.getDate())
+                .uuid(a.getUuid())
+                .build()).orElse(null);
     }
 
     static Address map(AddressEntity a) {
@@ -232,14 +278,60 @@ public class Mapping {
                 .name(t.getName())
                 .date(t.getDate())
                 .open(t.isOpen())
+                .competitionsList((t.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList())))
                 .build();
+    }
+
+    static CompetitionMembersList map(CompetitionMembersListEntity c) {
+        return CompetitionMembersList.builder()
+                .name(c.getName())
+                .date(c.getDate())
+                .attachedToTournament(c.getAttachedToTournament())
+                .scoreList(c.getScoreList().stream().map(Mapping::map).collect(Collectors.toList()))
+                .discipline(c.getDiscipline())
+                .build();
+    }
+
+    static Score map(ScoreEntity s) {
+        if (s.getMember() != null) {
+            return Score.builder()
+                    .member(map2(s.getMember()))
+                    .ammunition(s.isAmmunition())
+                    .gun(s.isGun())
+                    .metricNumber(s.getMetricNumber())
+                    .innerTen(s.getInnerTen())
+                    .outerTen(s.getOuterTen())
+                    .otherPersonEntity(s.getOtherPersonEntity())
+                    .score(s.getScore())
+                    .competitionMembersListEntityUUID(s.getCompetitionMembersListEntityUUID())
+                    .uuid(s.getUuid())
+                    .build();
+        }
+        else{
+            return Score.builder()
+                    .member(null)
+                    .ammunition(s.isAmmunition())
+                    .gun(s.isGun())
+                    .metricNumber(s.getMetricNumber())
+                    .innerTen(s.getInnerTen())
+                    .outerTen(s.getOuterTen())
+                    .otherPersonEntity(s.getOtherPersonEntity())
+                    .score(s.getScore())
+                    .competitionMembersListEntityUUID(s.getCompetitionMembersListEntityUUID())
+                    .uuid(s.getUuid())
+                    .build();
+        }
     }
 
     static TournamentEntity map(Tournament t) {
         return TournamentEntity.builder()
                 .name(t.getName())
                 .date(t.getDate())
-                .open(t.getOpen())
+                .open(t.isOpen())
+                .mainArbiter(map2(t.getMainArbiter()))
+                .commissionRTSArbiter(map2(t.getCommissionRTSArbiter()))
+                .otherMainArbiter(t.getOtherMainArbiter())
+                .otherCommissionRTSArbiter(t.getOtherCommissionRTSArbiter())
                 .build();
     }
 
@@ -287,7 +379,6 @@ public class Mapping {
         return Optional.ofNullable(c).map(e -> Caliber.builder()
                 .name(e.getName())
                 .quantity(e.getQuantity())
-                .ammoUsed(e.getAmmoUsed())
                 .build()).orElse(null);
     }
 
@@ -295,7 +386,6 @@ public class Mapping {
         return Optional.ofNullable(c).map(e -> CaliberEntity.builder()
                 .name(e.getName())
                 .quantity(e.getQuantity())
-                .ammoUsed(e.getAmmoUsed())
                 .build()).orElse(null);
     }
 
@@ -309,11 +399,6 @@ public class Mapping {
                 .build()).orElse(null);
     }
 
-    public static CompetitionMembersList map(CompetitionMembersListEntity c) {
-        return Optional.ofNullable(c).map(e -> CompetitionMembersList.builder()
-                .name(e.getName())
-                .build()).orElse(null);
-    }
 
     public static CompetitionMembersListEntity map(CompetitionMembersList c) {
         return Optional.ofNullable(c).map(e -> CompetitionMembersListEntity.builder()
@@ -357,5 +442,11 @@ public class Mapping {
                 .name(a.getName())
                 .build();
 
+    }
+
+    static Club map(ClubEntity c) {
+        return Club.builder()
+                .name(c.getName())
+                .build();
     }
 }

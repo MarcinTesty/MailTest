@@ -23,30 +23,31 @@ public class TournamentService {
     private final CompetitionMembersListRepository competitionMembersListRepository;
     private final CompetitionRepository competitionRepository;
     private final HistoryService historyService;
+    private final ChangeHistoryService changeHistoryService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public TournamentService(TournamentRepository tournamentRepository, MemberRepository memberRepository, OtherPersonRepository otherPersonRepository, CompetitionMembersListRepository competitionMembersListRepository, CompetitionRepository competitionRepository, HistoryService historyService) {
+    public TournamentService(TournamentRepository tournamentRepository, MemberRepository memberRepository, OtherPersonRepository otherPersonRepository, CompetitionMembersListRepository competitionMembersListRepository, CompetitionRepository competitionRepository, HistoryService historyService, ChangeHistoryService changeHistoryService) {
         this.tournamentRepository = tournamentRepository;
         this.memberRepository = memberRepository;
         this.otherPersonRepository = otherPersonRepository;
         this.competitionMembersListRepository = competitionMembersListRepository;
         this.competitionRepository = competitionRepository;
         this.historyService = historyService;
+        this.changeHistoryService = changeHistoryService;
     }
 
     public String createNewTournament(Tournament tournament) {
-        TournamentEntity tournamentEntity = Mapping.map(tournament);
+        TournamentEntity tournamentEntity = TournamentEntity.builder()
+                .name(tournament.getName())
+                .date(tournament.getDate())
+                .open(tournament.isOpen())
+                .build();
 
-        if (tournament.getMainArbiter() == null) {
-            tournamentEntity.setMainArbiter(null);
-        }
-        if (tournament.getCommissionRTSArbiter() == null) {
-            tournamentEntity.setCommissionRTSArbiter(null);
-        }
         if (tournament.getDate() == null) {
             tournamentEntity.setDate(LocalDate.now());
         }
+
 
         tournamentRepository.saveAndFlush(tournamentEntity);
         LOG.info("Stworzono nowe zawody " + tournamentEntity.getName());
@@ -80,14 +81,35 @@ public class TournamentService {
     }
 
 
-    public List<TournamentEntity> getListOfTournaments() {
+    public List<Tournament> getListOfTournaments() {
         LOG.info("Wyświetlono listę zawodów");
-        return tournamentRepository
+
+        List<Tournament> list = new ArrayList<>();
+
+        List<TournamentEntity> collect = tournamentRepository
                 .findAll()
                 .stream()
                 .filter(TournamentEntity::isOpen)
-                .sorted(Comparator.comparing(TournamentEntity::getDate)
-                        .reversed()).collect(Collectors.toList());
+                .collect(Collectors.toList());
+        for (TournamentEntity tournamentEntity : collect) {
+        Tournament tournament = Tournament.builder()
+                .uuid(tournamentEntity.getUuid())
+                .date(tournamentEntity.getDate())
+                .name(tournamentEntity.getName())
+                .open(tournamentEntity.isOpen())
+                .mainArbiter(Mapping.map2(tournamentEntity.getMainArbiter()))
+                .otherMainArbiter(tournamentEntity.getOtherMainArbiter())
+                .commissionRTSArbiter(Mapping.map2(tournamentEntity.getCommissionRTSArbiter()))
+                .otherCommissionRTSArbiter(tournamentEntity.getOtherCommissionRTSArbiter())
+                .arbitersList(tournamentEntity.getArbitersList().stream().map(Mapping::map2).collect(Collectors.toList()))
+                .otherArbitersList(tournamentEntity.getOtherArbitersList())
+                .arbitersRTSList(tournamentEntity.getArbitersRTSList().stream().map(Mapping::map2).collect(Collectors.toList()))
+                .otherArbitersRTSList(tournamentEntity.getOtherArbitersRTSList())
+                .competitionsList(tournamentEntity.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList()))
+                .build();
+            list.add(tournament);
+        }
+        return list;
     }
 
     public boolean closeTournament(String tournamentUUID) {
@@ -458,7 +480,6 @@ public class TournamentService {
                 competitionMembersListRepository.saveAndFlush(competitionMembersList);
                 List<CompetitionMembersListEntity> competitionsList = tournamentEntity.getCompetitionsList();
                 competitionsList.add(competitionMembersList);
-                competitionsList.sort(Comparator.comparing(CompetitionMembersListEntity::getDiscipline));
                 tournamentRepository.saveAndFlush(tournamentEntity);
                 LOG.info("Dodano konkurencję do zawodów");
 
@@ -506,7 +527,7 @@ public class TournamentService {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
         List<String> list = new ArrayList<>();
 
-        tournamentEntity.getCompetitionsList().forEach(e->list.add(e.getName()));
+        tournamentEntity.getCompetitionsList().forEach(e -> list.add(e.getName()));
 
         return list;
     }
@@ -647,5 +668,45 @@ public class TournamentService {
             return true;
         }
         return false;
+    }
+
+    public List<String> getStatistics(String tournamentUUID) {
+
+        TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+        List<String> list = new ArrayList<>();
+
+        List<Integer> list1 = new ArrayList<>();
+        tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().forEach(g -> list1.add(g.getMetricNumber())));
+        int i = list1.stream().mapToInt(v -> v).max().orElseThrow(NoSuchElementException::new);
+
+
+        List<ScoreEntity> list2 = new ArrayList<>();
+        tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().stream().filter(ScoreEntity::isAmmunition).forEach(list2::add));
+
+        List<ScoreEntity> list3 = new ArrayList<>();
+        tournamentEntity.getCompetitionsList().forEach(e -> e.getScoreList().stream().filter(ScoreEntity::isGun).forEach(list3::add));
+
+
+        list.add(String.valueOf(tournamentEntity.getCompetitionsList().size()));
+        list.add(String.valueOf(i));
+        list.add(String.valueOf(list1.size()));
+        list.add(String.valueOf(list2.size()));
+        list.add(String.valueOf(list3.size()));
+        return list;
+    }
+
+    public boolean openTournament(String tournamentUUID, String pinCode) {
+        if (tournamentRepository.findAll().stream().anyMatch(TournamentEntity::isOpen)) {
+            return false;
+        } else {
+            TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);
+
+            LOG.info("Zawody " + tournamentEntity.getName() + " zostały otwarte");
+            tournamentEntity.setOpen(true);
+            tournamentRepository.saveAndFlush(tournamentEntity);
+            changeHistoryService.addRecordToChangeHistory(pinCode, tournamentEntity.getClass().getSimpleName() + " openTournament", tournamentUUID);
+            return true;
+
+        }
     }
 }

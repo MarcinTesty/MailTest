@@ -63,16 +63,6 @@ public class CompetitionService {
                 .name("10m Karabin pneumatyczny 10 strzałów OPEN")
                 .discipline(Discipline.RIFLE.getName())
                 .build());
-        competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID().toString())
-                .name("10m Strzelba dynamiczna 7 strzałów OPEN")
-                .discipline(Discipline.SHOTGUN.getName())
-                .build());
-        competitionRepository.saveAndFlush(CompetitionEntity.builder()
-                .uuid(UUID.randomUUID().toString())
-                .name("10m Strzelba statyczna 7 strzałów OPEN")
-                .discipline(Discipline.SHOTGUN.getName())
-                .build());
         LOG.info("Stworzono encje konkurencji");
     }
 

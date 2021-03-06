@@ -23,6 +23,9 @@ public class HistoryEntity {
     @OrderBy("paymentDay DESC,validThru DESC")
     private List<ContributionEntity> contributionList;
     private String[] licenseHistory;
+    // to należy przerobić na jakąś normalną encję
+//    private List<LicensePaymentHistory> licensePaymentHistory; --->
+//    ---> musi posiadać pola uuid, date, memberUUID, validForYear
     private LocalDate[] licensePaymentHistory;
 
     private Boolean patentFirstRecord = false;

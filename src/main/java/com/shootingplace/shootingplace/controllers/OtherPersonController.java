@@ -57,6 +57,9 @@ public class OtherPersonController {
                     .instructorNumber(null)
                     .build();
         }
+        if (club.isEmpty()){
+            club = "BRAK";
+        }
 
         if (otherPersonService.addPerson(club, person, memberPermissions)) {
             return ResponseEntity.status(201).build();
@@ -81,9 +84,9 @@ public class OtherPersonController {
         return ResponseEntity.ok().body(otherPersonService.getAll());
     }
 
-    @DeleteMapping("/")
-    public ResponseEntity<?> deletePerson(@RequestParam int id) {
-        if (otherPersonService.deletePerson(id)) {
+    @PostMapping("/")
+    public ResponseEntity<?> deactivatePerson(@RequestParam int id) {
+        if (otherPersonService.deactivatePerson(id)) {
             return ResponseEntity.ok().build();
         } else
             return ResponseEntity.notFound().build();

@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OtherPersonService {
@@ -73,6 +74,7 @@ public class OtherPersonService {
                 .firstName(person.getFirstName().substring(0, 1).toUpperCase() + person.getFirstName().substring(1).toLowerCase())
                 .secondName(person.getSecondName().toUpperCase())
                 .phoneNumber(person.getPhoneNumber().trim())
+                .active(true)
                 .email(person.getEmail())
                 .permissionsEntity(permissionsEntity)
                 .club(clubEntity)
@@ -85,7 +87,7 @@ public class OtherPersonService {
     public List<String> getAllOthers() {
 
         List<String> list = new ArrayList<>();
-        otherPersonRepository.findAll()
+        otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive)
                 .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub: " + e.getClub().getName() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
@@ -94,7 +96,7 @@ public class OtherPersonService {
     public List<String> getAllOthersArbiters() {
 
         List<String> list = new ArrayList<>();
-        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null)
+        otherPersonRepository.findAll().stream().filter(f -> f.getPermissionsEntity() != null).filter(OtherPersonEntity::isActive)
                 .forEach(e -> list.add(e.getSecondName().concat(" " + e.getFirstName() + " Klub " + e.getClub().getName() + " Klasa " + e.getPermissionsEntity().getArbiterClass() + " ID: " + e.getId())));
         list.sort(Comparator.comparing(String::new));
         return list;
@@ -102,7 +104,7 @@ public class OtherPersonService {
 
     public List<OtherPersonEntity> getAll() {
         LOG.info("Wywołano wszystkich Nie-Klubowiczów");
-        return otherPersonRepository.findAll();
+        return otherPersonRepository.findAll().stream().filter(OtherPersonEntity::isActive).sorted(Comparator.comparing(OtherPersonEntity::getSecondName).thenComparing(OtherPersonEntity::getFirstName)).collect(Collectors.toList());
     }
 
     public List<OtherPersonEntity> getOthersWithPermissions() {
@@ -112,9 +114,12 @@ public class OtherPersonService {
         return list;
     }
 
-    public boolean deletePerson(int id) {
-        otherPersonRepository.deleteById(id);
-        LOG.info("usunięto Nie-Klubowicza");
+    public boolean deactivatePerson(int id) {
+        OtherPersonEntity otherPersonEntity = otherPersonRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
+        otherPersonEntity.setActive(false);
+        otherPersonRepository.saveAndFlush(otherPersonEntity);
+        LOG.info("Dezaktywowano Nie-Klubowicza");
         return true;
     }
 }

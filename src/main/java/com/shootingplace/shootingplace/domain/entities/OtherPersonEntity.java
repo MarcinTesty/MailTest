@@ -20,6 +20,7 @@ public class OtherPersonEntity {
     private String secondName;
     private String phoneNumber;
     private String email;
+    private boolean active;
     @OneToOne
     private ClubEntity club;
     @OneToOne(orphanRemoval = true)
@@ -75,5 +76,13 @@ public class OtherPersonEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -93,21 +94,35 @@ public class MemberController {
 
 
     @GetMapping("/membersEmails")
-    public String getMembersEmails(@RequestParam Boolean condition) {
-        return memberService.getAdultMembersEmails(condition);
+    public ResponseEntity<?> getMembersEmails(@RequestParam Boolean condition) {
+        return ResponseEntity.ok(memberService.getMembersEmails(condition));
+    }
+
+    @GetMapping("/phoneNumbers")
+    public ResponseEntity<?> getMembersPhoneNumbers(@RequestParam Boolean condition) {
+        return ResponseEntity.ok(memberService.getMembersPhoneNumbers(condition));
+    }
+
+    @GetMapping("/erasedType")
+    public ResponseEntity<?> getErasedType() {
+        return ResponseEntity.ok(memberService.getErasedType());
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addMember(@RequestBody @Valid Member member,@RequestParam String pinCode) {
+    public ResponseEntity<?> addMember(@RequestBody @Valid Member member, @RequestParam String pinCode) {
         if (changeHistoryService.comparePinCode(pinCode)) {
             ResponseEntity<?> result;
-            try {
-                result = memberService.addNewMember(member,pinCode);
-            } catch (IllegalArgumentException e) {
-                result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+            if (member.getPesel().isEmpty() || member.getPhoneNumber().isEmpty() || member.getFirstName().isEmpty() || member.getSecondName().isEmpty() || member.getIDCard().isEmpty()) {
+                result = ResponseEntity.status(406).body("\"Uwaga! Nie podano wszystkich lub żadnej informacji\"");
+            } else {
+                try {
+                    result = memberService.addNewMember(member, pinCode);
+                } catch (IllegalArgumentException e) {
+                    result = ResponseEntity.status(HttpStatus.CONFLICT).build();
+                }
             }
             return result;
-        }else {
+        } else {
             return ResponseEntity.status(403).body("Brak dostępu");
         }
     }
@@ -160,9 +175,25 @@ public class MemberController {
     }
 
     @PatchMapping("/erase/{uuid}")
-    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String reason, @RequestParam String pinCode) {
+    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String additionalDescription, @RequestParam String erasedDate, @RequestParam String erasedType, @RequestParam String pinCode) {
         if (changeHistoryService.comparePinCode(pinCode)) {
-            return memberService.eraseMember(uuid, reason, pinCode);
+            if (additionalDescription.trim().isEmpty() || additionalDescription.trim().isBlank() || additionalDescription.trim().equals("null")) {
+                additionalDescription = null;
+            }
+            if (erasedDate.trim().isEmpty() || erasedDate.trim().isBlank() || erasedDate.trim().equals("null")) {
+                erasedDate = String.valueOf(LocalDate.now());
+            }
+            LocalDate parsedDate = LocalDate.parse(erasedDate);
+            return memberService.eraseMember(uuid, erasedType, parsedDate, additionalDescription, pinCode);
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
+    }
+
+    @PatchMapping("/resurrect/{uuid}")
+    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            return memberService.resurrectMember(uuid, pinCode);
         } else {
             return ResponseEntity.status(403).body("Brak dostępu");
         }

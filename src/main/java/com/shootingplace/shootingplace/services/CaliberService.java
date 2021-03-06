@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,14 +21,24 @@ public class CaliberService {
         this.caliberRepository = caliberRepository;
     }
 
-    List<CaliberEntity> getCalibersList() {
+    public List<CaliberEntity> getCalibersList() {
         List<CaliberEntity> caliberEntityList = caliberRepository.findAll();
         if (caliberEntityList.isEmpty()) {
             createAllCalibersEntities();
         }
+
         caliberEntityList.sort(Comparator.comparing(CaliberEntity::getName));
-        LOG.info("Wyświetlono listę kalibrów");
         return caliberEntityList;
+    }
+
+    public List<String> getCalibersNamesList() {
+        List<String> list = new ArrayList<>();
+
+        List<CaliberEntity> calibersList = caliberRepository.findAll();
+
+        calibersList.forEach(e->list.add(e.getName()));
+        return list;
+
     }
 
     private void createAllCalibersEntities() {
@@ -53,7 +64,7 @@ public class CaliberService {
                 .build();
         caliberRepository.saveAndFlush(caliberEntity4);
         CaliberEntity caliberEntity5 = CaliberEntity.builder()
-                .name("12/70")
+                .name("12/76")
                 .build();
         caliberRepository.saveAndFlush(caliberEntity5);
     }
