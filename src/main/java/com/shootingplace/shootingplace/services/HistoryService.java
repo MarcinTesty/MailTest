@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HistoryService {
@@ -23,11 +24,12 @@ public class HistoryService {
     private final CompetitionHistoryRepository competitionHistoryRepository;
     private final TournamentRepository tournamentRepository;
     private final JudgingHistoryRepository judgingHistoryRepository;
-    private final ContributionRepository  contributionRepository;
+    private final ContributionRepository contributionRepository;
+    private final LicensePaymentHistoryRepository licensePaymentHistoryRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository, TournamentRepository tournamentRepository, JudgingHistoryRepository judgingHistoryRepository, ContributionRepository contributionRepository) {
+    public HistoryService(HistoryRepository historyRepository, MemberRepository memberRepository, LicenseRepository licenseRepository, CompetitionHistoryRepository competitionHistoryRepository, TournamentRepository tournamentRepository, JudgingHistoryRepository judgingHistoryRepository, ContributionRepository contributionRepository, LicensePaymentHistoryRepository licensePaymentHistoryRepository) {
         this.historyRepository = historyRepository;
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
@@ -35,6 +37,7 @@ public class HistoryService {
         this.tournamentRepository = tournamentRepository;
         this.judgingHistoryRepository = judgingHistoryRepository;
         this.contributionRepository = contributionRepository;
+        this.licensePaymentHistoryRepository = licensePaymentHistoryRepository;
     }
 
     //  Basic
@@ -169,27 +172,61 @@ public class HistoryService {
         HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
+//        if (memberEntity.getActive() && !licenseEntity.isPaid()) {
+//            if (historyEntity.getLicensePaymentHistory() != null) {
+//                LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
+//
+//                for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
+//                    newState[i] = historyEntity.getLicensePaymentHistory()[i];
+//                    newState[i + 1] = LocalDate.now();
+//                }
+//                LocalDate[] sortState = selectionSort(newState);
+//                historyEntity.setLicensePaymentHistory(sortState);
+//                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+//                historyRepository.saveAndFlush(historyEntity);
+//
+//            } else {
+//
+//                LocalDate[] newState = new LocalDate[1];
+//                newState[0] = LocalDate.now();
+//                historyEntity.setLicensePaymentHistory(newState);
+//                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+//                historyRepository.saveAndFlush(historyEntity);
+//            }
+//
+//        } else {
+//            return false;
+//        }
         if (memberEntity.getActive() && !licenseEntity.isPaid()) {
             if (historyEntity.getLicensePaymentHistory() != null) {
-                LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
-
-                for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-                    newState[i] = historyEntity.getLicensePaymentHistory()[i];
-                    newState[i + 1] = LocalDate.now();
+                int dateYear;
+                if (memberEntity.getLicense().getValidThru() != null) {
+                    dateYear = memberEntity.getLicense().getValidThru().getYear() + 1;
+                } else {
+                    dateYear = LocalDate.now().getYear();
                 }
-                LocalDate[] sortState = selectionSort(newState);
-                historyEntity.setLicensePaymentHistory(sortState);
-                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-                historyRepository.saveAndFlush(historyEntity);
+                List<LicensePaymentHistoryEntity> licensePaymentHistory = historyEntity.getLicensePaymentHistory();
+                LicensePaymentHistoryEntity build = LicensePaymentHistoryEntity.builder()
+                        .date(LocalDate.now())
+                        .validForYear(dateYear)
+                        .memberUUID(memberUUID)
+                        .build();
+                licensePaymentHistoryRepository.saveAndFlush(build);
+                licensePaymentHistory.add(build);
 
             } else {
-
-                LocalDate[] newState = new LocalDate[1];
-                newState[0] = LocalDate.now();
-                historyEntity.setLicensePaymentHistory(newState);
-                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-                historyRepository.saveAndFlush(historyEntity);
+                LicensePaymentHistoryEntity build = LicensePaymentHistoryEntity.builder()
+                        .date(LocalDate.now())
+                        .validForYear(memberEntity.getLicense().getValidThru().getYear() + 1)
+                        .memberUUID(memberUUID)
+                        .build();
+                licensePaymentHistoryRepository.saveAndFlush(build);
+                List<LicensePaymentHistoryEntity> list = new ArrayList<>();
+                list.add(build);
+                historyEntity.setLicensePaymentHistory(list);
             }
+            LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
+            historyRepository.saveAndFlush(historyEntity);
 
         } else {
             return false;
@@ -233,13 +270,12 @@ public class HistoryService {
     }
 
     void addCompetitionRecord(String memberUUID, CompetitionMembersListEntity list) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         CompetitionHistoryEntity competitionHistoryEntity = createCompetitionHistoryEntity(list.getAttachedToTournament(), list.getDate(), list.getDiscipline(), list.getUuid());
         competitionHistoryRepository.saveAndFlush(competitionHistoryEntity);
 
-        List<CompetitionHistoryEntity> competitionHistoryEntityList = memberRepository
-                .findById(memberUUID)
-                .orElseThrow(EntityNotFoundException::new)
+        List<CompetitionHistoryEntity> competitionHistoryEntityList = memberEntity
                 .getHistory()
                 .getCompetitionHistory();
 
@@ -247,45 +283,55 @@ public class HistoryService {
         competitionHistoryEntityList.add(competitionHistoryEntity);
         competitionHistoryEntityList.sort(Comparator.comparing(CompetitionHistoryEntity::getDate).reversed());
 
-        HistoryEntity historyEntity = memberRepository.findById(memberUUID)
-                .orElseThrow(EntityNotFoundException::new)
+        HistoryEntity historyEntity = memberEntity
                 .getHistory();
         historyEntity.setCompetitionHistory(competitionHistoryEntityList);
 
-        if (list.getDiscipline().equals(Discipline.PISTOL.getName())) {
-            Integer pistolCounter = historyEntity.getPistolCounter() + 1;
-            historyEntity.setPistolCounter(pistolCounter);
+        int licenseYear;
+        if (memberEntity.getLicense().getValidThru() != null) {
+            licenseYear = memberEntity.getLicense().getValidThru().getYear();
+        } else {
+            licenseYear = LocalDate.now().getYear();
         }
-        if (list.getDiscipline().equals(Discipline.RIFLE.getName())) {
-            Integer rifleCounter = historyEntity.getRifleCounter() + 1;
-            historyEntity.setRifleCounter(rifleCounter);
-        }
-        if (list.getDiscipline().equals(Discipline.SHOTGUN.getName())) {
-            Integer shotgunCounter = historyEntity.getShotgunCounter() + 1;
-            historyEntity.setShotgunCounter(shotgunCounter);
-        }
+        List<CompetitionHistoryEntity> collectPistol = historyEntity.getCompetitionHistory()
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.PISTOL.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+
+        List<CompetitionHistoryEntity> collectRifle = historyEntity.getCompetitionHistory()
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.RIFLE.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+
+
+        List<CompetitionHistoryEntity> collectShotgun = historyEntity.getCompetitionHistory()
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.SHOTGUN.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+        historyEntity.setPistolCounter(collectPistol.size());
+        historyEntity.setRifleCounter(collectRifle.size());
+        historyEntity.setShotgunCounter(collectShotgun.size());
 
         LOG.info("Dodano wpis w historii startów.");
         historyRepository.saveAndFlush(historyEntity);
 
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
         if (historyEntity.getPistolCounter() >= 4 || historyEntity.getRifleCounter() >= 4 || historyEntity.getShotgunCounter() >= 4) {
             if (historyEntity.getPistolCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
-                System.out.println("może przedłużyć licencję");
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
             }
             if (historyEntity.getRifleCounter() >= 4 && (historyEntity.getPistolCounter() >= 2 || historyEntity.getShotgunCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
-                System.out.println("może przedłużyć licencję");
 
             }
             if (historyEntity.getShotgunCounter() >= 4 && (historyEntity.getRifleCounter() >= 2 || historyEntity.getPistolCounter() >= 2)) {
                 memberEntity.getLicense().setCanProlong(true);
                 licenseRepository.saveAndFlush(memberEntity.getLicense());
-                System.out.println("może przedłużyć licencję");
             }
         }
     }

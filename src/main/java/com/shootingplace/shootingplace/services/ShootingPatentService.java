@@ -31,23 +31,12 @@ public class ShootingPatentService {
         this.historyRepository = historyRepository;
     }
 
-
-    void addPatent(ShootingPatent shootingPatent) {
-        ShootingPatentEntity shootingPatentEntity = Mapping.map(shootingPatent);
-        shootingPatentRepository.saveAndFlush(shootingPatentEntity);
-        LOG.info("Patent został zapisany");
-    }
-
     public boolean updatePatent(String memberUUID, ShootingPatent shootingPatent) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         ShootingPatentEntity shootingPatentEntity = shootingPatentRepository.findById(memberEntity
                 .getShootingPatent()
                 .getUuid())
                 .orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getActive().equals(false)) {
-            LOG.warn("Klubowicz nie aktywny");
-            return false;
-        }
         if (shootingPatent.getPatentNumber() != null && !shootingPatent.getPatentNumber().isEmpty()) {
             if (shootingPatentRepository.findAll()
                     .stream().filter(e -> !(e.getPatentNumber() == null))
@@ -55,6 +44,8 @@ public class ShootingPatentService {
                 LOG.error("ktoś już ma taki numer patentu");
                 return false;
             } else {
+
+
                 shootingPatentEntity.setPatentNumber(shootingPatent.getPatentNumber());
                 LOG.info("Wprowadzono numer patentu");
             }
@@ -85,22 +76,22 @@ public class ShootingPatentService {
         shootingPatentRepository.saveAndFlush(shootingPatentEntity);
         LOG.info("Zaktualizowano patent");
         HistoryEntity historyEntity =
-                historyRepository.findById(memberEntity.getHistory().getUuid()).orElseThrow(EntityNotFoundException::new);
-
-        if (shootingPatentEntity.getPistolPermission() && shootingPatentEntity.getDateOfPosting() != null) {
-            historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 0);
-        }
-        if (shootingPatentEntity.getRiflePermission() && shootingPatentEntity.getDateOfPosting() != null) {
-            historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 1);
-        }
-        if (shootingPatentEntity.getShotgunPermission() && shootingPatentEntity.getDateOfPosting() != null) {
-            historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 2);
-        }
+                memberEntity.getHistory();
         if (shootingPatentEntity.getDateOfPosting() != null) {
-            historyEntity.setPatentFirstRecord(true);
+            if (shootingPatentEntity.getPistolPermission()) {
+                historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 0);
+            }
+            if (shootingPatentEntity.getRiflePermission()) {
+                historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 1);
+            }
+            if (shootingPatentEntity.getShotgunPermission()) {
+                historyService.addDateToPatentPermissions(memberUUID, shootingPatent.getDateOfPosting(), 2);
+            }
+            if (shootingPatentEntity.getDateOfPosting() != null) {
+                historyEntity.setPatentFirstRecord(true);
+            }
+            historyRepository.saveAndFlush(historyEntity);
         }
-        LOG.info("już nie dodam pierwszej daty patentu");
-        historyRepository.saveAndFlush(historyEntity);
         return true;
     }
 }

@@ -2,6 +2,7 @@ package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
+import com.shootingplace.shootingplace.domain.enums.Discipline;
 import com.shootingplace.shootingplace.domain.enums.ErasedType;
 import com.shootingplace.shootingplace.domain.models.History;
 import com.shootingplace.shootingplace.domain.models.Member;
@@ -37,6 +38,7 @@ public class MemberService {
     private final ClubRepository clubRepository;
     private final ChangeHistoryService changeHistoryService;
     private final ErasedRepository erasedRepository;
+    private final HistoryRepository historyRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -51,7 +53,7 @@ public class MemberService {
                          MemberPermissionsRepository memberPermissionsRepository,
                          PersonalEvidenceRepository personalEvidenceRepository,
                          ClubRepository clubRepository,
-                         ChangeHistoryService changeHistoryService, ErasedRepository erasedRepository) {
+                         ChangeHistoryService changeHistoryService, ErasedRepository erasedRepository, HistoryRepository historyRepository) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
@@ -65,6 +67,7 @@ public class MemberService {
         this.clubRepository = clubRepository;
         this.changeHistoryService = changeHistoryService;
         this.erasedRepository = erasedRepository;
+        this.historyRepository = historyRepository;
     }
 
 
@@ -361,7 +364,7 @@ public class MemberService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<?> eraseMember(String memberUUID, String erasedType,LocalDate erasedDate,String additionalDescription, String pinCode) {
+    public ResponseEntity<?> eraseMember(String memberUUID, String erasedType, LocalDate erasedDate, String additionalDescription, String pinCode) {
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
@@ -495,7 +498,49 @@ public class MemberService {
 
     public MemberEntity getMember(int number) {
         LOG.info("Wywołano Klubowicza");
-        return memberRepository.findAll().stream().filter(f -> f.getLegitimationNumber().equals(number)).findFirst().orElseThrow(EntityNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findAll()
+                .stream()
+                .filter(f -> f.getLegitimationNumber().equals(number))
+                .findFirst()
+                .orElseThrow(EntityNotFoundException::new);
+
+        HistoryEntity historyEntity = memberEntity
+                .getHistory();
+        List<CompetitionHistoryEntity> competitionHistory = historyEntity.getCompetitionHistory();
+
+        int licenseYear;
+        if (memberEntity.getLicense().getValidThru() != null) {
+            licenseYear = memberEntity.getLicense().getValidThru().getYear();
+        } else {
+
+            licenseYear = LocalDate.now().getYear();
+        }
+        List<CompetitionHistoryEntity> collectPistol = competitionHistory
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.PISTOL.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+
+        List<CompetitionHistoryEntity> collectRifle = competitionHistory
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.RIFLE.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+
+        List<CompetitionHistoryEntity> collectShotgun = competitionHistory
+                .stream()
+                .filter(f -> f.getDiscipline().equals(Discipline.SHOTGUN.getName()))
+                .filter(f -> f.getDate().getYear() == licenseYear)
+                .collect(Collectors.toList());
+
+        historyEntity.setPistolCounter(collectPistol.size());
+        historyEntity.setRifleCounter(collectRifle.size());
+        historyEntity.setShotgunCounter(collectShotgun.size());
+
+        historyRepository.saveAndFlush(historyEntity);
+
+        return memberEntity;
+
     }
 
     public List<MemberEntity> getErasedMembers() {
@@ -697,9 +742,98 @@ public class MemberService {
 
         List<String> list = new ArrayList<>();
         ErasedType[] values = ErasedType.values();
-        for (int i =1;i<values.length;i++){
+        for (int i = 1; i < values.length; i++) {
             list.add(values[i].getName());
         }
+        return list;
+    }
+
+    public List<String> getMembersToEraseEmails() {
+        LocalDate notValidContribution = LocalDate.of(LocalDate.now().getYear(), 12, 31).minusYears(2);
+
+        List<String> list = new ArrayList<>();
+        List<MemberEntity> collect = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> !f.getActive())
+                .filter(f -> !f.getHistory().getContributionList().isEmpty() && f.getHistory().getContributionList().get(0).getValidThru().minusDays(1).isBefore(notValidContribution))
+                .sorted(Comparator.comparing(MemberEntity::getSecondName))
+                .collect(Collectors.toList());
+        collect.forEach(e -> {
+            if ((e.getEmail() != null && !e.getEmail().isEmpty()) && !e.getErased()) {
+                list.add(e.getEmail().concat(";"));
+            }
+        });
+        return list;
+
+    }
+
+    public List<String> getMembersToErasePhoneNumbers() {
+
+        LocalDate notValidContribution = LocalDate.of(LocalDate.now().getYear(), 12, 31).minusYears(2);
+
+        List<String> list = new ArrayList<>();
+        List<MemberEntity> collect = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> !f.getActive())
+                .filter(f -> !f.getHistory().getContributionList().isEmpty() && f.getHistory().getContributionList().get(0).getValidThru().minusDays(1).isBefore(notValidContribution))
+                .sorted(Comparator.comparing(MemberEntity::getSecondName))
+                .collect(Collectors.toList());
+        collect.forEach(e -> {
+            if ((e.getPhoneNumber() != null && !e.getPhoneNumber().isEmpty()) && !e.getErased()) {
+                String phone = e.getPhoneNumber();
+                String split = phone.substring(0, 3) + " ";
+                String split1 = phone.substring(3, 6) + " ";
+                String split2 = phone.substring(6, 9) + " ";
+                String split3 = phone.substring(9, 12) + " ";
+                String phoneSplit = split + split1 + split2 + split3;
+                list.add(phoneSplit.concat(" " + e.getSecondName() + " " + e.getFirstName() + ";"));
+            }
+        });
+        return list;
+    }
+
+    public List<String> getMembersToPoliceEmails() {
+        LocalDate notValidLicense = LocalDate.now().minusYears(1);
+
+        List<String> list = new ArrayList<>();
+        List<MemberEntity> collect = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> f.getLicense().getNumber() != null)
+                .filter(f -> !f.getLicense().isValid())
+                .filter(f -> f.getLicense().getValidThru().isBefore(notValidLicense))
+                .sorted(Comparator.comparing(MemberEntity::getSecondName))
+                .collect(Collectors.toList());
+        collect.forEach(e -> {
+            if ((e.getEmail() != null && !e.getEmail().isEmpty()) && !e.getErased()) {
+                list.add(e.getEmail().concat(";"));
+            }
+        });
+        return list;
+    }
+
+    public List<String> getMembersToPolicePhoneNumbers() {
+
+        LocalDate notValidLicense = LocalDate.now().minusYears(1);
+
+        List<String> list = new ArrayList<>();
+        List<MemberEntity> collect = memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .filter(f -> f.getLicense().getNumber() != null)
+                .filter(f -> !f.getLicense().isValid())
+                .filter(f -> f.getLicense().getValidThru().isBefore(notValidLicense))
+                .sorted(Comparator.comparing(MemberEntity::getSecondName))
+                .collect(Collectors.toList());
+        collect.forEach(e -> {
+            if ((e.getPhoneNumber() != null && !e.getPhoneNumber().isEmpty()) && !e.getErased()) {
+                String phone = e.getPhoneNumber();
+                String split = phone.substring(0, 3) + " ";
+                String split1 = phone.substring(3, 6) + " ";
+                String split2 = phone.substring(6, 9) + " ";
+                String split3 = phone.substring(9, 12) + " ";
+                String phoneSplit = split + split1 + split2 + split3;
+                list.add(phoneSplit.concat(" " + e.getSecondName() + " " + e.getFirstName() + ";"));
+            }
+        });
         return list;
     }
 }

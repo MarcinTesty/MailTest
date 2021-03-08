@@ -92,21 +92,28 @@ public class TournamentService {
                 .filter(TournamentEntity::isOpen)
                 .collect(Collectors.toList());
         for (TournamentEntity tournamentEntity : collect) {
-        Tournament tournament = Tournament.builder()
-                .uuid(tournamentEntity.getUuid())
-                .date(tournamentEntity.getDate())
-                .name(tournamentEntity.getName())
-                .open(tournamentEntity.isOpen())
-                .mainArbiter(Mapping.map2(tournamentEntity.getMainArbiter()))
-                .otherMainArbiter(tournamentEntity.getOtherMainArbiter())
-                .commissionRTSArbiter(Mapping.map2(tournamentEntity.getCommissionRTSArbiter()))
-                .otherCommissionRTSArbiter(tournamentEntity.getOtherCommissionRTSArbiter())
-                .arbitersList(tournamentEntity.getArbitersList().stream().map(Mapping::map2).collect(Collectors.toList()))
-                .otherArbitersList(tournamentEntity.getOtherArbitersList())
-                .arbitersRTSList(tournamentEntity.getArbitersRTSList().stream().map(Mapping::map2).collect(Collectors.toList()))
-                .otherArbitersRTSList(tournamentEntity.getOtherArbitersRTSList())
-                .competitionsList(tournamentEntity.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList()))
-                .build();
+            Tournament tournament = Tournament.builder()
+                    .uuid(tournamentEntity.getUuid())
+                    .date(tournamentEntity.getDate())
+                    .name(tournamentEntity.getName())
+                    .open(tournamentEntity.isOpen())
+                    .mainArbiter(null)
+                    .otherMainArbiter(tournamentEntity.getOtherMainArbiter())
+                    .commissionRTSArbiter(null)
+                    .otherCommissionRTSArbiter(tournamentEntity.getOtherCommissionRTSArbiter())
+                    .arbitersList(tournamentEntity.getArbitersList().stream().map(Mapping::map2).collect(Collectors.toList()))
+                    .otherArbitersList(tournamentEntity.getOtherArbitersList())
+                    .arbitersRTSList(tournamentEntity.getArbitersRTSList().stream().map(Mapping::map2).collect(Collectors.toList()))
+                    .otherArbitersRTSList(tournamentEntity.getOtherArbitersRTSList())
+                    .competitionsList(tournamentEntity.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList()))
+                    .build();
+            if (tournamentEntity.getMainArbiter() != null) {
+                tournament.setMainArbiter(Mapping.map2(tournamentEntity.getMainArbiter()));
+            }
+            if (tournamentEntity.getCommissionRTSArbiter() != null) {
+                tournament.setCommissionRTSArbiter(Mapping.map2(tournamentEntity.getCommissionRTSArbiter()));
+            }
+
             list.add(tournament);
         }
         return list;
