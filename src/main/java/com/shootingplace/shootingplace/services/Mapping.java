@@ -47,6 +47,7 @@ public class Mapping {
                             .license(map(e.getLicense()))
                             .club(Mapping.map(e.getClub()))
                             .joinDate(e.getJoinDate())
+                            .memberPermissions(map(e.getMemberPermissions()))
                             .build()).orElse(null);
         } else {
             return Optional.of(e).map(o ->
@@ -62,6 +63,7 @@ public class Mapping {
                             .license(map(e.getLicense()))
                             .club(Mapping.map(e.getClub()))
                             .joinDate(e.getJoinDate())
+                            .memberPermissions(map(e.getMemberPermissions()))
                             .build()).orElse(null);
         }
 
@@ -306,6 +308,11 @@ public class Mapping {
                 .name(t.getName())
                 .date(t.getDate())
                 .open(t.isOpen())
+                .wzss(t.isWZSS())
+                .mainArbiter(map2(t.getMainArbiter()))
+                .commissionRTSArbiter(map2(t.getCommissionRTSArbiter()))
+                .otherMainArbiter(t.getOtherMainArbiter())
+                .otherCommissionRTSArbiter(t.getOtherCommissionRTSArbiter())
                 .competitionsList(t.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList()))
                 .build();
     }
@@ -355,7 +362,8 @@ public class Mapping {
                 .name(t.getName())
                 .date(t.getDate())
                 .open(t.isOpen())
-                .mainArbiter(map2(t.getMainArbiter()))
+                .WZSS(t.isWzss())
+                .mainArbiter(Mapping.map2(t.getMainArbiter()))
                 .commissionRTSArbiter(map2(t.getCommissionRTSArbiter()))
                 .otherMainArbiter(t.getOtherMainArbiter())
                 .otherCommissionRTSArbiter(t.getOtherCommissionRTSArbiter())

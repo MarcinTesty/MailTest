@@ -1,6 +1,7 @@
 package com.shootingplace.shootingplace.controllers;
 
 import com.shootingplace.shootingplace.services.ContributionService;
+import com.shootingplace.shootingplace.services.StatisticsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.time.LocalDate;
 public class StatisticsController {
 
     private final ContributionService contributionService;
+    private final StatisticsService statisticsService;
 
-    public StatisticsController(ContributionService contributionService) {
+    public StatisticsController(ContributionService contributionService, StatisticsService statisticsService) {
         this.contributionService = contributionService;
+        this.statisticsService = statisticsService;
     }
 
 
@@ -50,5 +53,14 @@ public class StatisticsController {
     public ResponseEntity<?> joinMonthSum(@RequestParam String year) {
         LocalDate parseYear = LocalDate.parse(year);
         return ResponseEntity.ok(contributionService.joinMonthSum(parseYear.getYear()));
+    }
+    @GetMapping("/maxLegNumber")
+    public ResponseEntity<?> getMaxLegNumber(){
+        return ResponseEntity.ok(statisticsService.getMaxLegNumber());
+    }
+
+    @GetMapping("/actualYearMemberCounts")
+    public ResponseEntity<?> getActualYearMemberCounts() {
+        return ResponseEntity.ok(statisticsService.getActualYearMemberCounts());
     }
 }

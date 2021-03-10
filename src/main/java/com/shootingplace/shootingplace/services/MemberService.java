@@ -4,10 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.*;
 import com.shootingplace.shootingplace.domain.enums.ArbiterClass;
 import com.shootingplace.shootingplace.domain.enums.Discipline;
 import com.shootingplace.shootingplace.domain.enums.ErasedType;
-import com.shootingplace.shootingplace.domain.models.History;
-import com.shootingplace.shootingplace.domain.models.Member;
-import com.shootingplace.shootingplace.domain.models.MemberDTO;
-import com.shootingplace.shootingplace.domain.models.WeaponPermission;
+import com.shootingplace.shootingplace.domain.models.*;
 import com.shootingplace.shootingplace.repositories.*;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +36,7 @@ public class MemberService {
     private final ChangeHistoryService changeHistoryService;
     private final ErasedRepository erasedRepository;
     private final HistoryRepository historyRepository;
+    private final ContributionRepository contributionRepository;
     private final Logger LOG = LogManager.getLogger();
 
 
@@ -53,7 +51,7 @@ public class MemberService {
                          MemberPermissionsRepository memberPermissionsRepository,
                          PersonalEvidenceRepository personalEvidenceRepository,
                          ClubRepository clubRepository,
-                         ChangeHistoryService changeHistoryService, ErasedRepository erasedRepository, HistoryRepository historyRepository) {
+                         ChangeHistoryService changeHistoryService, ErasedRepository erasedRepository, HistoryRepository historyRepository, ContributionRepository contributionRepository) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
@@ -68,6 +66,7 @@ public class MemberService {
         this.changeHistoryService = changeHistoryService;
         this.erasedRepository = erasedRepository;
         this.historyRepository = historyRepository;
+        this.contributionRepository = contributionRepository;
     }
 
 
@@ -163,8 +162,10 @@ public class MemberService {
                 e.setActive(false);
                 memberRepository.saveAndFlush(e);
             } else {
-                //dzisiejsza data jest później niż składka + 3 miesiące
-                if (e.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now())) {
+                //dzisiejsza data jest później niż składka + 1 || 2 miesiące
+                LocalDate validThru = e.getHistory().getContributionList().get(0).getValidThru();
+                if ((validThru.equals(LocalDate.of(validThru.getYear(), 2, 28)) && validThru.plusMonths(1).isBefore(LocalDate.now()))
+                        || (validThru.equals(LocalDate.of(validThru.getYear(), 8, 31)) && validThru.plusMonths(2).isBefore(LocalDate.now()))) {
                     e.setActive(false);
                     LOG.info("zmieniono " + e.getSecondName());
                     memberRepository.saveAndFlush(e);
@@ -359,6 +360,20 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         memberEntity.setAdult(true);
         memberRepository.saveAndFlush(memberEntity);
+        LocalDate date;
+        if(memberEntity.getHistory().getContributionList().get(0).getValidThru().getDayOfMonth()==28){
+            date = LocalDate.of(LocalDate.now().getYear(),6,30);
+        }
+        else{
+            date = memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(4);
+        }
+        ContributionEntity contribution = ContributionEntity.builder()
+                .paymentDay(LocalDate.now())
+                .validThru(date)
+                .historyUUID(memberEntity.getHistory().getUuid())
+                .build();
+        contributionRepository.saveAndFlush(contribution);
+        historyService.addContribution(memberUUID,contribution);
         LOG.info("Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
         changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " changeAdult", memberEntity.getUuid());
         return ResponseEntity.noContent().build();

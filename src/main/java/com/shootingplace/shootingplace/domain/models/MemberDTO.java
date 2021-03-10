@@ -21,7 +21,7 @@ public class MemberDTO {
     private License license;
     private Club club;
     private Boolean pzss;
-
+    private MemberPermissions memberPermissions;
 
     private Boolean adult = true;
     private Boolean active = true;
@@ -129,5 +129,13 @@ public class MemberDTO {
 
     public void setErasedType(ErasedType erasedType) {
         this.erasedType = erasedType;
+    }
+
+    public MemberPermissions getMemberPermissions() {
+        return memberPermissions;
+    }
+
+    public void setMemberPermissions(MemberPermissions memberPermissions) {
+        this.memberPermissions = memberPermissions;
     }
 }

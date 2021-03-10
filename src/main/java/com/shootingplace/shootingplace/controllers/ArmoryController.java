@@ -30,11 +30,13 @@ public class ArmoryController {
     public ResponseEntity<List<CaliberEntity>> getCalibersList() {
         return ResponseEntity.ok(caliberService.getCalibersList());
     }
+
     @GetMapping("/calibersList")
     public ResponseEntity<List<String>> getCalibersNamesList() {
         return ResponseEntity.ok(caliberService.getCalibersNamesList());
     }
 
+    @Transactional
     @GetMapping("/quantitySum")
     public ResponseEntity<?> getSumFromAllAmmoList(@RequestParam String firstDate, @RequestParam String secondDate) {
         LocalDate parseFirstDate = LocalDate.parse(firstDate);
@@ -49,7 +51,7 @@ public class ArmoryController {
     }
 
     @GetMapping("/getGuns")
-    public ResponseEntity<List<GunEntity>> getAllGuns(){
+    public ResponseEntity<List<GunEntity>> getAllGuns() {
         return ResponseEntity.ok(armoryService.getAllGuns());
     }
 
@@ -78,11 +80,42 @@ public class ArmoryController {
                                           @RequestParam String recordInEvidenceBook,
                                           @RequestParam String comment,
                                           @RequestParam String basisForPurchaseOrAssignment) {
-        if (armoryService.addGunEntity(modelName, caliber, gunType, serialNumber, productionYear, numberOfMagazines, gunCertificateSerialNumber, additionalEquipment, recordInEvidenceBook, comment,basisForPurchaseOrAssignment)) {
+        if (armoryService.addGunEntity(modelName, caliber, gunType, serialNumber, productionYear, numberOfMagazines, gunCertificateSerialNumber, additionalEquipment, recordInEvidenceBook, comment, basisForPurchaseOrAssignment)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @Transactional
+    @PostMapping("/editGun")
+    public ResponseEntity<?> editGunEntity(@RequestParam String gunUUID,
+                                           @RequestParam String modelName,
+                                           @RequestParam String caliber,
+                                           @RequestParam String gunType,
+                                           @RequestParam String serialNumber,
+                                           @RequestParam String productionYear,
+                                           @RequestParam String numberOfMagazines,
+                                           @RequestParam String gunCertificateSerialNumber,
+                                           @RequestParam String additionalEquipment,
+                                           @RequestParam String recordInEvidenceBook,
+                                           @RequestParam String comment,
+                                           @RequestParam String basisForPurchaseOrAssignment) {
+        if (armoryService.editGunEntity(gunUUID, modelName, caliber, gunType, serialNumber, productionYear, numberOfMagazines, gunCertificateSerialNumber, additionalEquipment, recordInEvidenceBook, comment, basisForPurchaseOrAssignment)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/remove")
+    public ResponseEntity<?> removeGun(@RequestParam String gunUUID) {
+        if (armoryService.removeGun(gunUUID)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
     @PostMapping("/calibers")

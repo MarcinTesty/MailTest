@@ -68,7 +68,6 @@ public class HistoryService {
         contributionList
                 .sort(Comparator.comparing(ContributionEntity::getPaymentDay));
         contributionList.add(contribution);
-        historyRepository.saveAndFlush(historyEntity);
         contributionList
                 .sort(Comparator.comparing(ContributionEntity::getPaymentDay).reversed());
         historyEntity.setContributionsList(contributionList);
