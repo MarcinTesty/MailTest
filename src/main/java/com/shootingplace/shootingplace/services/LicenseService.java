@@ -21,14 +21,16 @@ public class LicenseService {
     private final MemberRepository memberRepository;
     private final LicenseRepository licenseRepository;
     private final HistoryService historyService;
+    private final ChangeHistoryService changeHistoryService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
     public LicenseService(MemberRepository memberRepository,
-                          LicenseRepository licenseRepository, HistoryService historyService) {
+                          LicenseRepository licenseRepository, HistoryService historyService, ChangeHistoryService changeHistoryService) {
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
         this.historyService = historyService;
+        this.changeHistoryService = changeHistoryService;
     }
 
     public List<MemberDTO> getMembersNamesAndLicense() {
@@ -140,6 +142,36 @@ public class LicenseService {
         return true;
     }
 
+    public boolean updateLicense(String memberUUID, String number, LocalDate date, String pinCode) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        LicenseEntity license = licenseRepository.findById(memberEntity.getLicense().getUuid()).orElseThrow(EntityNotFoundException::new);
+
+        if (number != null && !number.isEmpty() && !number.equals("null")) {
+
+            if (licenseRepository.findAll()
+                    .stream().filter(e -> !(e.getNumber() == null))
+                    .anyMatch(f -> f.getNumber().equals(number))) {
+                LOG.error("Ktoś już ma taki numer licencji");
+                return false;
+            } else {
+                license.setNumber(number);
+                LOG.info("Dodano numer licencji");
+            }
+
+        }
+        if (date != null) {
+            license.setValidThru(date);
+            if (license.getValidThru().getYear() >= LocalDate.now().getYear()) {
+                license.setValid(true);
+            } else {
+                license.setValid(false);
+            }
+        }
+        licenseRepository.saveAndFlush(license);
+        changeHistoryService.addRecordToChangeHistory(pinCode, license.getClass().getSimpleName() + " updateLicense", memberEntity.getUuid());
+        return true;
+    }
+
     private String noPatentMessage() {
         return "Nie ma na to Patentu";
     }
@@ -234,7 +266,7 @@ public class LicenseService {
                 .filter(f -> f.isValid())
                 .count();
 
-        list.add(count-count2);
+        list.add(count - count2);
         list.add(count1);
 
         return list;
