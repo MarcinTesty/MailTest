@@ -23,14 +23,16 @@ public class ArmoryService {
     private final CaliberUsedRepository caliberUsedRepository;
     private final CalibersAddedRepository calibersAddedRepository;
     private final GunRepository gunRepository;
+    private final ChangeHistoryService changeHistoryService;
 
-    public ArmoryService(AmmoEvidenceRepository ammoEvidenceRepository, CaliberService caliberService, CaliberRepository caliberRepository, CaliberUsedRepository caliberUsedRepository, CalibersAddedRepository calibersAddedRepository, GunRepository gunRepository) {
+    public ArmoryService(AmmoEvidenceRepository ammoEvidenceRepository, CaliberService caliberService, CaliberRepository caliberRepository, CaliberUsedRepository caliberUsedRepository, CalibersAddedRepository calibersAddedRepository, GunRepository gunRepository, ChangeHistoryService changeHistoryService) {
         this.ammoEvidenceRepository = ammoEvidenceRepository;
         this.caliberService = caliberService;
         this.caliberRepository = caliberRepository;
         this.caliberUsedRepository = caliberUsedRepository;
         this.calibersAddedRepository = calibersAddedRepository;
         this.gunRepository = gunRepository;
+        this.changeHistoryService = changeHistoryService;
     }
 
 
@@ -168,7 +170,6 @@ public class ArmoryService {
                                 String basisForPurchaseOrAssignment) {
 
         if (modelName.isEmpty() || caliber.isEmpty() || gunType.isEmpty() || serialNumber.isEmpty() || gunCertificateSerialNumber.isEmpty() || recordInEvidenceBook.isEmpty()) {
-            System.out.println("nie udało się dodać broni");
             return false;
         }
         if (productionYear.isEmpty() || productionYear.equals("null")) {
@@ -184,7 +185,6 @@ public class ArmoryService {
         List<GunEntity> all = gunRepository.findAll();
 
         if (all.stream().anyMatch(e -> e.getGunCertificateSerialNumber().equals(gunCertificateSerialNumber) || e.getSerialNumber().equals(serialNumber) || e.getRecordInEvidenceBook().equals(recordInEvidenceBook))) {
-            System.out.println("nie udało się dodać broni");
             return false;
         } else {
 
@@ -203,8 +203,6 @@ public class ArmoryService {
                     .inStock(true).build();
 
             gunRepository.saveAndFlush(gunEntity);
-
-            System.out.println("Dodano nową broń");
 
             return true;
         }
@@ -287,7 +285,7 @@ public class ArmoryService {
         return true;
     }
 
-    public boolean removeGun(String gunUUID) {
+    public boolean removeGun(String gunUUID, String pinCode) {
 
         GunEntity gunEntity = gunRepository.findById(gunUUID).orElse(null);
         if (gunEntity == null) {
@@ -295,6 +293,7 @@ public class ArmoryService {
         }
         gunEntity.setInStock(false);
         gunRepository.saveAndFlush(gunEntity);
+        changeHistoryService.addRecordToChangeHistory(pinCode, gunEntity.getClass().getSimpleName() + " removeGun", gunEntity.getUuid());
         return true;
     }
 }

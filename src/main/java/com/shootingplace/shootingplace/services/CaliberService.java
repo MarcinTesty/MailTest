@@ -58,10 +58,46 @@ public class CaliberService {
     public List<String> getCalibersNamesList() {
         List<String> list = new ArrayList<>();
 
-        List<CaliberEntity> calibersList = caliberRepository.findAll();
+        List<CaliberEntity> all = caliberRepository.findAll();
+        String[] sort = {"5,6mm", "9x19mm", "12/76", ".357", ".38", "7,62x39mm"};
+        all.stream().filter(f -> !f.getName().equals(sort[0])
+                && !f.getName().equals(sort[1])
+                && !f.getName().equals(sort[2])
+                && !f.getName().equals(sort[3])
+                && !f.getName().equals(sort[4])
+                && !f.getName().equals(sort[5]))
+                .forEach(e -> {
+                    list.add(e.getName());
 
-        calibersList.forEach(e -> list.add(e.getName()));
-        return list;
+                });
+        CaliberEntity caliberEntity = all.stream().filter(f -> f.getName().equals(sort[0])).findFirst().orElse(null);
+        CaliberEntity caliberEntity1 = all.stream().filter(f -> f.getName().equals(sort[1])).findFirst().orElse(null);
+        CaliberEntity caliberEntity2 = all.stream().filter(f -> f.getName().equals(sort[2])).findFirst().orElse(null);
+        CaliberEntity caliberEntity3 = all.stream().filter(f -> f.getName().equals(sort[3])).findFirst().orElse(null);
+        CaliberEntity caliberEntity4 = all.stream().filter(f -> f.getName().equals(sort[4])).findFirst().orElse(null);
+        CaliberEntity caliberEntity5 = all.stream().filter(f -> f.getName().equals(sort[5])).findFirst().orElse(null);
+        List<String> caliberEntityList2 = new ArrayList<>();
+        if (caliberEntity != null) {
+            caliberEntityList2.add(caliberEntity.getName());
+        }
+        if (caliberEntity1 != null) {
+            caliberEntityList2.add(caliberEntity1.getName());
+        }
+        if (caliberEntity2 != null) {
+            caliberEntityList2.add(caliberEntity2.getName());
+        }
+        if (caliberEntity3 != null) {
+            caliberEntityList2.add(caliberEntity3.getName());
+        }
+        if (caliberEntity4 != null) {
+            caliberEntityList2.add(caliberEntity4.getName());
+        }
+        if (caliberEntity5 != null) {
+            caliberEntityList2.add(caliberEntity5.getName());
+        }
+        caliberEntityList2.addAll(list);
+
+        return caliberEntityList2;
 
     }
 

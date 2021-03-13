@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChangeHistoryService {
@@ -23,7 +24,7 @@ public class ChangeHistoryService {
     }
 
 
-    private ChangeHistoryEntity addRecord(UserEntity user, String change,String uuid) {
+    private ChangeHistoryEntity addRecord(UserEntity user, String change, String uuid) {
         return changeHistoryRepository.saveAndFlush(ChangeHistoryEntity.builder()
                 .username(user)
                 .classNamePlusMethod(change)
@@ -34,62 +35,73 @@ public class ChangeHistoryService {
     }
 
     public boolean comparePinCode(String pinCode) {
-        return pinCode.equals("5062") || pinCode.equals("6420") || pinCode.equals("0127");
+        List<UserEntity> collect = userRepository.findAll().stream().filter(f -> f.getPinCode().equals(pinCode)).collect(Collectors.toList());
+//        pinCode.equals("5062") || pinCode.equals("6420") || pinCode.equals("0127")
+        return !collect.isEmpty();
     }
 
     void addRecordToChangeHistory(String pinCode, String classNamePlusMethod, String uuid) {
 
-        if (pinCode.equals("5062")) {
+        UserEntity userEntity = userRepository.findAll().stream().filter(f -> f.getPinCode().equals(pinCode)).findFirst().orElse(null);
 
-            UserEntity userEntity;
 
-            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Aleksandra"))) {
+        if (userEntity != null) {
 
-                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-                        .name("Aleksandra")
-                        .changeHistoryEntities(new ArrayList<>())
-                        .build());
-            } else {
-                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Aleksandra")).findFirst().orElse(null);
-
-            }
-            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod,uuid));
+            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
             userRepository.save(userEntity);
         }
-        if (pinCode.equals("6420")) {
-
-            UserEntity userEntity;
-
-            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Marcin"))) {
-
-                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-                        .name("Marcin")
-                        .changeHistoryEntities(new ArrayList<>())
-                        .build());
-            } else {
-                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Marcin")).findFirst().orElse(null);
-
-            }
-            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod,uuid));
-            userRepository.save(userEntity);
-        }
-        if (pinCode.equals("0127")) {
-
-            UserEntity userEntity;
-
-            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Igor"))) {
-
-                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-                        .name("Igor")
-                        .changeHistoryEntities(new ArrayList<>())
-                        .build());
-            } else {
-                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Igor")).findFirst().orElse(null);
-
-            }
-            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod,uuid));
-            userRepository.save(userEntity);
-        }
+//
+//        if (pinCode.equals("5062")) {
+//
+//            UserEntity userEntity;
+//
+//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Aleksandra"))) {
+//
+//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
+//                        .name("Aleksandra")
+//                        .changeHistoryEntities(new ArrayList<>())
+//                        .build());
+//            } else {
+//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Aleksandra")).findFirst().orElse(null);
+//
+//            }
+//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
+//            userRepository.save(userEntity);
+//        }
+//        if (pinCode.equals("6420")) {
+//
+//            UserEntity userEntity;
+//
+//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Marcin"))) {
+//
+//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
+//                        .name("Marcin")
+//                        .changeHistoryEntities(new ArrayList<>())
+//                        .build());
+//            } else {
+//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Marcin")).findFirst().orElse(null);
+//
+//            }
+//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
+//            userRepository.save(userEntity);
+//        }
+//        if (pinCode.equals("0127")) {
+//
+//            UserEntity userEntity;
+//
+//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Igor"))) {
+//
+//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
+//                        .name("Igor")
+//                        .changeHistoryEntities(new ArrayList<>())
+//                        .build());
+//            } else {
+//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Igor")).findFirst().orElse(null);
+//
+//            }
+//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
+//            userRepository.save(userEntity);
+//        }
     }
 }
 

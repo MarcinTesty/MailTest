@@ -1806,7 +1806,7 @@ public class FilesService {
                     Paragraph lpGun = new Paragraph(String.valueOf(j + 1), font(12, 0));
                     Paragraph modelNameGun = new Paragraph(gun.getModelName(), font(12, 0));
                     Paragraph caliberAndProductionYearGun;
-                    if (gun.getProductionYear() != null && !gun.getProductionYear().isEmpty()) {
+                    if (gun.getProductionYear() != null && !gun.getProductionYear().isEmpty() && !gun.getProductionYear().equals("null")) {
                         caliberAndProductionYearGun = new Paragraph(gun.getCaliber() + "\nrok " + gun.getProductionYear(), font(12, 0));
 
                     } else {
@@ -1970,7 +1970,7 @@ public class FilesService {
             Paragraph lpGun = new Paragraph(String.valueOf(j + 1), font(12, 0));
             Paragraph modelNameGun = new Paragraph(gun.getModelName(), font(12, 0));
             Paragraph caliberAndProductionYearGun;
-            if (gun.getProductionYear() != null && !gun.getProductionYear().isEmpty()) {
+            if (gun.getProductionYear() != null && !gun.getProductionYear().isEmpty() && !gun.getProductionYear().equals("null")) {
                 caliberAndProductionYearGun = new Paragraph(gun.getCaliber() + "\nrok " + gun.getProductionYear(), font(12, 0));
 
             } else {

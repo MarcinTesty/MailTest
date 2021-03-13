@@ -4,6 +4,7 @@ import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.domain.entities.GunEntity;
 import com.shootingplace.shootingplace.services.ArmoryService;
 import com.shootingplace.shootingplace.services.CaliberService;
+import com.shootingplace.shootingplace.services.ChangeHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +19,13 @@ public class ArmoryController {
 
     private final ArmoryService armoryService;
     private final CaliberService caliberService;
+    private final ChangeHistoryService changeHistoryService;
 
 
-    public ArmoryController(ArmoryService armoryService, CaliberService caliberService) {
+    public ArmoryController(ArmoryService armoryService, CaliberService caliberService, ChangeHistoryService changeHistoryService) {
         this.armoryService = armoryService;
         this.caliberService = caliberService;
+        this.changeHistoryService = changeHistoryService;
     }
 
 
@@ -109,13 +112,17 @@ public class ArmoryController {
     }
 
     @PutMapping("/remove")
-    public ResponseEntity<?> removeGun(@RequestParam String gunUUID) {
-        if (armoryService.removeGun(gunUUID)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<?> removeGun(@RequestParam String gunUUID, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
 
+            if (armoryService.removeGun(gunUUID, pinCode)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
     }
 
     @PostMapping("/calibers")

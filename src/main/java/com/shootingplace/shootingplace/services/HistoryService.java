@@ -171,31 +171,6 @@ public class HistoryService {
         HistoryEntity historyEntity = memberRepository.findById(memberUUID)
                 .orElseThrow(EntityNotFoundException::new)
                 .getHistory();
-//        if (memberEntity.getActive() && !licenseEntity.isPaid()) {
-//            if (historyEntity.getLicensePaymentHistory() != null) {
-//                LocalDate[] newState = new LocalDate[historyEntity.getLicensePaymentHistory().length + 1];
-//
-//                for (int i = 0; i <= historyEntity.getLicensePaymentHistory().length - 1; i++) {
-//                    newState[i] = historyEntity.getLicensePaymentHistory()[i];
-//                    newState[i + 1] = LocalDate.now();
-//                }
-//                LocalDate[] sortState = selectionSort(newState);
-//                historyEntity.setLicensePaymentHistory(sortState);
-//                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-//                historyRepository.saveAndFlush(historyEntity);
-//
-//            } else {
-//
-//                LocalDate[] newState = new LocalDate[1];
-//                newState[0] = LocalDate.now();
-//                historyEntity.setLicensePaymentHistory(newState);
-//                LOG.info("Dodano wpis o nowej płatności za licencję " + LocalDate.now());
-//                historyRepository.saveAndFlush(historyEntity);
-//            }
-//
-//        } else {
-//            return false;
-//        }
         if (memberEntity.getActive() && !licenseEntity.isPaid()) {
             if (historyEntity.getLicensePaymentHistory() != null) {
                 int dateYear;
@@ -235,25 +210,6 @@ public class HistoryService {
         licenseRepository.saveAndFlush(licenseEntity);
         return true;
 
-    }
-
-
-    private LocalDate[] selectionSort(LocalDate[] array) {
-
-        int n = array.length;
-
-        for (int i = 0; i < n - 1; i++) {
-            int min = i;
-            for (int j = i + 1; j < n; j++) {
-                if (array[j].isAfter(array[min])) {
-                    min = j;
-                }
-            }
-            LocalDate temp = array[min];
-            array[min] = array[i];
-            array[i] = temp;
-        }
-        return array;
     }
 
     //  Tournament

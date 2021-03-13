@@ -20,6 +20,10 @@ public class UserEntity {
     private String uuid;
 
     private String name;
+
+    private String pinCode;
+
+    private boolean superUser;
     @OrderBy("dayNow DESC, timeNow DESC")
     @ManyToMany
     private List<ChangeHistoryEntity> changeHistoryEntities;
@@ -42,5 +46,21 @@ public class UserEntity {
 
     public void setList(List<ChangeHistoryEntity> changeHistoryEntities) {
         this.changeHistoryEntities = changeHistoryEntities;
+    }
+
+    public boolean isSuperUser() {
+        return superUser;
+    }
+
+    public void setSuperUser(boolean superUser) {
+        this.superUser = superUser;
+    }
+
+    public String getPinCode() {
+        return pinCode;
+    }
+
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
     }
 }
