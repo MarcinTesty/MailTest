@@ -123,10 +123,10 @@ public class ContributionService {
                 .paymentDay(paymentDate)
                 .validThru(validThru)
                 .build();
+        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
         contributionRepository.saveAndFlush(contributionEntity);
         historyService.addContribution(memberUUID, contributionEntity);
         changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " addContributionRecord", memberUUID);
-        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
         LOG.info("zmieniono " + memberEntity.getSecondName());
         memberRepository.saveAndFlush(memberEntity);
         return true;
@@ -191,13 +191,29 @@ public class ContributionService {
                 .collect(Collectors.toList()).get(0);
 
 
+        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
         historyService.removeContribution(memberUUID, contributionEntity);
         contributionRepository.delete(contributionEntity);
-        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " removeContributiond", memberUUID);
-        memberEntity.setActive(!memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(3).isBefore(LocalDate.now()));
+        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " removeContribution", memberUUID);
         LOG.info("zmieniono " + memberEntity.getSecondName());
         memberRepository.saveAndFlush(memberEntity);
 
+        return true;
+
+    }
+
+    public boolean updateContribution(String memberUUID, String contributionUUID, LocalDate paymentDay, LocalDate validThru, String pinCode) {
+        ContributionEntity contributionEntity = contributionRepository.findById(contributionUUID).orElseThrow(EntityNotFoundException::new);
+
+        if (paymentDay != null) {
+            contributionEntity.setPaymentDay(paymentDay);
+        }
+
+        if (validThru != null) {
+            contributionEntity.setValidThru(validThru);
+        }
+        contributionRepository.saveAndFlush(contributionEntity);
+        changeHistoryService.addRecordToChangeHistory(pinCode, contributionEntity.getClass().getSimpleName() + " editContribution", memberUUID);
         return true;
 
     }

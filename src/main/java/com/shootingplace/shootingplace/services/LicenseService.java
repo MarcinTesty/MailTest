@@ -150,6 +150,7 @@ public class LicenseService {
 
             if (licenseRepository.findAll()
                     .stream().filter(e -> !(e.getNumber() == null))
+                    .filter(f->!f.getUuid().equals(license.getUuid()))
                     .anyMatch(f -> f.getNumber().equals(number))) {
                 LOG.error("Ktoś już ma taki numer licencji");
                 return false;
