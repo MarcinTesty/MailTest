@@ -42,6 +42,13 @@ public class ContributionController {
         return ResponseEntity.ok(contributionService.getErasedMembersSum(parseFirstDate, parseSecondDate));
     }
 
+    @GetMapping("/licenseSum")
+    public ResponseEntity<?> getlicenseSum(@RequestParam String firstDate, @RequestParam String secondDate) {
+        LocalDate parseFirstDate = LocalDate.parse(firstDate);
+        LocalDate parseSecondDate = LocalDate.parse(secondDate);
+        return ResponseEntity.ok(contributionService.getLicenseSum(parseFirstDate, parseSecondDate));
+    }
+
     @Transactional
     @PostMapping("/history/{memberUUID}")
     public ResponseEntity<?> addHistoryContributionRecord(@PathVariable String memberUUID, @RequestParam String date, @RequestParam String pinCode) {

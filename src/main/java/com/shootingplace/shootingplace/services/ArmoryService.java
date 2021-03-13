@@ -18,23 +18,27 @@ import java.util.stream.Collectors;
 public class ArmoryService {
 
     private final AmmoEvidenceRepository ammoEvidenceRepository;
+    private final CaliberService caliberService;
     private final CaliberRepository caliberRepository;
     private final CaliberUsedRepository caliberUsedRepository;
     private final CalibersAddedRepository calibersAddedRepository;
     private final GunRepository gunRepository;
+    private final ChangeHistoryService changeHistoryService;
 
-    public ArmoryService(AmmoEvidenceRepository ammoEvidenceRepository, CaliberRepository caliberRepository, CaliberUsedRepository caliberUsedRepository, CalibersAddedRepository calibersAddedRepository, GunRepository gunRepository) {
+    public ArmoryService(AmmoEvidenceRepository ammoEvidenceRepository, CaliberService caliberService, CaliberRepository caliberRepository, CaliberUsedRepository caliberUsedRepository, CalibersAddedRepository calibersAddedRepository, GunRepository gunRepository, ChangeHistoryService changeHistoryService) {
         this.ammoEvidenceRepository = ammoEvidenceRepository;
+        this.caliberService = caliberService;
         this.caliberRepository = caliberRepository;
         this.caliberUsedRepository = caliberUsedRepository;
         this.calibersAddedRepository = calibersAddedRepository;
         this.gunRepository = gunRepository;
+        this.changeHistoryService = changeHistoryService;
     }
 
 
     public List<Caliber> getSumFromAllAmmoList(LocalDate firstDate, LocalDate secondDate) {
         List<Caliber> list = new ArrayList<>();
-        List<CaliberEntity> calibersList = caliberRepository.findAll();
+        List<CaliberEntity> calibersList = caliberService.getCalibersList();
         calibersList.forEach(e ->
                 list.add(Mapping.map(e))
         );
@@ -165,24 +169,22 @@ public class ArmoryService {
                                 String comment,
                                 String basisForPurchaseOrAssignment) {
 
-        if(modelName.isEmpty()||caliber.isEmpty()||gunType.isEmpty()||serialNumber.isEmpty()||gunCertificateSerialNumber.isEmpty()||recordInEvidenceBook.isEmpty()){
-            System.out.println("nie udało się dodać broni");
+        if (modelName.isEmpty() || caliber.isEmpty() || gunType.isEmpty() || serialNumber.isEmpty() || gunCertificateSerialNumber.isEmpty() || recordInEvidenceBook.isEmpty()) {
             return false;
         }
-        if(productionYear.isEmpty()){
+        if (productionYear.isEmpty() || productionYear.equals("null")) {
             productionYear = null;
         }
-        if(additionalEquipment.isEmpty()){
+        if (additionalEquipment.isEmpty() || additionalEquipment.equals("null")) {
             additionalEquipment = null;
         }
-        if(comment.isEmpty()){
+        if (comment.isEmpty() || comment.equals("null")) {
             comment = null;
         }
 
         List<GunEntity> all = gunRepository.findAll();
 
         if (all.stream().anyMatch(e -> e.getGunCertificateSerialNumber().equals(gunCertificateSerialNumber) || e.getSerialNumber().equals(serialNumber) || e.getRecordInEvidenceBook().equals(recordInEvidenceBook))) {
-            System.out.println("nie udało się dodać broni");
             return false;
         } else {
 
@@ -202,8 +204,6 @@ public class ArmoryService {
 
             gunRepository.saveAndFlush(gunEntity);
 
-            System.out.println("Dodano nową broń");
-
             return true;
         }
     }
@@ -220,5 +220,80 @@ public class ArmoryService {
     public List<GunEntity> getAllGuns() {
         List<GunEntity> all = gunRepository.findAll();
         return all.stream().filter(GunEntity::isInStock).sorted(Comparator.comparing(GunEntity::getCaliber).thenComparing(GunEntity::getModelName)).collect(Collectors.toList());
+    }
+
+    public boolean editGunEntity(String gunUUID,
+                                 String modelName,
+                                 String caliber,
+                                 String gunType,
+                                 String serialNumber,
+                                 String productionYear,
+                                 String numberOfMagazines,
+                                 String gunCertificateSerialNumber,
+                                 String additionalEquipment,
+                                 String recordInEvidenceBook,
+                                 String comment,
+                                 String basisForPurchaseOrAssignment) {
+        GunEntity gunEntity = gunRepository.findById(gunUUID).orElse(null);
+        if (gunEntity == null) {
+            return false;
+        }
+
+        if (modelName != null && !modelName.isEmpty()) {
+            gunEntity.setModelName(modelName);
+        }
+        if (caliber != null && !caliber.isEmpty()) {
+            gunEntity.setCaliber(caliber);
+        }
+        if (gunType != null && !gunType.isEmpty()) {
+            gunEntity.setGunType(gunType);
+        }
+        if (serialNumber != null && !serialNumber.isEmpty()) {
+            gunEntity.setSerialNumber(serialNumber);
+        }
+        if (productionYear != null && !productionYear.isEmpty()) {
+            gunEntity.setProductionYear(productionYear);
+        }
+        if (numberOfMagazines != null && !numberOfMagazines.isEmpty()) {
+            gunEntity.setNumberOfMagazines(numberOfMagazines);
+        }
+        if (gunCertificateSerialNumber != null && !gunCertificateSerialNumber.isEmpty()) {
+            gunEntity.setGunCertificateSerialNumber(gunCertificateSerialNumber);
+        }
+        if (additionalEquipment != null && !additionalEquipment.isEmpty()) {
+            gunEntity.setAdditionalEquipment(additionalEquipment);
+        }
+        if (recordInEvidenceBook != null && !recordInEvidenceBook.isEmpty()) {
+            gunEntity.setRecordInEvidenceBook(recordInEvidenceBook);
+        }
+        if (comment != null && !comment.isEmpty()) {
+            gunEntity.setComment(comment);
+        }
+        if (basisForPurchaseOrAssignment != null && !basisForPurchaseOrAssignment.isEmpty()) {
+            gunEntity.setBasisForPurchaseOrAssignment(basisForPurchaseOrAssignment);
+        }
+        if (gunEntity.getProductionYear().equals("null")) {
+            gunEntity.setProductionYear(null);
+        }
+        if (gunEntity.getAdditionalEquipment().equals("null")) {
+            gunEntity.setAdditionalEquipment(null);
+        }
+        if (gunEntity.getComment().equals("null")) {
+            gunEntity.setComment(null);
+        }
+        gunRepository.saveAndFlush(gunEntity);
+        return true;
+    }
+
+    public boolean removeGun(String gunUUID, String pinCode) {
+
+        GunEntity gunEntity = gunRepository.findById(gunUUID).orElse(null);
+        if (gunEntity == null) {
+            return false;
+        }
+        gunEntity.setInStock(false);
+        gunRepository.saveAndFlush(gunEntity);
+        changeHistoryService.addRecordToChangeHistory(pinCode, gunEntity.getClass().getSimpleName() + " removeGun", gunEntity.getUuid());
+        return true;
     }
 }

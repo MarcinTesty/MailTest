@@ -47,6 +47,7 @@ public class Mapping {
                             .license(map(e.getLicense()))
                             .club(Mapping.map(e.getClub()))
                             .joinDate(e.getJoinDate())
+                            .memberPermissions(map(e.getMemberPermissions()))
                             .build()).orElse(null);
         } else {
             return Optional.of(e).map(o ->
@@ -62,6 +63,7 @@ public class Mapping {
                             .license(map(e.getLicense()))
                             .club(Mapping.map(e.getClub()))
                             .joinDate(e.getJoinDate())
+                            .memberPermissions(map(e.getMemberPermissions()))
                             .build()).orElse(null);
         }
 
@@ -204,7 +206,7 @@ public class Mapping {
                 .licenseHistory(e.getLicenseHistory())
                 .patentDay(e.getPatentDay())
                 .patentFirstRecord(e.getPatentFirstRecord())
-                .licensePaymentHistory(e.getLicensePaymentHistory())
+                .licensePaymentHistory(e.getLicensePaymentHistory().stream().map(Mapping::map).collect(Collectors.toList()))
                 .pistolCounter(e.getPistolCounter())
                 .rifleCounter(e.getRifleCounter())
                 .shotgunCounter(e.getShotgunCounter())
@@ -212,15 +214,43 @@ public class Mapping {
     }
 
     static HistoryEntity map(History r) {
-        return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
-                .licenseHistory(e.getLicenseHistory())
-                .patentDay(e.getPatentDay())
-                .patentFirstRecord(e.getPatentFirstRecord())
-                .licensePaymentHistory(e.getLicensePaymentHistory())
-                .pistolCounter(e.getPistolCounter())
-                .rifleCounter(e.getRifleCounter())
-                .shotgunCounter(e.getShotgunCounter())
-                .build()).orElse(null);
+        if (r.getLicensePaymentHistory() != null) {
+            return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
+                    .licenseHistory(e.getLicenseHistory())
+                    .patentDay(e.getPatentDay())
+                    .patentFirstRecord(e.getPatentFirstRecord())
+                    .licensePaymentHistory(e.getLicensePaymentHistory().stream().map(Mapping::map).collect(Collectors.toList()))
+                    .pistolCounter(e.getPistolCounter())
+                    .rifleCounter(e.getRifleCounter())
+                    .shotgunCounter(e.getShotgunCounter())
+                    .build()).orElse(null);
+        }else{
+            return Optional.ofNullable(r).map(e -> HistoryEntity.builder()
+                    .licenseHistory(e.getLicenseHistory())
+                    .patentDay(e.getPatentDay())
+                    .patentFirstRecord(e.getPatentFirstRecord())
+                    .licensePaymentHistory(null)
+                    .pistolCounter(e.getPistolCounter())
+                    .rifleCounter(e.getRifleCounter())
+                    .shotgunCounter(e.getShotgunCounter())
+                    .build()).orElse(null);
+        }
+    }
+
+    static LicensePaymentHistory map(LicensePaymentHistoryEntity l) {
+        return LicensePaymentHistory.builder()
+                .date(l.getDate())
+                .validForYear(l.getValidForYear())
+                .memberUUID(l.getMemberUUID())
+                .build();
+    }
+
+    static LicensePaymentHistoryEntity map(LicensePaymentHistory l) {
+        return LicensePaymentHistoryEntity.builder()
+                .date(l.getDate())
+                .validForYear(l.getValidForYear())
+                .memberUUID(l.getMemberUUID())
+                .build();
     }
 
     static ElectronicEvidence map(ElectronicEvidenceEntity el) {
@@ -278,7 +308,12 @@ public class Mapping {
                 .name(t.getName())
                 .date(t.getDate())
                 .open(t.isOpen())
-                .competitionsList((t.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList())))
+                .wzss(t.isWZSS())
+                .mainArbiter(map2(t.getMainArbiter()))
+                .commissionRTSArbiter(map2(t.getCommissionRTSArbiter()))
+                .otherMainArbiter(t.getOtherMainArbiter())
+                .otherCommissionRTSArbiter(t.getOtherCommissionRTSArbiter())
+                .competitionsList(t.getCompetitionsList().stream().map(Mapping::map).collect(Collectors.toList()))
                 .build();
     }
 
@@ -306,8 +341,7 @@ public class Mapping {
                     .competitionMembersListEntityUUID(s.getCompetitionMembersListEntityUUID())
                     .uuid(s.getUuid())
                     .build();
-        }
-        else{
+        } else {
             return Score.builder()
                     .member(null)
                     .ammunition(s.isAmmunition())
@@ -328,7 +362,8 @@ public class Mapping {
                 .name(t.getName())
                 .date(t.getDate())
                 .open(t.isOpen())
-                .mainArbiter(map2(t.getMainArbiter()))
+                .WZSS(t.isWzss())
+                .mainArbiter(Mapping.map2(t.getMainArbiter()))
                 .commissionRTSArbiter(map2(t.getCommissionRTSArbiter()))
                 .otherMainArbiter(t.getOtherMainArbiter())
                 .otherCommissionRTSArbiter(t.getOtherCommissionRTSArbiter())

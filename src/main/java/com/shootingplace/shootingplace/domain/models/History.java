@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Builder
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class History {
     private String[] licenseHistory;
-    private LocalDate[] licensePaymentHistory;
+    private List<LicensePaymentHistory> licensePaymentHistory;
 
     private Boolean patentFirstRecord = false;
     private LocalDate[] patentDay;
@@ -29,11 +30,11 @@ public class History {
         this.licenseHistory = licenseHistory;
     }
 
-    public LocalDate[] getLicensePaymentHistory() {
+    public List<LicensePaymentHistory> getLicensePaymentHistory() {
         return licensePaymentHistory;
     }
 
-    public void setLicensePaymentHistory(LocalDate[] licensePaymentHistory) {
+    public void setLicensePaymentHistory(List<LicensePaymentHistory> licensePaymentHistory) {
         this.licensePaymentHistory = licensePaymentHistory;
     }
 

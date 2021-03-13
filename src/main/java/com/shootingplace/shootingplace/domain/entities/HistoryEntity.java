@@ -23,10 +23,12 @@ public class HistoryEntity {
     @OrderBy("paymentDay DESC,validThru DESC")
     private List<ContributionEntity> contributionList;
     private String[] licenseHistory;
-    // to należy przerobić na jakąś normalną encję
-//    private List<LicensePaymentHistory> licensePaymentHistory; --->
+//    to należy przerobić na jakąś normalną encję
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("date DESC")
+    private List<LicensePaymentHistoryEntity> licensePaymentHistory;
 //    ---> musi posiadać pola uuid, date, memberUUID, validForYear
-    private LocalDate[] licensePaymentHistory;
+//    private LocalDate[] licensePaymentHistory;
 
     private Boolean patentFirstRecord = false;
     private LocalDate[] patentDay;
@@ -62,11 +64,11 @@ public class HistoryEntity {
         this.licenseHistory = licenseHistory;
     }
 
-    public LocalDate[] getLicensePaymentHistory() {
+    public List<LicensePaymentHistoryEntity> getLicensePaymentHistory() {
         return licensePaymentHistory;
     }
 
-    public void setLicensePaymentHistory(LocalDate[] licensePaymentHistory) {
+    public void setLicensePaymentHistory(List<LicensePaymentHistoryEntity> licensePaymentHistory) {
         this.licensePaymentHistory = licensePaymentHistory;
     }
 

@@ -72,17 +72,25 @@ public class ContributionService {
             if (contributionEntityList.size() < 1) {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
                 if (contributionPaymentDay.isBefore(LocalDate.of(validThru.getYear(), 2, 28))) {
-                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 2, 28));
+                    contributionEntity.setValidThru(LocalDate.of(validThru.getYear(), 2, 28));
                 } else {
-                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 8, 31));
+                    contributionEntity.setValidThru(LocalDate.of(validThru.getYear(), 8, 31));
                 }
-                contributionEntity.setValidThru(validThru.plusMonths(6));
             } else {
                 contributionEntity.setPaymentDay(contributionPaymentDay);
                 if (contributionEntityList.get(0).getValidThru().equals(LocalDate.of(validThru.getYear(), 2, 28))) {
-                    contributionEntity.setValidThru(LocalDate.of(contributionEntity.getValidThru().getYear(), 8, 31));
+                    contributionEntity.setValidThru(LocalDate.of(contributionEntityList.get(0).getValidThru().getYear(), 8, 31));
+                    System.out.println(1);
+                } else {
+                    System.out.println(2);
+                    LocalDate c;
+                    if (contributionEntityList.get(0).getValidThru().getMonth().getValue() == 2 && contributionEntityList.get(0).getValidThru().getDayOfMonth() == 28) {
+                        c = contributionEntityList.get(0).getValidThru().plusMonths(6).plusDays(3);
+                        contributionEntity.setValidThru(c);
+                    } else {
+                        contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
+                    }
                 }
-                contributionEntity.setValidThru(contributionEntityList.get(0).getValidThru().plusMonths(6));
             }
         }
         contributionRepository.saveAndFlush(contributionEntity);
@@ -233,7 +241,7 @@ public class ContributionService {
                 .filter(f -> f.getJoinDate().isAfter(firstDate.minusDays(1)))
                 .filter(f -> f.getJoinDate().isBefore(secondDate.plusDays(1)))
                 .map(Mapping::map2)
-                .sorted(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
+                .sorted(Comparator.comparing(MemberDTO::getJoinDate).thenComparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
                 .collect(Collectors.toList());
     }
 
@@ -247,5 +255,34 @@ public class ContributionService {
                 .sorted(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
                 .collect(Collectors.toList());
 
+    }
+
+    public List<MemberDTO> getLicenseSum(LocalDate firstDate, LocalDate secondDate) {
+        List<MemberDTO> list = new ArrayList<>();
+        memberRepository.findAll().stream()
+                .filter(f -> !f.getErased())
+                .forEach(member -> member.getHistory().getLicensePaymentHistory()
+                        .stream()
+                        .filter(lp -> lp.getDate().isAfter(firstDate.minusDays(1)))
+                        .filter(lp -> lp.getDate().isBefore(secondDate.plusDays(1)))
+                        .forEach(g -> list.add(Mapping.map2(member))));
+        list.sort(Comparator.comparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName));
+        return list;
+    }
+
+    public List<List<MemberDTO>> joinMonthSum(int year) {
+        List<List<MemberDTO>> list = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            int finalI = i;
+            List<MemberDTO> collect = memberRepository.findAll().stream()
+                    .filter(f -> f.getJoinDate().getYear() == year)
+                    .filter(f -> f.getJoinDate().getMonth().getValue() == finalI + 1)
+                    .map(Mapping::map2)
+                    .sorted(Comparator.comparing(MemberDTO::getJoinDate).thenComparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
+                    .collect(Collectors.toList());
+
+            list.add(collect);
+        }
+        return list;
     }
 }

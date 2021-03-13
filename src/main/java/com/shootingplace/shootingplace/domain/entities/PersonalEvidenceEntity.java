@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -23,6 +20,7 @@ public class PersonalEvidenceEntity {
     private String uuid;
 
     @OneToMany
+    @OrderBy("caliberName ASC")
     private List<AmmoUsedEntity> ammoList;
 
     public String getUuid() {

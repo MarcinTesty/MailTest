@@ -43,8 +43,8 @@ public class ClubService {
         if (club.getUrl() != null && !club.getUrl().isEmpty()) {
             clubEntity.setUrl(club.getUrl());
         }
-        if(id == 1 ){
-            if(club.getLicenseNumber()!=null && !club.getLicenseNumber().isEmpty()){
+        if (id == 1) {
+            if (club.getLicenseNumber() != null && !club.getLicenseNumber().isEmpty()) {
                 clubEntity.setLicenseNumber(club.getLicenseNumber());
             }
         }

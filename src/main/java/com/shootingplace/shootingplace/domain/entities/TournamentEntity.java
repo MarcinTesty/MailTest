@@ -47,6 +47,7 @@ public class TournamentEntity {
     @OrderBy("name ASC")
     private List<CompetitionMembersListEntity> competitionsList = new ArrayList<>();
     private boolean open;
+    private boolean WZSS;
 
     public String getUuid() {
         return uuid;
@@ -148,5 +149,11 @@ public class TournamentEntity {
         this.otherArbitersRTSList = otherArbitersRTSList;
     }
 
+    public boolean isWZSS() {
+        return WZSS;
+    }
 
+    public void setWZSS(boolean WZSS) {
+        this.WZSS = WZSS;
+    }
 }

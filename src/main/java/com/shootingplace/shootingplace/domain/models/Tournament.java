@@ -4,7 +4,6 @@ import com.shootingplace.shootingplace.domain.entities.OtherPersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -22,9 +21,7 @@ public class Tournament {
     private String uuid;
     private String name;
     private LocalDate date;
-    @Nullable
     private MemberDTO commissionRTSArbiter;
-    @Nullable
     private MemberDTO mainArbiter;
 
     private List<MemberDTO> arbitersList;
@@ -43,6 +40,15 @@ public class Tournament {
     @OrderBy("name ASC")
     private List<CompetitionMembersList> competitionsList = new ArrayList<>();
     private boolean open;
+    private boolean wzss;
+
+    public boolean isWzss() {
+        return wzss;
+    }
+
+    public void setWzss(boolean wzss) {
+        this.wzss = wzss;
+    }
 
     public String getUuid() {
         return uuid;

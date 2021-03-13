@@ -92,11 +92,31 @@ public class MemberController {
         return memberService.getMembersWithPermissions();
     }
 
-
     @GetMapping("/membersEmails")
     public ResponseEntity<?> getMembersEmails(@RequestParam Boolean condition) {
         return ResponseEntity.ok(memberService.getMembersEmails(condition));
     }
+
+    @GetMapping("/membersToEraseEmails")
+    public ResponseEntity<?> getMembersToEraseEmails() {
+        return ResponseEntity.ok(memberService.getMembersToEraseEmails());
+    }
+
+    @GetMapping("/membersToErasePhoneNumbers")
+    public ResponseEntity<?> getMembersToErasePhoneNumbers() {
+        return ResponseEntity.ok(memberService.getMembersToErasePhoneNumbers());
+    }
+
+    @GetMapping("/membersToPoliceEmails")
+    public ResponseEntity<?> getMembersToPoliceEmails() {
+        return ResponseEntity.ok(memberService.getMembersToPoliceEmails());
+    }
+
+    @GetMapping("/membersToPolicePhoneNumbers")
+    public ResponseEntity<?> getMembersToPolicePhoneNumbers() {
+        return ResponseEntity.ok(memberService.getMembersToPolicePhoneNumbers());
+    }
+
 
     @GetMapping("/phoneNumbers")
     public ResponseEntity<?> getMembersPhoneNumbers(@RequestParam Boolean condition) {
