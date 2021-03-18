@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ShootingPatentService {
@@ -38,14 +40,18 @@ public class ShootingPatentService {
                 .getUuid())
                 .orElseThrow(EntityNotFoundException::new);
         if (shootingPatent.getPatentNumber() != null && !shootingPatent.getPatentNumber().isEmpty()) {
-            if (shootingPatentRepository.findAll()
-                    .stream().filter(e -> !(e.getPatentNumber() == null))
-                    .anyMatch(f -> f.getPatentNumber().equals(shootingPatent.getPatentNumber()))) {
+
+            List<MemberEntity> collect = memberRepository.findAll()
+                    .stream()
+                    .filter(f -> !f.getErased())
+                    .filter(f->f.getShootingPatent().getPatentNumber()!=null)
+                    .filter(f -> f.getShootingPatent().getPatentNumber().equals(shootingPatent.getPatentNumber()))
+                    .collect(Collectors.toList());
+
+            if (collect.size()>0) {
                 LOG.error("ktoś już ma taki numer patentu");
                 return false;
             } else {
-
-
                 shootingPatentEntity.setPatentNumber(shootingPatent.getPatentNumber());
                 LOG.info("Wprowadzono numer patentu");
             }
