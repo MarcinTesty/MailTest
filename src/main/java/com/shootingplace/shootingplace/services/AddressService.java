@@ -16,13 +16,11 @@ import javax.persistence.EntityNotFoundException;
 public class AddressService {
     private final AddressRepository addressRepository;
     private final MemberRepository memberRepository;
-    private final FilesService filesService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
-    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository, FilesService filesService) {
+    public AddressService(AddressRepository addressRepository, MemberRepository memberRepository) {
         this.addressRepository = addressRepository;
         this.memberRepository = memberRepository;
-        this.filesService = filesService;
     }
 
     @SneakyThrows
@@ -37,11 +35,23 @@ public class AddressService {
             LOG.info("Dodano Kod pocztowy");
         }
         if (address.getPostOfficeCity() != null && !address.getPostOfficeCity().isEmpty()) {
-            addressEntity.setPostOfficeCity(address.getPostOfficeCity().substring(0, 1).toUpperCase() + address.getPostOfficeCity().substring(1).toLowerCase());
+            String[] s1 = address.getPostOfficeCity().split(" ");
+            StringBuilder postOfficeCity = new StringBuilder();
+            for (String value : s1) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                postOfficeCity.append(splinted);
+            }
+            addressEntity.setPostOfficeCity(postOfficeCity.toString());
             LOG.info("Dodano Miasto");
         }
         if (address.getStreet() != null && !address.getStreet().isEmpty()) {
-            addressEntity.setStreet(address.getStreet().substring(0, 1).toUpperCase() + address.getStreet().substring(1).toLowerCase());
+            String[] s1 = address.getStreet().split(" ");
+            StringBuilder street = new StringBuilder();
+            for (String value : s1) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                street.append(splinted);
+            }
+            addressEntity.setStreet(street.toString());
             LOG.info("Dodano Ulica");
         }
         if (address.getStreetNumber() != null && !address.getStreetNumber().isEmpty()) {
@@ -53,10 +63,7 @@ public class AddressService {
             LOG.info("Dodano Numer mieszkania");
         }
         addressRepository.saveAndFlush(addressEntity);
-        memberEntity.setAddress(addressEntity);
-        memberRepository.saveAndFlush(memberEntity);
         LOG.info("Zaktualizowano adres");
-        filesService.personalCardFile(memberEntity.getUuid());
         return true;
     }
 }

@@ -68,6 +68,14 @@ public class Mapping {
         }
 
     }
+    static MemberAmmo map3(MemberEntity e){
+        return MemberAmmo.builder()
+                .uuid(e.getUuid())
+                .firstName(e.getFirstName())
+                .secondName(e.getSecondName())
+                .legitimationNumber(e.getLegitimationNumber())
+                .build();
+    }
 
     static MemberEntity map2(MemberDTO e) {
         return MemberEntity.builder()

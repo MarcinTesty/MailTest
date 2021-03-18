@@ -28,7 +28,6 @@ public class MemberService {
     private final ShootingPatentRepository shootingPatentRepository;
     private final ContributionService contributionService;
     private final HistoryService historyService;
-    private final WeaponPermissionService weaponPermissionService;
     private final WeaponPermissionRepository weaponPermissionRepository;
     private final MemberPermissionsRepository memberPermissionsRepository;
     private final PersonalEvidenceRepository personalEvidenceRepository;
@@ -46,19 +45,20 @@ public class MemberService {
                          ShootingPatentRepository shootingPatentRepository,
                          ContributionService contributionService,
                          HistoryService historyService,
-                         WeaponPermissionService weaponPermissionService,
                          WeaponPermissionRepository weaponPermissionRepository,
                          MemberPermissionsRepository memberPermissionsRepository,
                          PersonalEvidenceRepository personalEvidenceRepository,
                          ClubRepository clubRepository,
-                         ChangeHistoryService changeHistoryService, ErasedRepository erasedRepository, HistoryRepository historyRepository, ContributionRepository contributionRepository) {
+                         ChangeHistoryService changeHistoryService,
+                         ErasedRepository erasedRepository,
+                         HistoryRepository historyRepository,
+                         ContributionRepository contributionRepository) {
         this.memberRepository = memberRepository;
         this.addressRepository = addressRepository;
         this.licenseRepository = licenseRepository;
         this.shootingPatentRepository = shootingPatentRepository;
         this.contributionService = contributionService;
         this.historyService = historyService;
-        this.weaponPermissionService = weaponPermissionService;
         this.weaponPermissionRepository = weaponPermissionRepository;
         this.memberPermissionsRepository = memberPermissionsRepository;
         this.personalEvidenceRepository = personalEvidenceRepository;
@@ -123,7 +123,50 @@ public class MemberService {
     }
 
     void checkMembers() {
+        List<AddressEntity> addressEntityList = new ArrayList<>();
+        memberRepository.findAll()
+                .stream()
+                .filter(f -> f.getAddress() != null)
+                .filter(f -> f.getAddress().getPostOfficeCity() == null)
+                .filter(f -> f.getAddress().getStreet() == null)
+                .filter(f -> f.getAddress().getStreetNumber() == null)
+                .forEach(e->addressEntityList.add(e.getAddress()));
 
+        List<AddressEntity> all = addressRepository.findAll();
+        all.removeAll(addressEntityList);
+
+        all.forEach(addressRepository::delete);
+
+        List<AddressEntity> collect = addressRepository.findAll()
+                .stream()
+                .filter(f -> f.getPostOfficeCity() != null)
+                .filter(f -> f.getZipCode() != null)
+                .filter(f -> f.getStreet() != null)
+                .filter(f -> f.getStreetNumber() != null)
+                .collect(Collectors.toList());
+        collect.forEach(c -> {
+            String[] s1 = c.getPostOfficeCity().split(" ");
+            StringBuilder postOfficeCity = new StringBuilder();
+            for (String value : s1) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                postOfficeCity.append(splinted);
+            }
+            String[] s2 = c.getStreet().split(" ");
+            StringBuilder street = new StringBuilder();
+            for (String value : s2) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                street.append(splinted);
+            }
+            c.setPostOfficeCity(postOfficeCity.toString());
+            c.setStreet(street.toString());
+            String s = c.getStreetNumber().toUpperCase().trim();
+            c.setStreetNumber(s);
+            if (c.getFlatNumber() != null) {
+                String s3 = c.getFlatNumber().toLowerCase().trim();
+                c.setFlatNumber(s3);
+            }
+            addressRepository.save(c);
+        });
         // dorośli
         List<MemberEntity> adultMembers = memberRepository
                 .findAll()
@@ -186,8 +229,7 @@ public class MemberService {
         memberEntity.setActive(true);
 
         List<MemberEntity> memberEntityList = memberRepository.findAll();
-
-        if (memberRepository.findByPesel(member.getPesel()).isPresent()) {
+        if (memberEntityList.stream().filter(f -> !f.getErased()).anyMatch(a -> a.getPesel().equals(member.getPesel()))) {
             LOG.error("Ktoś już ma taki numer PESEL");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer PESEL\"");
         }
@@ -195,15 +237,20 @@ public class MemberService {
             memberEntity.setEmail("");
         }
         memberEntity.setEmail(member.getEmail().toLowerCase());
-        if (memberEntityList.stream().filter(f -> f.getEmail().equals(" ") || f.getEmail() == null).anyMatch(e -> e.getEmail().equals(member.getEmail()))) {
+        if (memberEntityList.stream().filter(f -> !f.getErased()).filter(f -> f.getEmail().equals(" ") || f.getEmail() == null).anyMatch(e -> e.getEmail().equals(member.getEmail()))) {
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki e-mail\"" + member.getEmail());
         }
         if (memberEntityList.stream().anyMatch(e -> e.getLegitimationNumber().equals(member.getLegitimationNumber()))) {
-            LOG.error("Ktoś już ma taki numer legitymacji");
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
+            if (memberEntityList.stream().filter(MemberEntity::getErased).anyMatch(e -> e.getLegitimationNumber().equals(member.getLegitimationNumber()))) {
+                LOG.error("Ktoś już ma taki numer legitymacji");
+                return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś wśród skreślonych już ma taki numer legitymacji\"");
+            } else {
+                LOG.error("Ktoś już ma taki numer legitymacji");
+                return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer legitymacji\"");
+            }
         }
 
-        if (memberEntityList.stream().anyMatch(e -> e.getIDCard().trim().toUpperCase().equals(member.getIDCard()))) {
+        if (memberEntityList.stream().filter(f -> !f.getErased()).anyMatch(e -> e.getIDCard().trim().toUpperCase().equals(member.getIDCard()))) {
             LOG.error("Ktoś już ma taki numer dowodu osobistego");
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("\"Uwaga! Ktoś już ma taki numer dowodu osobistego\"");
         } else {
@@ -349,22 +396,25 @@ public class MemberService {
     }
 
     public ResponseEntity<?> changeAdult(String memberUUID, String pinCode) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         if (!memberRepository.existsById(memberUUID)) {
             LOG.info("Nie znaleziono Klubowicza");
             return ResponseEntity.notFound().build();
         }
-        if (memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new).getAdult()) {
+        if (memberEntity.getAdult()) {
             LOG.info("Klubowicz należy już do grupy powszechnej");
             return ResponseEntity.badRequest().build();
         }
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        if (!LocalDate.now().equals(memberEntity.getJoinDate().plusYears(1))) {
+            LOG.info("Klubowicz ma za krótki staż jako młodzież");
+            return ResponseEntity.badRequest().body("Klubowicz ma za krótki staż jako młodzież");
+        }
         memberEntity.setAdult(true);
         memberRepository.saveAndFlush(memberEntity);
         LocalDate date;
-        if(memberEntity.getHistory().getContributionList().get(0).getValidThru().getDayOfMonth()==28){
-            date = LocalDate.of(LocalDate.now().getYear(),6,30);
-        }
-        else{
+        if (memberEntity.getHistory().getContributionList().get(0).getValidThru().getDayOfMonth() == 28) {
+            date = LocalDate.of(LocalDate.now().getYear(), 6, 30);
+        } else {
             date = memberEntity.getHistory().getContributionList().get(0).getValidThru().plusMonths(4);
         }
         ContributionEntity contribution = ContributionEntity.builder()
@@ -373,7 +423,7 @@ public class MemberService {
                 .historyUUID(memberEntity.getHistory().getUuid())
                 .build();
         contributionRepository.saveAndFlush(contribution);
-        historyService.addContribution(memberUUID,contribution);
+        historyService.addContribution(memberUUID, contribution);
         LOG.info("Klubowicz należy od teraz do grupy dorosłej : " + LocalDate.now());
         changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " changeAdult", memberEntity.getUuid());
         return ResponseEntity.noContent().build();
@@ -402,22 +452,22 @@ public class MemberService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<?> resurrectMember(String memberUUID, String pinCode) {
-        if (!memberRepository.existsById(memberUUID)) {
-            LOG.info("Nie znaleziono Klubowicza");
-            return ResponseEntity.notFound().build();
-        }
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getErased()) {
-            erasedRepository.delete(memberEntity.getErasedEntity());
-            memberEntity.setErasedEntity(null);
-            memberEntity.toggleErase();
-            LOG.info("Klubowicz przywrócony : " + LocalDate.now());
-        }
-        memberRepository.saveAndFlush(memberEntity);
-        changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " resurrectMember", memberEntity.getUuid());
-        return ResponseEntity.noContent().build();
-    }
+//    public ResponseEntity<?> resurrectMember(String memberUUID, String pinCode) {
+//        if (!memberRepository.existsById(memberUUID)) {
+//            LOG.info("Nie znaleziono Klubowicza");
+//            return ResponseEntity.notFound().build();
+//        }
+//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+//        if (memberEntity.getErased()) {
+//            erasedRepository.delete(memberEntity.getErasedEntity());
+//            memberEntity.setErasedEntity(null);
+//            memberEntity.toggleErase();
+//            LOG.info("Klubowicz przywrócony : " + LocalDate.now());
+//        }
+//        memberRepository.saveAndFlush(memberEntity);
+//        changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " resurrectMember", memberEntity.getUuid());
+//        return ResponseEntity.noContent().build();
+//    }
 
     //--------------------------------------------------------------------------
     @SneakyThrows
@@ -499,11 +549,6 @@ public class MemberService {
         memberRepository.saveAndFlush(memberEntity);
 
         return ResponseEntity.ok().build();
-    }
-
-    public boolean changeWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
-
-        return weaponPermissionService.updateWeaponPermission(memberUUID, weaponPermission);
     }
 
     private String goodMessage() {
@@ -850,5 +895,9 @@ public class MemberService {
             }
         });
         return list;
+    }
+
+    public MemberEntity getMemberByUUID(String uuid) {
+        return memberRepository.findById(uuid).orElseThrow(EntityNotFoundException::new);
     }
 }

@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WeaponPermissionService {
@@ -24,25 +26,20 @@ public class WeaponPermissionService {
         this.weaponPermissionRepository = weaponPermissionRepository;
     }
 
-    void addWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
-        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        if (memberEntity.getWeaponPermission() != null) {
-            LOG.error("nie można już dodać pozwolenia");
-        }
-        WeaponPermissionEntity weaponPermissionEntity = Mapping.map(weaponPermission);
-        weaponPermissionRepository.saveAndFlush(weaponPermissionEntity);
-        memberEntity.setWeaponPermission(weaponPermissionEntity);
-        memberRepository.saveAndFlush(memberEntity);
-        LOG.info("Pozwolenie na broń zostało dodane");
-    }
-
-    boolean updateWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
+    public boolean updateWeaponPermission(String memberUUID, WeaponPermission weaponPermission) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
         WeaponPermissionEntity weaponPermissionEntity = memberEntity.getWeaponPermission();
         if (weaponPermission.getNumber() != null) {
-            if (weaponPermissionRepository.findByNumber(weaponPermission.getNumber()).isPresent()
-                    && !memberEntity.getWeaponPermission().getNumber().equals(weaponPermission.getNumber())) {
+
+            List<MemberEntity> collect = memberRepository.findAll()
+                    .stream()
+                    .filter(f -> !f.getErased())
+                    .filter(f -> f.getWeaponPermission().getNumber() != null)
+                    .filter(f -> f.getWeaponPermission().getNumber().equals(weaponPermission.getNumber()))
+                    .collect(Collectors.toList());
+            if (collect.size() > 0) {
                 LOG.error("ktoś już ma taki numer pozwolenia");
+                return false;
             } else {
                 weaponPermissionEntity.setNumber(weaponPermission.getNumber());
                 weaponPermissionEntity.setExist(true);
@@ -50,25 +47,23 @@ public class WeaponPermissionService {
             }
         }
         if (weaponPermission.getAdmissionToPossessAWeapon() != null) {
-            if (weaponPermissionRepository.findByAdmissionToPossessAWeapon(weaponPermission.getAdmissionToPossessAWeapon()).isPresent()
-                    && !memberEntity.getWeaponPermission().getAdmissionToPossessAWeapon().equals(weaponPermission.getAdmissionToPossessAWeapon())) {
+
+            List<MemberEntity> collect = memberRepository.findAll()
+                    .stream()
+                    .filter(f -> !f.getErased())
+                    .filter(f -> f.getWeaponPermission().getAdmissionToPossessAWeapon() != null)
+                    .filter(f -> f.getWeaponPermission().getAdmissionToPossessAWeapon().equals(weaponPermission.getAdmissionToPossessAWeapon()))
+                    .collect(Collectors.toList());
+
+            if (collect.size() > 0) {
                 LOG.error("ktoś już ma taki numer dopuszczenia");
+                return false;
             } else {
                 weaponPermissionEntity.setAdmissionToPossessAWeapon(weaponPermission.getAdmissionToPossessAWeapon());
                 weaponPermissionEntity.setAdmissionToPossessAWeaponIsExist(true);
                 LOG.info("Wprowadzono numer dopuszczenia");
             }
         }
-//        if (weaponPermission.getNumber().equals("0")) && !weaponPermission.getExist()) {
-//            weaponPermissionEntity.setNumber(null);
-//            weaponPermissionEntity.setExist(false);
-//            LOG.info("Usunięto pozwolenie");
-//        }
-//        if (weaponPermission.getAdmissionToPossessAWeapon().equals("0")) && !weaponPermission.getAdmissionToPossessAWeaponIsExist()) {
-//            weaponPermissionEntity.setAdmissionToPossessAWeapon(null);
-//            weaponPermissionEntity.setAdmissionToPossessAWeaponIsExist(false);
-//            LOG.info("Usunięto dopuszczenie");
-//        }
         weaponPermissionRepository.saveAndFlush(weaponPermissionEntity);
         memberEntity.setWeaponPermission(weaponPermissionEntity);
         memberRepository.saveAndFlush(memberEntity);
@@ -76,5 +71,20 @@ public class WeaponPermissionService {
         return true;
     }
 
+    public boolean removeWeaponPermission(String memberUUID, boolean admission, boolean permission) {
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        WeaponPermissionEntity weaponPermission = memberEntity.getWeaponPermission();
+
+        if (permission) {
+            weaponPermission.setNumber(null);
+            weaponPermission.setExist(false);
+        }
+        if (admission) {
+            weaponPermission.setAdmissionToPossessAWeapon(null);
+            weaponPermission.setAdmissionToPossessAWeaponIsExist(false);
+        }
+        weaponPermissionRepository.saveAndFlush(weaponPermission);
+        return true;
+    }
 
 }

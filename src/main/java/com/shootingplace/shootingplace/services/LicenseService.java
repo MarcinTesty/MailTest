@@ -1,9 +1,11 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.LicenseEntity;
+import com.shootingplace.shootingplace.domain.entities.LicensePaymentHistoryEntity;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.License;
 import com.shootingplace.shootingplace.domain.models.MemberDTO;
+import com.shootingplace.shootingplace.repositories.LicensePaymentHistoryRepository;
 import com.shootingplace.shootingplace.repositories.LicenseRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LicenseService {
@@ -22,15 +25,17 @@ public class LicenseService {
     private final LicenseRepository licenseRepository;
     private final HistoryService historyService;
     private final ChangeHistoryService changeHistoryService;
+    private final LicensePaymentHistoryRepository licensePaymentHistoryRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
     public LicenseService(MemberRepository memberRepository,
-                          LicenseRepository licenseRepository, HistoryService historyService, ChangeHistoryService changeHistoryService) {
+                          LicenseRepository licenseRepository, HistoryService historyService, ChangeHistoryService changeHistoryService, LicensePaymentHistoryRepository licensePaymentHistoryRepository) {
         this.memberRepository = memberRepository;
         this.licenseRepository = licenseRepository;
         this.historyService = historyService;
         this.changeHistoryService = changeHistoryService;
+        this.licensePaymentHistoryRepository = licensePaymentHistoryRepository;
     }
 
     public List<MemberDTO> getMembersNamesAndLicense() {
@@ -83,9 +88,13 @@ public class LicenseService {
         }
         if (license.getNumber() != null
                 && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
-            if (licenseRepository.findAll()
-                    .stream().filter(e -> !(e.getNumber() == null))
-                    .anyMatch(f -> f.getNumber().equals(license.getNumber()))) {
+            List<MemberEntity> collect = memberRepository.findAll()
+                    .stream()
+                    .filter(f -> !f.getErased())
+                    .filter(f -> f.getLicense().getNumber() != null)
+                    .filter(f -> f.getLicense().getNumber().equals(license.getNumber()))
+                    .collect(Collectors.toList());
+            if (collect.size() > 0 && !licenseEntity.getNumber().equals(license.getNumber())) {
                 LOG.error("Ktoś już ma taki numer licencji");
                 return false;
             } else {
@@ -148,10 +157,14 @@ public class LicenseService {
 
         if (number != null && !number.isEmpty() && !number.equals("null")) {
 
-            if (licenseRepository.findAll()
-                    .stream().filter(e -> !(e.getNumber() == null))
-                    .filter(f->!f.getUuid().equals(license.getUuid()))
-                    .anyMatch(f -> f.getNumber().equals(number))) {
+            List<MemberEntity> collect = memberRepository.findAll()
+                    .stream()
+                    .filter(f -> !f.getErased())
+                    .filter(f -> f.getLicense().getNumber() != null)
+                    .filter(f -> f.getLicense().getNumber().equals(number))
+                    .collect(Collectors.toList());
+
+            if (collect.size() > 0 && !license.getNumber().equals(number)) {
                 LOG.error("Ktoś już ma taki numer licencji");
                 return false;
             } else {
@@ -245,6 +258,24 @@ public class LicenseService {
             LOG.error("nie można przedłużyć licencji");
             return false;
         }
+    }
+
+    public boolean updateLicensePayment(String memberUUID, String paymentUUID, LocalDate date, Integer year, String pinCode) {
+
+        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
+        LicensePaymentHistoryEntity licensePaymentHistoryEntity = memberEntity.getHistory().getLicensePaymentHistory().stream().filter(f -> f.getUuid().equals(paymentUUID)).findFirst().orElseThrow(EntityNotFoundException::new);
+
+        if (date != null) {
+            licensePaymentHistoryEntity.setDate(date);
+        }
+        if (year != null) {
+            licensePaymentHistoryEntity.setValidForYear(year);
+        }
+
+        licensePaymentHistoryRepository.saveAndFlush(licensePaymentHistoryEntity);
+        changeHistoryService.addRecordToChangeHistory(pinCode, licensePaymentHistoryEntity.getClass().getSimpleName() + " updateLicense", memberEntity.getUuid());
+
+        return true;
     }
 
     public List<Long> getMembersQuantity() {

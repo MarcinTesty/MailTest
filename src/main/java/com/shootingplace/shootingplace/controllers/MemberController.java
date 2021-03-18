@@ -4,7 +4,6 @@ package com.shootingplace.shootingplace.controllers;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.models.Member;
 import com.shootingplace.shootingplace.domain.models.MemberDTO;
-import com.shootingplace.shootingplace.domain.models.WeaponPermission;
 import com.shootingplace.shootingplace.services.ChangeHistoryService;
 import com.shootingplace.shootingplace.services.MemberService;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,12 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMember(number));
     }
 
-    @GetMapping("/activelist")
+    @GetMapping("/uuid/{uuid}")
+    public ResponseEntity<MemberEntity> getMemberByUUID(@PathVariable String uuid) {
+        return ResponseEntity.ok(memberService.getMemberByUUID(uuid));
+    }
+
+    @GetMapping("/activeList")
     public ResponseEntity<List<MemberEntity>> getActiveMembersList(@RequestParam Boolean active, @RequestParam Boolean adult, @RequestParam Boolean erase) {
         return ResponseEntity.ok(memberService.getMembersList(active, adult, erase));
     }
@@ -157,15 +161,6 @@ public class MemberController {
         return memberService.updateJoinDate(uuid, date);
     }
 
-    @PutMapping("/weapon/{memberUUID}")
-    public ResponseEntity<?> changeWeaponPermission(@PathVariable String memberUUID, @RequestBody WeaponPermission weaponPermission) {
-        if (memberService.changeWeaponPermission(memberUUID, weaponPermission)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @PatchMapping("/adult/{uuid}")
     public ResponseEntity<?> changeAdult(@PathVariable String uuid, @RequestParam String pinCode) {
         if (changeHistoryService.comparePinCode(pinCode)) {
@@ -210,12 +205,4 @@ public class MemberController {
         }
     }
 
-    @PatchMapping("/resurrect/{uuid}")
-    public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String pinCode) {
-        if (changeHistoryService.comparePinCode(pinCode)) {
-            return memberService.resurrectMember(uuid, pinCode);
-        } else {
-            return ResponseEntity.status(403).body("Brak dostępu");
-        }
-    }
 }

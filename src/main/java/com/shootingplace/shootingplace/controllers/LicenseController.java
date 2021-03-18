@@ -85,4 +85,21 @@ public class LicenseController {
         }
     }
 
+    @PutMapping("/editPayment")
+    public ResponseEntity<?> editLicensePaymentHistory(@RequestParam String memberUUID,@RequestParam String paymentUUID, @RequestParam String paymentDate, @RequestParam Integer year, @RequestParam String pinCode) {
+        if (changeHistoryService.comparePinCode(pinCode)) {
+            LocalDate parseDate = null;
+            if (paymentDate != null && !paymentDate.isEmpty() && !paymentDate.equals("null")) {
+                parseDate = LocalDate.parse(paymentDate );
+            }
+            if (licenseService.updateLicensePayment(memberUUID, paymentUUID, parseDate,year, pinCode)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.status(403).body("Brak dostępu");
+        }
+    }
+
 }

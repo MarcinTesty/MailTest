@@ -38,7 +38,7 @@ public class EvidenceController {
         return evidenceService.clearEvidence();
     }
 
-    @PutMapping("/setdate")
+    @PutMapping("/setDate")
     public Boolean setEvidenceDate(@RequestParam String date) {
         return evidenceService.setEvidenceDate(date);
     }

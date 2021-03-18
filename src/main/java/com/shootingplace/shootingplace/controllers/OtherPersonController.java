@@ -47,7 +47,9 @@ public class OtherPersonController {
             }
             LocalDate parse = null;
             if (!Objects.equals(arbiterPermissionValidThru, "")) {
-                parse = LocalDate.parse(arbiterPermissionValidThru);
+                if (arbiterPermissionValidThru != null) {
+                    parse = LocalDate.parse(arbiterPermissionValidThru);
+                }
             }
             memberPermissions = MemberPermissions.builder()
                     .arbiterNumber(arbiterNumber)
