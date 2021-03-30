@@ -8,7 +8,7 @@ public enum GunType {
     RIMFIRE_REWOLVER("Rewolwer Bocznego zapłonu"),
     CENTERFIRE_REWOLVER("Rewolwer Centralnego Zapłonu"),
     SMOOTHBORE_SHOTGUN("Strzelba Gładkolufowa");
-    private String name;
+    private final String name;
 
     GunType(String name) {
         this.name = name;
