@@ -39,8 +39,14 @@ public class TournamentService {
     }
 
     public String createNewTournament(Tournament tournament) {
+        String[] s1 = tournament.getName().split(" ");
+        StringBuilder name = new StringBuilder();
+        for (String value : s1) {
+            String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+            name.append(splinted);
+        }
         TournamentEntity tournamentEntity = TournamentEntity.builder()
-                .name(tournament.getName())
+                .name(name.toString())
                 .date(tournament.getDate())
                 .open(tournament.isOpen())
                 .WZSS(tournament.isWzss())
@@ -63,7 +69,13 @@ public class TournamentService {
         if (tournamentEntity.isOpen()) {
             if (tournament.getName() != null) {
                 if (!tournament.getName().isEmpty()) {
-                    tournamentEntity.setName(tournament.getName());
+                    String[] s1 = tournament.getName().split(" ");
+                    StringBuilder name = new StringBuilder();
+                    for (String value : s1) {
+                        String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                        name.append(splinted);
+                    }
+                    tournamentEntity.setName(name.toString());
                     LOG.info("Zmieniono nazwę zawodów");
                 }
             }

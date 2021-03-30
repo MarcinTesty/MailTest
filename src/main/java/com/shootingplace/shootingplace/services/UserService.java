@@ -13,14 +13,22 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ChangeHistoryService changeHistoryService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ChangeHistoryService changeHistoryService) {
         this.userRepository = userRepository;
+        this.changeHistoryService = changeHistoryService;
     }
 
     public List<String> getListOfSuperUser() {
         List<String> list = new ArrayList<>();
         userRepository.findAll().stream().filter(UserEntity::isSuperUser).forEach(e -> list.add(e.getName()));
+        return list;
+    }
+
+    public List<String> getListOfUser() {
+        List<String> list = new ArrayList<>();
+        userRepository.findAll().stream().filter(f -> !f.isSuperUser()).forEach(e -> list.add(e.getName()));
         return list;
     }
 
@@ -60,6 +68,7 @@ public class UserService {
                     .superUser(true)
                     .name(trim.toString())
                     .pinCode(trim1)
+                    .active(true)
                     .build();
             userRepository.saveAndFlush(userEntity);
             return ResponseEntity.status(201).body("\"Utworzono użytkownika " + userEntity.getName() + ".\"");
@@ -101,12 +110,18 @@ public class UserService {
                     .superUser(false)
                     .name(trim.toString())
                     .pinCode(trim1)
+                    .active(true)
                     .build();
             userRepository.saveAndFlush(userEntity);
+            changeHistoryService.addRecordToChangeHistory(superPinCode, userEntity.getClass().getSimpleName() + " " + "createUser", userEntity.getUuid());
             return ResponseEntity.status(201).body("\"Utworzono użytkownika " + userEntity.getName() + ".\"");
 
 
         }
+        return null;
+    }
+
+    public ResponseEntity<?> deactivateUser(String name) {
         return null;
     }
 }

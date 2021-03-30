@@ -45,14 +45,14 @@ public class CompetitionMembersListController {
             return ResponseEntity.badRequest().build();
     }
 
-    @PatchMapping("/sort")
-    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam String competitionUUID, @RequestParam boolean sort) {
-        if (competitionMembersListService.sortScore(competitionUUID, sort)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+//    @PatchMapping("/sort")
+//    public ResponseEntity<?> sortScoreByNameOrScore(@RequestParam String competitionUUID, @RequestParam boolean sort) {
+//        if (competitionMembersListService.sortScore(competitionUUID, sort)) {
+//            return ResponseEntity.ok().build();
+//        } else {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> removeMembersListFromTournament(@RequestParam String competitionUUID, @RequestParam String tournamentUUID) {

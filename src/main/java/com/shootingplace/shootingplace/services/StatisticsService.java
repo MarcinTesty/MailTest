@@ -138,12 +138,13 @@ public class StatisticsService {
                         .map(Mapping::map2)
                         .sorted(Comparator.comparing(MemberDTO::getJoinDate).thenComparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
                         .collect(Collectors.toList());
-
-                list.add(collect);
+                if (!collect.isEmpty()) {
+                    list.add(collect);
+                }
             }
             count = list.size();
         }
-            return String.valueOf(count);
+        return String.valueOf(count);
     }
 
     public List<MemberAmmo> getMembersAmmoTakesInTime(LocalDate firstDate, LocalDate secondDate) {

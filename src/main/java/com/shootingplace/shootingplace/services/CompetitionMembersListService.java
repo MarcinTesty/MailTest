@@ -68,7 +68,7 @@ public class CompetitionMembersListService {
                     ScoreEntity score = scoreService.createScore(0, 0, 0, competitionUUID, null, otherPersonEntity);
                     scoreList.add(score);
                     scoreList.sort(Comparator.comparing(ScoreEntity::getScore).reversed().thenComparing(ScoreEntity::getInnerTen).reversed().thenComparing(ScoreEntity::getOuterTen).reversed());
-                    LOG.info("Dodano Obcego Klubowicza do Listy");
+                    LOG.info("Dodano Obcego Zawodnika do Listy");
                     competitionMembersListRepository.saveAndFlush(list);
                     return true;
                 }
@@ -116,23 +116,23 @@ public class CompetitionMembersListService {
         return false;
     }
 
-    public boolean sortScore(String competitionUUID, boolean sort) {
-        List<ScoreEntity> scoreList = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new).getScoreList();
-        if (sort) {
-            scoreList.sort(Comparator.comparing(ScoreEntity::getName));
-        } else {
-            scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
-                    .reversed()
-                    .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
-                            .reversed()
-                            .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
-                                    .reversed().thenComparing(ScoreEntity::getName)
-                            )));
-        }
-        competitionMembersListRepository.saveAndFlush(competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new));
-
-        return true;
-    }
+//    public boolean sortScore(String competitionUUID, boolean sort) {
+//        List<ScoreEntity> scoreList = competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new).getScoreList();
+//        if (sort) {
+//            scoreList.sort(Comparator.comparing(ScoreEntity::getName));
+//        } else {
+//            scoreList.sort(Comparator.comparing(ScoreEntity::getScore)
+//                    .reversed()
+//                    .thenComparing(Comparator.comparing(ScoreEntity::getInnerTen)
+//                            .reversed()
+//                            .thenComparing(Comparator.comparing(ScoreEntity::getOuterTen)
+//                                    .reversed().thenComparing(ScoreEntity::getName)
+//                            )));
+//        }
+//        competitionMembersListRepository.saveAndFlush(competitionMembersListRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new));
+//
+//        return true;
+//    }
 
     public String getIDByName(String name, String tournamentUUID) {
         TournamentEntity tournamentEntity = tournamentRepository.findById(tournamentUUID).orElseThrow(EntityNotFoundException::new);

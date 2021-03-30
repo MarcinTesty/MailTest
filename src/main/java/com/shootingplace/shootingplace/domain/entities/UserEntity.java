@@ -24,6 +24,8 @@ public class UserEntity {
     private String pinCode;
 
     private boolean superUser;
+
+    private boolean active;
     @OrderBy("dayNow DESC, timeNow DESC")
     @ManyToMany
     private List<ChangeHistoryEntity> changeHistoryEntities;
@@ -62,5 +64,13 @@ public class UserEntity {
 
     public void setPinCode(String pinCode) {
         this.pinCode = pinCode;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

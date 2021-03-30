@@ -20,9 +20,14 @@ public class SettingsController {
         this.clubService = clubService;
     }
 
-    @GetMapping("/SuperUserList")
+    @GetMapping("/superUserList")
     public ResponseEntity<?> getListOfSuperUser() {
         return ResponseEntity.ok(userService.getListOfSuperUser());
+    }
+
+    @GetMapping("/userList")
+    public ResponseEntity<?> getListOfUser() {
+        return ResponseEntity.ok(userService.getListOfUser());
     }
 
     @PostMapping("/createSuperUser")

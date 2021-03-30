@@ -81,7 +81,7 @@ public class CompetitionService {
                     .discipline(discipline)
                     .build();
             competitionRepository.saveAndFlush(competitionEntity);
-            LOG.info("Utworzono nową konkurencję \" " + name + " \"");
+            LOG.info("Utworzono nową konkurencję \"" + name + "\"");
             return true;
         } else {
             return false;

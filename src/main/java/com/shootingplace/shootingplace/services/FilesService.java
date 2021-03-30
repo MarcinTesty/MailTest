@@ -123,8 +123,7 @@ public class FilesService {
             contributionLevel = "50";
         }
 
-        Paragraph p = new Paragraph( clubFullName + "\n", font(14, 1));
-        p.setAlignment(1);
+        Paragraph p = new Paragraph(clubFullName + "\n", font(14, 1));
         Paragraph p1 = new Paragraph("Potwierdzenie opłacenia składki członkowskiej", font(14, 2));
         Paragraph h1 = new Paragraph("Grupa ", font(14, 0));
         Phrase h2 = new Phrase(group, font(14, 1));
@@ -149,10 +148,10 @@ public class FilesService {
         Phrase p20 = new Phrase("                                                                 ");
         Phrase p21 = new Phrase("pieczęć i podpis osoby przyjmującej składkę");
 
-        p.setIndentationLeft(100);
-        p1.setIndentationLeft(120);
+        p.setAlignment(1);
+        p1.setAlignment(1);
         h1.add(h2);
-        h1.setIndentationLeft(190);
+        h1.setAlignment(1);
         p2.add(p3);
         p2.add("                                    ");
         p4.add(p5);
@@ -425,9 +424,9 @@ public class FilesService {
         Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), font(12, 2));
 
         number.setIndentationLeft(450);
-        p.setIndentationLeft(100);
+        p.setAlignment(1);
         p1.add("\n");
-        p1.setIndentationLeft(190);
+        p1.setAlignment(1);
 
         document.add(number);
         document.add(p);
@@ -885,8 +884,13 @@ public class FilesService {
             mainArbiter = tournamentEntity.getMainArbiter().getFirstName() + " " + tournamentEntity.getMainArbiter().getSecondName();
             mainArbiterClass = tournamentEntity.getMainArbiter().getMemberPermissions().getArbiterClass();
         } else {
-            mainArbiter = tournamentEntity.getOtherMainArbiter().getFirstName() + " " + tournamentEntity.getOtherMainArbiter().getSecondName();
-            mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
+            if (tournamentEntity.getOtherMainArbiter() != null) {
+                mainArbiter = tournamentEntity.getOtherMainArbiter().getFirstName() + " " + tournamentEntity.getOtherMainArbiter().getSecondName();
+                mainArbiterClass = tournamentEntity.getOtherMainArbiter().getPermissionsEntity().getArbiterClass();
+            } else {
+                mainArbiter = "Nie Wskazano";
+                mainArbiterClass = "";
+            }
         }
 
         String arbiterRTS;
@@ -895,8 +899,13 @@ public class FilesService {
             arbiterRTS = tournamentEntity.getCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getCommissionRTSArbiter().getSecondName();
             arbiterRTSClass = tournamentEntity.getCommissionRTSArbiter().getMemberPermissions().getArbiterClass();
         } else {
-            arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
-            arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+            if (tournamentEntity.getOtherCommissionRTSArbiter() != null) {
+                arbiterRTS = tournamentEntity.getOtherCommissionRTSArbiter().getFirstName() + " " + tournamentEntity.getOtherCommissionRTSArbiter().getSecondName();
+                arbiterRTSClass = tournamentEntity.getOtherCommissionRTSArbiter().getPermissionsEntity().getArbiterClass();
+            } else {
+                arbiterRTS = "Nie Wskazano";
+                arbiterRTSClass = "";
+            }
         }
 
 
