@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -89,10 +88,4 @@ public class CompetitionService {
         }
     }
 
-    public void deleteCompetition(String competitionUUID) {
-        CompetitionEntity competitionEntity = competitionRepository.findById(competitionUUID).orElseThrow(EntityNotFoundException::new);
-        competitionRepository.delete(competitionEntity);
-        LOG.info("Usunięto konkurencję bo była ujowa");
-
-    }
 }

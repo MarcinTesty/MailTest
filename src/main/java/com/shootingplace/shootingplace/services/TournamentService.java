@@ -327,13 +327,10 @@ public class TournamentService {
 
             if (!memberEntity.getMemberPermissions().getArbiterNumber().isEmpty()) {
                 if (tournamentEntity.getCommissionRTSArbiter() == null || tournamentEntity.getCommissionRTSArbiter() != memberEntity) {
-                    if (tournamentEntity.getCommissionRTSArbiter() == null) {
-                        tournamentEntity.setCommissionRTSArbiter(memberEntity);
-
-                    } else {
+                    if (tournamentEntity.getCommissionRTSArbiter() != null) {
                         historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentUUID, function);
-                        tournamentEntity.setCommissionRTSArbiter(memberEntity);
                     }
+                    tournamentEntity.setCommissionRTSArbiter(memberEntity);
                     tournamentRepository.saveAndFlush(tournamentEntity);
                     LOG.info("Ustawiono sędziego biura obliczeń");
                     historyService.addJudgingRecord(memberEntity.getUuid(), tournamentUUID, function);
@@ -376,14 +373,12 @@ public class TournamentService {
                         if (tournamentEntity.getCommissionRTSArbiter() != null) {
                             historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentUUID, function);
                         }
-                        tournamentEntity.setOtherCommissionRTSArbiter(otherPersonEntity);
-                        tournamentEntity.setCommissionRTSArbiter(null);
 
                     } else {
                         historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentUUID, function);
-                        tournamentEntity.setOtherCommissionRTSArbiter(otherPersonEntity);
-                        tournamentEntity.setCommissionRTSArbiter(null);
                     }
+                    tournamentEntity.setOtherCommissionRTSArbiter(otherPersonEntity);
+                    tournamentEntity.setCommissionRTSArbiter(null);
                     tournamentRepository.saveAndFlush(tournamentEntity);
                     LOG.info("Ustawiono sędziego biura obliczeń");
                 } else {
@@ -536,9 +531,6 @@ public class TournamentService {
             if (tournamentEntity.getMainArbiter() != null) {
                 historyService.removeJudgingRecord(tournamentEntity.getMainArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.MAIN_ARBITER.getName());
             }
-//            if (tournamentEntity.getOtherMainArbiter() != null) {
-//                historyService.removeJudgingRecord(tournamentEntity.getMainArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.MAIN_ARBITER.getName());
-//            }
             if (tournamentEntity.getCommissionRTSArbiter() != null) {
                 historyService.removeJudgingRecord(tournamentEntity.getCommissionRTSArbiter().getUuid(), tournamentEntity.getUuid(), ArbiterWorkClass.RTS_ARBITER.getName());
             }

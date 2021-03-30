@@ -16,6 +16,7 @@ public class ClubEntity {
     @Id
     private Integer id;
     private String name;
+    private String fullName;
     private String licenseNumber;
     private String phoneNumber;
     private String email;
@@ -72,5 +73,13 @@ public class ClubEntity {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

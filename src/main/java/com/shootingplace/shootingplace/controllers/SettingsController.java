@@ -1,7 +1,10 @@
 package com.shootingplace.shootingplace.controllers;
 
+import com.shootingplace.shootingplace.domain.models.Club;
+import com.shootingplace.shootingplace.services.ClubService;
 import com.shootingplace.shootingplace.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,18 +13,35 @@ import org.springframework.web.bind.annotation.*;
 public class SettingsController {
 
     private final UserService userService;
+    private final ClubService clubService;
 
-    public SettingsController(UserService userService) {
+    public SettingsController(UserService userService, ClubService clubService) {
         this.userService = userService;
+        this.clubService = clubService;
+    }
+
+    @GetMapping("/SuperUserList")
+    public ResponseEntity<?> getListOfSuperUser() {
+        return ResponseEntity.ok(userService.getListOfSuperUser());
     }
 
     @PostMapping("/createSuperUser")
     public ResponseEntity<?> createSuperUser(@RequestParam String name, @RequestParam String pinCode) {
-        return ResponseEntity.ok(userService.createSuperUser(name, pinCode));
+        return userService.createSuperUser(name, pinCode);
     }
 
     @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestParam String name, @RequestParam String pinCode, @RequestParam String superPinCode) {
-        return ResponseEntity.ok(userService.createUser(name, pinCode, superPinCode));
+        return userService.createUser(name, pinCode, superPinCode);
+    }
+
+    @Transactional
+    @PostMapping("/createMotherClub")
+    public ResponseEntity<?> createMotherClub(@RequestBody Club club) {
+        if (clubService.createMotherClub(club)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

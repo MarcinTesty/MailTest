@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class Club {
 
     private String name;
+    private String fullName;
     private String licenseNumber;
     private String phoneNumber;
     private String email;
@@ -62,5 +63,13 @@ public class Club {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

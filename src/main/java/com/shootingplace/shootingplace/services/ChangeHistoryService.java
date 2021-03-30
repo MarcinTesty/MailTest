@@ -50,58 +50,6 @@ public class ChangeHistoryService {
             userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
             userRepository.save(userEntity);
         }
-//
-//        if (pinCode.equals("5062")) {
-//
-//            UserEntity userEntity;
-//
-//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Aleksandra"))) {
-//
-//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-//                        .name("Aleksandra")
-//                        .changeHistoryEntities(new ArrayList<>())
-//                        .build());
-//            } else {
-//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Aleksandra")).findFirst().orElse(null);
-//
-//            }
-//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
-//            userRepository.save(userEntity);
-//        }
-//        if (pinCode.equals("6420")) {
-//
-//            UserEntity userEntity;
-//
-//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Marcin"))) {
-//
-//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-//                        .name("Marcin")
-//                        .changeHistoryEntities(new ArrayList<>())
-//                        .build());
-//            } else {
-//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Marcin")).findFirst().orElse(null);
-//
-//            }
-//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
-//            userRepository.save(userEntity);
-//        }
-//        if (pinCode.equals("0127")) {
-//
-//            UserEntity userEntity;
-//
-//            if (userRepository.findAll().stream().noneMatch(f -> f.getName().equals("Igor"))) {
-//
-//                userEntity = userRepository.saveAndFlush(UserEntity.builder()
-//                        .name("Igor")
-//                        .changeHistoryEntities(new ArrayList<>())
-//                        .build());
-//            } else {
-//                userEntity = userRepository.findAll().stream().filter(f -> f.getName().equals("Igor")).findFirst().orElse(null);
-//
-//            }
-//            userEntity.getList().add(addRecord(userEntity, classNamePlusMethod, uuid));
-//            userRepository.save(userEntity);
-//        }
     }
 }
 

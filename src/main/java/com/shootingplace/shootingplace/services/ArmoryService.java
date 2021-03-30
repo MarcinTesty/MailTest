@@ -72,33 +72,6 @@ public class ArmoryService {
 
     }
 
-    public String update() {
-        List<AmmoEvidenceEntity> all = ammoEvidenceRepository.findAll();
-        if (caliberUsedRepository.findAll().isEmpty()) {
-            System.out.println(2);
-            all.forEach(e -> e.getAmmoInEvidenceEntityList().forEach(f ->
-                    {
-                        System.out.println(3);
-                        CaliberUsedEntity caliberUsedEntity = CaliberUsedEntity.builder()
-                                .ammoUsed(f.getQuantity())
-                                .belongTo(f.getCaliberUUID())
-                                .date(e.getDate())
-                                .build();
-
-                        caliberUsedRepository.save(caliberUsedEntity);
-                        CaliberEntity caliberEntity = caliberRepository.findById(f.getCaliberUUID()).orElseThrow(EntityNotFoundException::new);
-                        caliberEntity.setQuantity(caliberEntity.getQuantity() - caliberUsedEntity.getAmmoUsed());
-                        caliberRepository.save(caliberEntity);
-                    }
-            ));
-
-
-            return "udało się";
-        }
-        return "nie udało się";
-    }
-
-
     public void updateAmmo(String caliberUUID, Integer count, LocalDate date, String description) {
         CaliberEntity caliberEntity = caliberRepository.findById(caliberUUID).orElseThrow(EntityNotFoundException::new);
         if (caliberEntity.getQuantity() == null) {

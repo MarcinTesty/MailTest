@@ -26,10 +26,7 @@ public class AddressService {
     @SneakyThrows
     public boolean updateAddress(String memberUUID, Address address) {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        AddressEntity addressEntity = addressRepository.findById(memberEntity
-                .getAddress()
-                .getUuid())
-                .orElseThrow(EntityNotFoundException::new);
+        AddressEntity addressEntity = memberEntity.getAddress();
         if (address.getZipCode() != null && !address.getZipCode().isEmpty()) {
             addressEntity.setZipCode(address.getZipCode());
             LOG.info("Dodano Kod pocztowy");

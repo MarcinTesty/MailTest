@@ -87,7 +87,7 @@ public class LicenseService {
             return false;
         }
         if (license.getNumber() != null
-                && memberEntity.getLicense().getUuid() == licenseEntity.getUuid()) {
+                && memberEntity.getLicense().getUuid().equals(licenseEntity.getUuid())) {
             List<MemberEntity> collect = memberRepository.findAll()
                     .stream()
                     .filter(f -> !f.getErased())
@@ -175,11 +175,7 @@ public class LicenseService {
         }
         if (date != null) {
             license.setValidThru(date);
-            if (license.getValidThru().getYear() >= LocalDate.now().getYear()) {
-                license.setValid(true);
-            } else {
-                license.setValid(false);
-            }
+            license.setValid(license.getValidThru().getYear() >= LocalDate.now().getYear());
         }
         licenseRepository.saveAndFlush(license);
         changeHistoryService.addRecordToChangeHistory(pinCode, license.getClass().getSimpleName() + " updateLicense", memberEntity.getUuid());
@@ -200,11 +196,7 @@ public class LicenseService {
                 && licenseEntity.getNumber() != null && licenseEntity.isPaid()) {
             if (LocalDate.now().isAfter(LocalDate.of(licenseEntity.getValidThru().getYear(), 11, 1)) || licenseEntity.getValidThru().isBefore(LocalDate.now())) {
                 licenseEntity.setValidThru(LocalDate.of((licenseEntity.getValidThru().getYear() + 1), 12, 31));
-                if (licenseEntity.getValidThru().getYear() >= LocalDate.now().getYear()) {
-                    licenseEntity.setValid(true);
-                } else {
-                    licenseEntity.setValid(false);
-                }
+                licenseEntity.setValid(licenseEntity.getValidThru().getYear() >= LocalDate.now().getYear());
                 if (license.getPistolPermission() != null) {
                     if (!memberEntity.getShootingPatent().getPistolPermission() && memberEntity.getAdult()) {
                         LOG.error("Brak Patentu");
@@ -281,7 +273,7 @@ public class LicenseService {
     public List<Long> getMembersQuantity() {
 
         long count2 = memberRepository.findAll().stream()
-                .filter(f -> f.getErased())
+                .filter(MemberEntity::getErased)
                 .filter(f -> f.getLicense().getNumber() != null)
                 .filter(f -> !f.getLicense().isValid())
                 .count();
@@ -295,7 +287,7 @@ public class LicenseService {
                 .count();
         long count1 = licenseRepository.findAll().stream()
                 .filter(f -> f.getNumber() != null)
-                .filter(f -> f.isValid())
+                .filter(LicenseEntity::isValid)
                 .count();
 
         list.add(count - count2);

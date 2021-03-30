@@ -3,7 +3,6 @@ package com.shootingplace.shootingplace.services;
 import com.shootingplace.shootingplace.domain.entities.MemberEntity;
 import com.shootingplace.shootingplace.domain.entities.PersonalEvidenceEntity;
 import com.shootingplace.shootingplace.domain.models.PersonalEvidence;
-import com.shootingplace.shootingplace.repositories.CaliberRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import com.shootingplace.shootingplace.repositories.PersonalEvidenceRepository;
 import org.apache.logging.log4j.LogManager;
@@ -17,14 +16,12 @@ import java.util.ArrayList;
 public class PersonalEvidenceService {
 
     private final PersonalEvidenceRepository personalEvidenceRepository;
-    private final CaliberRepository caliberRepository;
     private final MemberRepository memberRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public PersonalEvidenceService(PersonalEvidenceRepository personalEvidenceRepository, CaliberRepository caliberRepository, MemberRepository memberRepository) {
+    public PersonalEvidenceService(PersonalEvidenceRepository personalEvidenceRepository, MemberRepository memberRepository) {
         this.personalEvidenceRepository = personalEvidenceRepository;
-        this.caliberRepository = caliberRepository;
         this.memberRepository = memberRepository;
     }
 

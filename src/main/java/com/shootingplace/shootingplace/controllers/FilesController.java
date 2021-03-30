@@ -25,16 +25,12 @@ public class FilesController {
     }
 
     @GetMapping("/downloadContribution/{memberUUID}")
-    public ResponseEntity<byte[]> getContributionFile(@PathVariable String memberUUID) throws IOException, DocumentException {
-        FilesEntity filesEntity = filesService.contributionConfirm(memberUUID);
-        try {
+    public ResponseEntity<byte[]> getContributionFile(@PathVariable String memberUUID,@RequestParam String contributionUUID) throws IOException, DocumentException {
+        FilesEntity filesEntity = filesService.contributionConfirm(memberUUID,contributionUUID);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
-        } finally {
-            filesService.delete(filesEntity);
-        }
     }
 
     @GetMapping("/downloadPersonalCard/{memberUUID}")
@@ -43,10 +39,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -56,10 +52,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -69,10 +65,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -82,10 +78,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -95,10 +91,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -108,10 +104,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -121,10 +117,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -134,10 +130,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -147,10 +143,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -160,10 +156,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -173,10 +169,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -188,10 +184,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -207,10 +203,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 
@@ -221,10 +217,10 @@ public class FilesController {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(filesEntity.getType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + filesEntity.getName().trim() + "\"")
                     .body(filesEntity.getData());
         } finally {
-            filesService.delete(filesEntity);
+//            filesService.delete(filesEntity);
         }
     }
 

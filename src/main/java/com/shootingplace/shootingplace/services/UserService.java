@@ -5,6 +5,10 @@ import com.shootingplace.shootingplace.repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -14,40 +18,53 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public List<String> getListOfSuperUser() {
+        List<String> list = new ArrayList<>();
+        userRepository.findAll().stream().filter(UserEntity::isSuperUser).forEach(e -> list.add(e.getName()));
+        return list;
+    }
+
     public ResponseEntity<?> createSuperUser(String name, String pinCode) {
-        if (name.trim().isEmpty() || pinCode.trim().isEmpty()) {
-            ResponseEntity.badRequest().body("Musisz podać jakieś informacje.");
-        }
-        String trim = name.trim();
-
-        String trim1 = pinCode.trim();
-        if (trim1.toCharArray().length < 4) {
-            ResponseEntity.status(409).body("Kod jest za krótki. Musi posiadać 4 cyfry.");
-        }
-        String[] failCode = {"0000", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999"};
-        for (int i = 0; i < trim1.toCharArray().length; i++) {
-            if (trim1.equals(failCode[i])) {
-                return ResponseEntity.status(409).body("Kod jest zbyt prosty - wymyśl coś trudniejszego.");
+        if (userRepository.findAll().stream().noneMatch(UserEntity::isSuperUser)) {
+            if ((name.trim().isEmpty() || name.equals("null")) || (pinCode.trim().isEmpty() || pinCode.equals("null"))) {
+                return ResponseEntity.badRequest().body("\"Musisz podać jakieś informacje.\"");
             }
-        }
-        boolean anyMatch1 = userRepository.findAll().stream().anyMatch(a -> a.getPinCode().equals(trim1));
-        if (anyMatch1) {
-            ResponseEntity.status(403).body("Ze względów bezpieczeństwa wymyśl inny kod");
-        }
+            String[] s1 = name.split(" ");
+            StringBuilder trim = new StringBuilder();
+            for (String value : s1) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                trim.append(splinted);
+            }
+            boolean anyMatch = userRepository.findAll().stream().anyMatch(a -> a.getName().equals(trim.toString()));
+            if (anyMatch) {
+                return ResponseEntity.status(406).body("\"Taki użytkownik już istnieje.\"");
+            }
+            String trim1 = pinCode.trim();
+            if (trim1.toCharArray().length < 4) {
+                System.out.println("Kod jest za krótki. Musi posiadać 4 cyfry.");
+                return ResponseEntity.status(409).body("\"Kod jest za krótki. Musi posiadać 4 cyfry.\"");
+            }
+            String[] failCode = {"0000", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999"};
+            for (int i = 0; i < trim1.toCharArray().length; i++) {
+                if (trim1.equals(failCode[i])) {
+                    System.out.println("Kod jest zbyt prosty - wymyśl coś trudniejszego.");
+                    return ResponseEntity.status(409).body("\"Kod jest zbyt prosty - wymyśl coś trudniejszego.\"");
+                }
+            }
+            boolean anyMatch1 = userRepository.findAll().stream().anyMatch(a -> a.getPinCode().equals(trim1));
+            if (anyMatch1) {
+                return ResponseEntity.status(403).body("\"Ze względów bezpieczeństwa wymyśl inny kod\"");
+            }
 
-        boolean anyMatch = userRepository.findAll().stream().anyMatch(a -> a.getName().equals(trim));
-        if (!anyMatch) {
             UserEntity userEntity = UserEntity.builder()
                     .superUser(true)
-                    .name(name)
-                    .pinCode(pinCode)
+                    .name(trim.toString())
+                    .pinCode(trim1)
                     .build();
             userRepository.saveAndFlush(userEntity);
-            ResponseEntity.ok("Utworzono użytkownika " + userEntity.getName() + ".");
-        } else {
-            ResponseEntity.status(406).body("Taki użytkownik już istnieje.");
+            return ResponseEntity.status(201).body("\"Utworzono użytkownika " + userEntity.getName() + ".\"");
         }
-        return null;
+        return ResponseEntity.status(400).body("\"Istnieje już jeden super-użytkownik : " + userRepository.findAll().stream().filter(UserEntity::isSuperUser).findFirst().orElseThrow(EntityExistsException::new).getName() + ".\"");
 
     }
 
@@ -55,10 +72,19 @@ public class UserService {
 
         if (userRepository.findAll().stream().filter(f -> f.getPinCode().equals(superPinCode)).anyMatch(UserEntity::isSuperUser)) {
 
-            if (name.trim().isEmpty() || pinCode.trim().isEmpty()) {
-                ResponseEntity.badRequest().body("Musisz podać jakieś informacje.");
+            if ((name.trim().isEmpty() || name.equals("null")) || (pinCode.trim().isEmpty() || pinCode.equals("null"))) {
+                return ResponseEntity.badRequest().body("\"Musisz podać jakieś informacje.\"");
             }
-            String trim = name.trim();
+            String[] s1 = name.split(" ");
+            StringBuilder trim = new StringBuilder();
+            for (String value : s1) {
+                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
+                trim.append(splinted);
+            }
+            boolean anyMatch = userRepository.findAll().stream().anyMatch(a -> a.getName().equals(trim.toString()));
+            if (anyMatch) {
+                return ResponseEntity.status(406).body("\"Taki użytkownik już istnieje.\"");
+            }
 
             String trim1 = pinCode.trim();
             if (trim1.toCharArray().length < 4) {
@@ -67,23 +93,20 @@ public class UserService {
             String[] failCode = {"0000", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999"};
             for (int i = 0; i < trim1.toCharArray().length; i++) {
                 if (trim1.equals(failCode[i])) {
-                    return ResponseEntity.status(409).body("Kod jest zbyt prosty - wymyśl coś trudniejszego.");
+                    System.out.println("Kod jest zbyt prosty - wymyśl coś trudniejszego.");
+                    return ResponseEntity.status(409).body("\"Kod jest zbyt prosty - wymyśl coś trudniejszego.\"");
                 }
             }
-            boolean anyMatch = userRepository.findAll().stream().anyMatch(a -> a.getName().equals(trim));
-            if (!anyMatch) {
-                UserEntity userEntity = UserEntity.builder()
-                        .superUser(false)
-                        .name(name)
-                        .pinCode(pinCode)
-                        .build();
-                userRepository.saveAndFlush(userEntity);
-                ResponseEntity.ok("Utworzono użytkownika " + userEntity.getName() + ".");
-            } else {
-                ResponseEntity.status(406).body("Taki użytkownik już istnieje.");
-            }
+            UserEntity userEntity = UserEntity.builder()
+                    .superUser(false)
+                    .name(trim.toString())
+                    .pinCode(trim1)
+                    .build();
+            userRepository.saveAndFlush(userEntity);
+            return ResponseEntity.status(201).body("\"Utworzono użytkownika " + userEntity.getName() + ".\"");
+
 
         }
-            return null;
+        return null;
     }
 }

@@ -27,29 +27,27 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilesService {
-    private static BaseFont czcionka;
-
 
     private final MemberRepository memberRepository;
     private final AmmoEvidenceRepository ammoEvidenceRepository;
-    private final CaliberRepository caliberRepository;
     private final FilesRepository filesRepository;
     private final TournamentRepository tournamentRepository;
     private final ClubRepository clubRepository;
     private final OtherPersonRepository otherPersonRepository;
     private final GunRepository gunRepository;
+    private final ContributionRepository contributionRepository;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, CaliberRepository caliberRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository, ClubRepository clubRepository, OtherPersonRepository otherPersonRepository, GunRepository gunRepository) {
+    public FilesService(MemberRepository memberRepository, AmmoEvidenceRepository ammoEvidenceRepository, FilesRepository filesRepository, TournamentRepository tournamentRepository, ClubRepository clubRepository, OtherPersonRepository otherPersonRepository, GunRepository gunRepository, ContributionRepository contributionRepository) {
         this.memberRepository = memberRepository;
         this.ammoEvidenceRepository = ammoEvidenceRepository;
-        this.caliberRepository = caliberRepository;
         this.filesRepository = filesRepository;
         this.tournamentRepository = tournamentRepository;
         this.clubRepository = clubRepository;
         this.otherPersonRepository = otherPersonRepository;
         this.gunRepository = gunRepository;
+        this.contributionRepository = contributionRepository;
     }
 
     private FilesEntity createFileEntity(FilesModel filesModel) {
@@ -60,13 +58,32 @@ public class FilesService {
 
     }
 
-    public FilesEntity contributionConfirm(String memberUUID) throws DocumentException, IOException {
+    public FilesEntity contributionConfirm(String memberUUID, String contributionUUID) throws DocumentException, IOException {
+        ClubEntity club = clubRepository.getOne(1);
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        LocalDate contribution = memberEntity.getHistory().getContributionList().get(0).getPaymentDay();
-        LocalDate validThru = memberEntity.getHistory().getContributionList().get(0).getValidThru();
+        ContributionEntity contributionEntity;
+        if (contributionUUID == null || contributionUUID.isEmpty() || contributionUUID.equals("null")) {
+            contributionEntity = memberEntity.getHistory().getContributionList().get(0);
+        } else {
+            contributionEntity = contributionRepository.findById(contributionUUID).orElseThrow(EntityNotFoundException::new);
+        }
+        LocalDate contribution = contributionEntity.getPaymentDay();
+        LocalDate validThru = contributionEntity.getValidThru();
         String fileName = "Składka_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + "_" + LocalDate.now() + ".pdf";
 
+        String clubFullName = club.getFullName().toUpperCase();
+
+        // tutaj powinien być text z ustawień o składki
+
+        String contributionText = "Składki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
+                "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
+                "niedotrzymania terminu wpłaty (raty), wysokość (raty) składki ulega powiększeniu o karę w wysokości 50%" +
+                " zaległości. (Regulamin Opłacania Składek Członkowskich Klubu Strzeleckiego „Dziesiątka” LOK w Łodzi)";
+
         LocalDate nextContribution = null;
+
+        // tutaj musi być odpowiednie przeliczanie według ważności składek z ustawień
+
         if (memberEntity.getAdult()) {
             nextContribution = validThru.plusMonths(3);
         } else {
@@ -86,11 +103,6 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
-        try {
-            czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
-        } catch (DocumentException | IOException e) {
-            e.printStackTrace();
-        }
         String group;
         if (memberEntity.getAdult()) {
             group = "OGÓLNA";
@@ -111,29 +123,29 @@ public class FilesService {
             contributionLevel = "50";
         }
 
-        Paragraph p = new Paragraph(Element.ALIGN_JUSTIFIED, "KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI".toUpperCase() + "\n", new Font(czcionka, 14, Font.BOLD));
-        Paragraph p1 = new Paragraph("Potwierdzenie opłacenia składki członkowskiej", new Font(czcionka, 14, Font.ITALIC));
-        Paragraph h1 = new Paragraph("Grupa ", new Font(czcionka, 14));
-        Phrase h2 = new Phrase(group, new Font(czcionka, 14, Font.BOLD));
-        Paragraph p2 = new Paragraph("\n\nNazwisko i Imię : ", new Font(czcionka, 11));
-        Phrase p3 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName(), new Font(czcionka, 18, Font.BOLD));
-        Phrase p4 = new Phrase("Numer Legitymacji : ", new Font(czcionka, 11));
-        Phrase p5 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), new Font(czcionka, 18, Font.BOLD));
-        Paragraph p6 = new Paragraph("\n\n\nData opłacenia składki : ", new Font(czcionka, 11));
-        Phrase p7 = new Phrase(String.valueOf(contribution), new Font(czcionka, 11, Font.BOLD));
-        Paragraph p8 = new Paragraph("\n\nSkładka ważna do : ", new Font(czcionka, 11));
-        Phrase p9 = new Phrase(String.valueOf(validThru), new Font(czcionka, 11, Font.BOLD));
-        Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", new Font(czcionka, 11));
-        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + contribution + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", new Font(czcionka, 11));
-        Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", new Font(czcionka, 11));
-        Paragraph p13 = new Paragraph("\n" + (nextContribution), new Font(czcionka, 11, Font.BOLD));
-        Paragraph p14 = new Paragraph("", new Font(czcionka, 11));
-        Phrase p15 = new Phrase("\n\nSkładki uiszczane w trybie półrocznym muszą zostać opłacone najpóźniej do końca pierwszego " +
-                "kwartału za pierwsze półrocze i analogicznie za drugie półrocze do końca trzeciego kwartału. W przypadku " +
-                "niedotrzymania terminu wpłaty (raty), wysokość (raty) składki ulega powiększeniu o karę w wysokości 50%" +
-                " zaległości. (Regulamin Opłacania Składek Członkowskich Klubu Strzeleckiego „Dziesiątka” LOK w Łodzi)", new Font(czcionka, 11, Font.ITALIC));
-        Paragraph p16 = new Paragraph("\n\n\n\n\n\n\n\n\n", new Font(czcionka, 11));
-        Paragraph p19 = new Paragraph("pieczęć klubu", new Font(czcionka, 11));
+        Paragraph p = new Paragraph( clubFullName + "\n", font(14, 1));
+        p.setAlignment(1);
+        Paragraph p1 = new Paragraph("Potwierdzenie opłacenia składki członkowskiej", font(14, 2));
+        Paragraph h1 = new Paragraph("Grupa ", font(14, 0));
+        Phrase h2 = new Phrase(group, font(14, 1));
+        Paragraph p2 = new Paragraph("\n\nNazwisko i Imię : ", font(11, 0));
+        Phrase p3 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName(), font(18, 1));
+        Phrase p4 = new Phrase("Numer Legitymacji : ", font(11, 0));
+        Phrase p5 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), font(18, 1));
+        Paragraph p6 = new Paragraph("\n\n\nData opłacenia składki : ", font(11, 0));
+        Phrase p7 = new Phrase(String.valueOf(contribution), font(11, 1));
+        Paragraph p8 = new Paragraph("\n\nSkładka ważna do : ", font(11, 0));
+        Phrase p9 = new Phrase(String.valueOf(validThru), font(11, 1));
+        Paragraph p10 = new Paragraph("\n\n\n" + getSex(memberEntity.getPesel()) + " ", font(11, 0));
+        Phrase p11 = new Phrase(memberEntity.getSecondName() + " " + memberEntity.getFirstName() + " dnia : " + contribution + " " + status + " półroczną składkę członkowską w wysokości " + contributionLevel + " PLN.", font(11, 0));
+        Paragraph p12 = new Paragraph("\n\n\n\n\nTermin opłacenia kolejnej składki : ", font(11, 0));
+        Paragraph p13 = new Paragraph("\n" + (nextContribution), font(11, 1));
+        Paragraph p14 = new Paragraph("", font(11, 0));
+
+        Phrase p15 = new Phrase("\n\n" + contributionText, font(11, 2));
+
+        Paragraph p16 = new Paragraph("\n\n\n\n\n\n\n\n\n", font(11, 0));
+        Paragraph p19 = new Paragraph("pieczęć klubu", font(11, 0));
         Phrase p20 = new Phrase("                                                                 ");
         Phrase p21 = new Phrase("pieczęć i podpis osoby przyjmującej składkę");
 
@@ -189,8 +201,8 @@ public class FilesService {
 
     public FilesEntity personalCardFile(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-
-        String fileName = "Karta_Członkowska_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
+        ClubEntity club = clubRepository.getOne(1);
+        String fileName = "Karta_Członkowska_" + memberEntity.getFirstName().trim() + "_" + memberEntity.getSecondName() + ".pdf";
         LocalDate birthDate = birthDay(memberEntity.getPesel());
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document,
@@ -200,6 +212,8 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
+        // pobierać z ustawień
+
         String statement = "Oświadczenie:\n" +
                 "- Zobowiązuję się do przestrzegania Regulaminu Strzelnicy, oraz Regulaminu Klubu Strzeleckiego „Dziesiątka” Ligi Obrony Kraju w Łodzi.\n" +
                 "- Wyrażam zgodę na przesyłanie mi informacji przez Klub Strzelecki „Dziesiątka” za pomocą środków komunikacji elektronicznej, w szczególności pocztą elektroniczną oraz w postaci sms-ów/mms-ów.\n" +
@@ -208,14 +222,9 @@ public class FilesService {
                 "ul. Chocimska 14, 00-791 Warszawa w celach związanych z moim członkostwem w KS „Dziesiątka” LOK Łódź.";
 
 
-        try {
-            czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
-        } catch (DocumentException | IOException e) {
-            e.printStackTrace();
-        }
-
-        Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", font(14, 1));
-        p.setIndentationLeft(100);
+        Paragraph p = new Paragraph(club.getFullName() + "\n", font(14, 1));
+        // setAlignment(0) = left setAlignment(1) = center setAlignment(2) = right
+        p.setAlignment(1);
         String group;
         if (memberEntity.getAdult()) {
             group = "OGÓLNA";
@@ -229,21 +238,21 @@ public class FilesService {
         Phrase p5 = new Phrase("Numer Legitymacji : ", font(11, 0));
         Phrase p6 = new Phrase(String.valueOf(memberEntity.getLegitimationNumber()), font(18, 1));
         Paragraph p7 = new Paragraph("\nData Wstąpienia : ", font(11, 0));
-        Phrase p8 = new Phrase(String.valueOf(memberEntity.getJoinDate()), new Font(czcionka, 15));
-        Paragraph p9 = new Paragraph("\nData Urodzenia : ", new Font(czcionka, 11));
+        Phrase p8 = new Phrase(String.valueOf(memberEntity.getJoinDate()), font(15, 0));
+        Paragraph p9 = new Paragraph("\nData Urodzenia : ", font(11, 0));
         Phrase p10 = new Phrase(String.valueOf(birthDate));
-        Paragraph p11 = new Paragraph("PESEL : " + memberEntity.getPesel(), new Font(czcionka, 11));
-        Paragraph p12 = new Paragraph("", new Font(czcionka, 11));
+        Paragraph p11 = new Paragraph("PESEL : " + memberEntity.getPesel(), font(11, 0));
+        Paragraph p12 = new Paragraph("", font(11, 0));
         Phrase p13 = new Phrase(memberEntity.getIDCard());
-        Paragraph p14 = new Paragraph("Telefon Kontaktowy : " + memberEntity.getPhoneNumber(), new Font(czcionka, 11));
-        Paragraph p15 = new Paragraph("", new Font(czcionka, 11));
-        Paragraph p16 = new Paragraph("\n\nAdres Zamieszkania", new Font(czcionka, 11));
-        Paragraph p17 = new Paragraph("", new Font(czcionka, 11));
-        Paragraph p18 = new Paragraph("\n\n" + statement, new Font(czcionka, 11));
-        Paragraph p19 = new Paragraph("\n\n\n\n\n\n.............................................", new Font(czcionka, 11));
+        Paragraph p14 = new Paragraph("Telefon Kontaktowy : " + memberEntity.getPhoneNumber(), font(11, 0));
+        Paragraph p15 = new Paragraph("", font(11, 0));
+        Paragraph p16 = new Paragraph("\n\nAdres Zamieszkania", font(11, 0));
+        Paragraph p17 = new Paragraph("", font(11, 0));
+        Paragraph p18 = new Paragraph("\n\n" + statement, font(11, 0));
+        Paragraph p19 = new Paragraph("\n\n\n\n\n\n.............................................", font(11, 0));
         Phrase p20 = new Phrase("                                                              ");
         Phrase p21 = new Phrase("............................................................");
-        Paragraph p22 = new Paragraph("miejscowość, data i podpis Klubowicza", new Font(czcionka, 11));
+        Paragraph p22 = new Paragraph("miejscowość, data i podpis Klubowicza", font(11, 0));
         Phrase p23 = new Phrase("                                                                 ");
         Phrase p24 = new Phrase("podpis przyjmującego");
 
@@ -346,6 +355,7 @@ public class FilesService {
 
     public FilesEntity createAmmunitionListDocument(String ammoEvidenceUUID) throws IOException, DocumentException {
         AmmoEvidenceEntity ammoEvidenceEntity = ammoEvidenceRepository.findById(ammoEvidenceUUID).orElseThrow(EntityNotFoundException::new);
+        ClubEntity club = clubRepository.getOne(1);
 
         List<AmmoInEvidenceEntity> ammoInEvidenceEntityList1 = new ArrayList<>();
 
@@ -363,11 +373,11 @@ public class FilesService {
 
         List<AmmoInEvidenceEntity> ammoInEvidenceEntityList2 = a.stream().filter(f ->
                 !f.getCaliberName().equals(sort[0])
-                && !f.getCaliberName().equals(sort[1])
-                && !f.getCaliberName().equals(sort[2])
-                && !f.getCaliberName().equals(sort[3])
-                && !f.getCaliberName().equals(sort[4])
-                && !f.getCaliberName().equals(sort[5]))
+                        && !f.getCaliberName().equals(sort[1])
+                        && !f.getCaliberName().equals(sort[2])
+                        && !f.getCaliberName().equals(sort[3])
+                        && !f.getCaliberName().equals(sort[4])
+                        && !f.getCaliberName().equals(sort[5]))
                 .collect(Collectors.toList());
 
         if (ammoInEvidenceEntity1 != null) {
@@ -409,15 +419,9 @@ public class FilesService {
         document.addTitle(fileName);
         document.addCreationDate();
 
-        try {
-            czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
-        } catch (DocumentException | IOException e) {
-            e.printStackTrace();
-        }
-
 
         Paragraph number = new Paragraph(ammoEvidenceEntity.getNumber(), font(10, 4));
-        Paragraph p = new Paragraph("KLUB STRZELECKI „DZIESIĄTKA” LOK W ŁODZI\n", font(14, 1));
+        Paragraph p = new Paragraph(club.getFullName() + "\n", font(14, 1));
         Paragraph p1 = new Paragraph("Lista rozliczenia amunicji " + ammoEvidenceEntity.getDate(), font(12, 2));
 
         number.setIndentationLeft(450);
@@ -459,18 +463,18 @@ public class FilesService {
                     name = memberEntity.getSecondName() + " " + memberEntity.getFirstName();
                 }
 
-                cell = new PdfPCell(new Paragraph(String.valueOf(j + 1), new Font(czcionka, 10, Font.ITALIC)));
-                cell1 = new PdfPCell(new Paragraph(name, new Font(czcionka, 10, Font.ITALIC)));
-                cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), new Font(czcionka, 10, Font.ITALIC)));
+                cell = new PdfPCell(new Paragraph(String.valueOf(j + 1), font(10, 2)));
+                cell1 = new PdfPCell(new Paragraph(name, font(10, 2)));
+                cell2 = new PdfPCell(new Paragraph(ammoInEvidenceEntity.getAmmoUsedToEvidenceEntityList().get(j).getCounter().toString(), font(10, 2)));
                 table.addCell(cell);
                 table.addCell(cell1);
                 table.addCell(cell2);
                 document.add(table);
             }
             PdfPTable tableSum = new PdfPTable(pointColumnWidths);
-            PdfPCell cellTableSum = new PdfPCell(new Paragraph(new Paragraph("", new Font(czcionka, 10, Font.ITALIC))));
-            PdfPCell cellTableSum1 = new PdfPCell(new Paragraph(new Paragraph("Suma", new Font(czcionka, 10, Font.ITALIC))));
-            PdfPCell cellTableSum2 = new PdfPCell(new Paragraph(new Paragraph(ammoInEvidenceEntity.getQuantity().toString(), new Font(czcionka, 10, Font.ITALIC))));
+            PdfPCell cellTableSum = new PdfPCell(new Paragraph(new Paragraph("", font(10, 2))));
+            PdfPCell cellTableSum1 = new PdfPCell(new Paragraph(new Paragraph("Suma", font(10, 2))));
+            PdfPCell cellTableSum2 = new PdfPCell(new Paragraph(new Paragraph(ammoInEvidenceEntity.getQuantity().toString(), font(10, 2))));
             cellTableSum.setBorder(0);
             cellTableSum1.setBorder(0);
             cellTableSum1.setRunDirection(PdfWriter.RUN_DIRECTION_RTL);
@@ -505,7 +509,7 @@ public class FilesService {
     public FilesEntity createApplicationForExtensionOfTheCompetitorsLicense(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
 
-        String fileName = "Wniosek_" + memberEntity.getFirstName() + " " + memberEntity.getSecondName() + ".pdf";
+        String fileName = "Wniosek_" + memberEntity.getFirstName() + "_" + memberEntity.getSecondName() + ".pdf";
 
         Document document = new Document(PageSize.A4);
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
@@ -942,8 +946,8 @@ public class FilesService {
 
     public FilesEntity CertificateOfClubMembership(String memberUUID) throws IOException, DocumentException {
         MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-        ClubEntity clubEntity = clubRepository.findById(1).orElseThrow(EntityNotFoundException::new);
-        String fileName = "Zaświadczenie" + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + ".pdf";
+        ClubEntity club = clubRepository.getOne(1);
+        String fileName = "Zaświadczenie_" + memberEntity.getFirstName().trim().concat(" " + memberEntity.getSecondName().trim()) + ".pdf";
 
         Document document = new Document(PageSize.A4);
         PdfWriter writer = PdfWriter.getInstance(document,
@@ -954,6 +958,8 @@ public class FilesService {
         PdfPTable mainTable = new PdfPTable(1);
 
         document.add(mainTable);
+
+        // pobieranie z ustawień
 
         String policeAddress = "\nKomendant Wojewódzki Policji w Łodzi\nWydział Postępowań Administracyjnych\n 90-144 Łódź, ul. Sienkiewicza 26";
 
@@ -975,10 +981,10 @@ public class FilesService {
         Paragraph par2 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " wyraża chęć pogłębiania swojej wiedzy i umiejętności w sporcie strzeleckim przez współzawodnictwo w różnych konkurencjach strzeleckich.", font(12, 0));
         par2.setFirstLineIndent(40);
 
-        Paragraph par3 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " posiada Patent Strzelecki PZSS oraz ważną Licencję Zawodniczą PZSS na rok " + clubEntity.getLicenseNumber().substring(5), font(12, 0));
+        Paragraph par3 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " posiada Patent Strzelecki PZSS oraz ważną Licencję Zawodniczą PZSS na rok " + club.getLicenseNumber().substring(5), font(12, 0));
         par3.setFirstLineIndent(40);
 
-        Paragraph par4 = new Paragraph("Klub strzelecki „Dziesiątka” LOK w Łodzi jest członkiem Polskiego Związku Strzelectwa Sportowego i posiada Licencję Klubową nr LK-" + clubEntity.getLicenseNumber() + ", jest również Członkiem Łódzkiego Związku Strzelectwa Sportowego, zarejestrowany pod numerem ewidencyjnym 6.", font(12, 0));
+        Paragraph par4 = new Paragraph(club.getFullName() + " jest członkiem Polskiego Związku Strzelectwa Sportowego i posiada Licencję Klubową nr LK-" + club.getLicenseNumber() + ", jest również Członkiem Łódzkiego Związku Strzelectwa Sportowego, zarejestrowany pod numerem ewidencyjnym 6.", font(12, 0));
         par4.setFirstLineIndent(40);
 
         Paragraph par5 = new Paragraph(getSex(memberEntity.getPesel()) + " " + memberEntity.getFirstName().concat(" " + memberEntity.getSecondName()) + " wystąpił z prośbą o wydanie niniejszego zaświadczenia, skutkiem którego będzie złożenie wniosku o pozwolenie na broń sportową do celów sportowych. \n\n\n", font(12, 0));
@@ -2122,7 +2128,10 @@ public class FilesService {
             } else {
                 contributionDateCell = new PdfPCell(new Paragraph("BRAK SKŁADEK", font(12, 0)));
             }
-            PdfPCell erasedReasonCell = new PdfPCell(new Paragraph(memberEntity.getErasedEntity().getErasedType() + " " + memberEntity.getErasedEntity().getDate(), font(12, 0)));
+            PdfPCell erasedReasonCell = null;
+            if (memberEntity.getErasedEntity() != null) {
+                erasedReasonCell = new PdfPCell(new Paragraph(memberEntity.getErasedEntity().getErasedType() + " " + memberEntity.getErasedEntity().getDate(), font(12, 0)));
+            }
 
             memberTable.setWidthPercentage(100);
 
@@ -2195,7 +2204,7 @@ public class FilesService {
 //        1 - BOLD
 //        2 - ITALIC
 //        3 - BOLDITALIC
-        czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
+        BaseFont czcionka = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1250, BaseFont.CACHED);
         return new Font(czcionka, size, style_1_bold_2_italic_3_bolditalic);
     }
 

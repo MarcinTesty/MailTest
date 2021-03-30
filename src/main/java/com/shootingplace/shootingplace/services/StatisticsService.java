@@ -10,6 +10,7 @@ import com.shootingplace.shootingplace.repositories.ContributionRepository;
 import com.shootingplace.shootingplace.repositories.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -114,28 +115,35 @@ public class StatisticsService {
     }
 
     public String getMaxLegNumber() {
-        MemberEntity memberEntity = memberRepository.findAll().stream().max(Comparator.comparing(MemberEntity::getLegitimationNumber)).orElseThrow();
-        return "\"" + memberEntity.getLegitimationNumber() + "\"";
+        var value = 0;
+        if (!memberRepository.findAll().isEmpty()) {
+            MemberEntity memberEntity = memberRepository.findAll().stream().max(Comparator.comparing(MemberEntity::getLegitimationNumber)).orElseThrow();
+            value = memberEntity.getLegitimationNumber();
+        }
+        return "\"" + value + "\"";
     }
 
     public String getActualYearMemberCounts() {
+        var count = 0;
+        if (!memberRepository.findAll().isEmpty()) {
+            int year = LocalDate.now().getYear();
 
-        int year = LocalDate.now().getYear();
+            List<List<MemberDTO>> list = new ArrayList<>();
 
-        List<List<MemberDTO>> list = new ArrayList<>();
+            for (int i = 0; i < 12; i++) {
+                int finalI = i;
+                List<MemberDTO> collect = memberRepository.findAll().stream()
+                        .filter(f -> f.getJoinDate().getYear() == year)
+                        .filter(f -> f.getJoinDate().getMonth().getValue() == finalI + 1)
+                        .map(Mapping::map2)
+                        .sorted(Comparator.comparing(MemberDTO::getJoinDate).thenComparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
+                        .collect(Collectors.toList());
 
-        for (int i = 0; i < 12; i++) {
-            int finalI = i;
-            List<MemberDTO> collect = memberRepository.findAll().stream()
-                    .filter(f -> f.getJoinDate().getYear() == year)
-                    .filter(f -> f.getJoinDate().getMonth().getValue() == finalI + 1)
-                    .map(Mapping::map2)
-                    .sorted(Comparator.comparing(MemberDTO::getJoinDate).thenComparing(MemberDTO::getSecondName).thenComparing(MemberDTO::getFirstName))
-                    .collect(Collectors.toList());
-
-            list.add(collect);
+                list.add(collect);
+            }
+            count = list.size();
         }
-        return String.valueOf(list.size());
+            return String.valueOf(count);
     }
 
     public List<MemberAmmo> getMembersAmmoTakesInTime(LocalDate firstDate, LocalDate secondDate) {
@@ -166,9 +174,9 @@ public class StatisticsService {
                                             // tutaj znalazło drugi i więcej raz osobę
                                             MemberAmmo memberAmmo = ammoList.stream()
                                                     .filter(f -> f.getUuid().equals(h.getMemberEntity().getUuid()))
-                                                    .findFirst().get();
+                                                    .findFirst().orElseThrow(EntityNotFoundException::new);
                                             if (memberAmmo.getCaliber().stream().anyMatch(a -> a.getName().equals(g.getCaliberName()))) {
-                                                Caliber caliber = memberAmmo.getCaliber().stream().filter(f -> f.getName().equals(g.getCaliberName())).findFirst().get();
+                                                Caliber caliber = memberAmmo.getCaliber().stream().filter(f -> f.getName().equals(g.getCaliberName())).findFirst().orElseThrow(EntityNotFoundException::new);
                                                 Integer quantity = caliber.getQuantity();
                                                 caliber.setQuantity(quantity + h.getCounter());
 

@@ -1,7 +1,6 @@
 package com.shootingplace.shootingplace.services;
 
 import com.shootingplace.shootingplace.domain.entities.AmmoEvidenceEntity;
-import com.shootingplace.shootingplace.domain.entities.CaliberEntity;
 import com.shootingplace.shootingplace.domain.models.AmmoDTO;
 import com.shootingplace.shootingplace.repositories.AmmoEvidenceRepository;
 import org.apache.logging.log4j.LogManager;
@@ -18,20 +17,14 @@ import java.util.stream.Collectors;
 public class AmmoEvidenceService {
 
 
-    private final CaliberService caliberService;
     private final AmmoEvidenceRepository ammoEvidenceRepository;
     private final ChangeHistoryService changeHistoryService;
     private final Logger LOG = LogManager.getLogger(getClass());
 
 
-    public AmmoEvidenceService(CaliberService caliberService, AmmoEvidenceRepository ammoEvidenceRepository, ChangeHistoryService changeHistoryService) {
-        this.caliberService = caliberService;
+    public AmmoEvidenceService(AmmoEvidenceRepository ammoEvidenceRepository, ChangeHistoryService changeHistoryService) {
         this.ammoEvidenceRepository = ammoEvidenceRepository;
         this.changeHistoryService = changeHistoryService;
-    }
-
-    public List<CaliberEntity> getCalibersList() {
-        return caliberService.getCalibersList();
     }
 
     public List<AmmoEvidenceEntity> getAllEvidences(boolean state) {

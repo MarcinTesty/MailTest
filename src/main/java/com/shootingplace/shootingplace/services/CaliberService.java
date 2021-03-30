@@ -66,10 +66,10 @@ public class CaliberService {
                 && !f.getName().equals(sort[3])
                 && !f.getName().equals(sort[4])
                 && !f.getName().equals(sort[5]))
-                .forEach(e -> {
-                    list.add(e.getName());
+                .forEach(e ->
+                    list.add(e.getName())
 
-                });
+                );
         CaliberEntity caliberEntity = all.stream().filter(f -> f.getName().equals(sort[0])).findFirst().orElse(null);
         CaliberEntity caliberEntity1 = all.stream().filter(f -> f.getName().equals(sort[1])).findFirst().orElse(null);
         CaliberEntity caliberEntity2 = all.stream().filter(f -> f.getName().equals(sort[2])).findFirst().orElse(null);

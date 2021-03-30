@@ -123,50 +123,6 @@ public class MemberService {
     }
 
     void checkMembers() {
-        List<AddressEntity> addressEntityList = new ArrayList<>();
-        memberRepository.findAll()
-                .stream()
-                .filter(f -> f.getAddress() != null)
-                .filter(f -> f.getAddress().getPostOfficeCity() == null)
-                .filter(f -> f.getAddress().getStreet() == null)
-                .filter(f -> f.getAddress().getStreetNumber() == null)
-                .forEach(e->addressEntityList.add(e.getAddress()));
-
-        List<AddressEntity> all = addressRepository.findAll();
-        all.removeAll(addressEntityList);
-
-        all.forEach(addressRepository::delete);
-
-        List<AddressEntity> collect = addressRepository.findAll()
-                .stream()
-                .filter(f -> f.getPostOfficeCity() != null)
-                .filter(f -> f.getZipCode() != null)
-                .filter(f -> f.getStreet() != null)
-                .filter(f -> f.getStreetNumber() != null)
-                .collect(Collectors.toList());
-        collect.forEach(c -> {
-            String[] s1 = c.getPostOfficeCity().split(" ");
-            StringBuilder postOfficeCity = new StringBuilder();
-            for (String value : s1) {
-                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
-                postOfficeCity.append(splinted);
-            }
-            String[] s2 = c.getStreet().split(" ");
-            StringBuilder street = new StringBuilder();
-            for (String value : s2) {
-                String splinted = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() + " ";
-                street.append(splinted);
-            }
-            c.setPostOfficeCity(postOfficeCity.toString());
-            c.setStreet(street.toString());
-            String s = c.getStreetNumber().toUpperCase().trim();
-            c.setStreetNumber(s);
-            if (c.getFlatNumber() != null) {
-                String s3 = c.getFlatNumber().toLowerCase().trim();
-                c.setFlatNumber(s3);
-            }
-            addressRepository.save(c);
-        });
         // dorośli
         List<MemberEntity> adultMembers = memberRepository
                 .findAll()
@@ -451,23 +407,6 @@ public class MemberService {
         changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " eraseMember", memberEntity.getUuid());
         return ResponseEntity.noContent().build();
     }
-
-//    public ResponseEntity<?> resurrectMember(String memberUUID, String pinCode) {
-//        if (!memberRepository.existsById(memberUUID)) {
-//            LOG.info("Nie znaleziono Klubowicza");
-//            return ResponseEntity.notFound().build();
-//        }
-//        MemberEntity memberEntity = memberRepository.findById(memberUUID).orElseThrow(EntityNotFoundException::new);
-//        if (memberEntity.getErased()) {
-//            erasedRepository.delete(memberEntity.getErasedEntity());
-//            memberEntity.setErasedEntity(null);
-//            memberEntity.toggleErase();
-//            LOG.info("Klubowicz przywrócony : " + LocalDate.now());
-//        }
-//        memberRepository.saveAndFlush(memberEntity);
-//        changeHistoryService.addRecordToChangeHistory(pinCode, memberEntity.getClass().getSimpleName() + " resurrectMember", memberEntity.getUuid());
-//        return ResponseEntity.noContent().build();
-//    }
 
     //--------------------------------------------------------------------------
     @SneakyThrows
