@@ -192,10 +192,10 @@ public class MemberController {
     @PatchMapping("/erase/{uuid}")
     public ResponseEntity<?> eraseMember(@PathVariable String uuid, @RequestParam String additionalDescription, @RequestParam String erasedDate, @RequestParam String erasedType, @RequestParam String pinCode) {
         if (changeHistoryService.comparePinCode(pinCode)) {
-            if (additionalDescription.trim().isEmpty() || additionalDescription.trim().isBlank() || additionalDescription.trim().equals("null")) {
+            if (additionalDescription.trim().isEmpty() || additionalDescription.trim().isEmpty() || additionalDescription.trim().equals("null")) {
                 additionalDescription = null;
             }
-            if (erasedDate.trim().isEmpty() || erasedDate.trim().isBlank() || erasedDate.trim().equals("null")) {
+            if (erasedDate.trim().isEmpty() || erasedDate.trim().isEmpty() || erasedDate.trim().equals("null")) {
                 erasedDate = String.valueOf(LocalDate.now());
             }
             LocalDate parsedDate = LocalDate.parse(erasedDate);

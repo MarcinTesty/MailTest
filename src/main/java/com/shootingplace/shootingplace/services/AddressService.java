@@ -29,7 +29,7 @@ public class AddressService {
         AddressEntity addressEntity = memberEntity.getAddress();
         if (address.getZipCode() != null && !address.getZipCode().isEmpty()) {
             addressEntity.setZipCode(address.getZipCode());
-            LOG.info("Dodano Kod pocztowy");
+            LOG.info("Dodano Kod pocztowy : {[]}",address);
         }
         if (address.getPostOfficeCity() != null && !address.getPostOfficeCity().isEmpty()) {
             String[] s1 = address.getPostOfficeCity().split(" ");

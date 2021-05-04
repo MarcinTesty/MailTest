@@ -1,0 +1,28 @@
+2021-04-12 19:43:45,299 INFO com.shootingplace.shootingplace.ShootingplaceApplication [main] Starting ShootingplaceApplication on User-PC with PID 3980 (C:\Java\shootingplace\target\classes started by User in C:\Java\shootingplace)
+2021-04-12 19:43:45,311 INFO com.shootingplace.shootingplace.ShootingplaceApplication [main] The following profiles are active: application-prod
+2021-04-12 19:43:47,129 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Bootstrapping Spring Data JPA repositories in DEFERRED mode.
+2021-04-12 19:43:47,392 INFO org.springframework.data.repository.config.RepositoryConfigurationDelegate [main] Finished Spring Data repository scanning in 249ms. Found 31 JPA repository interfaces.
+2021-04-12 19:43:48,248 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat initialized with port(s): 8080 (http)
+2021-04-12 19:43:48,279 INFO org.apache.coyote.http11.Http11NioProtocol [main] Initializing ProtocolHandler ["http-nio-8080"]
+2021-04-12 19:43:48,279 INFO org.apache.catalina.core.StandardService [main] Starting service [Tomcat]
+2021-04-12 19:43:48,279 INFO org.apache.catalina.core.StandardEngine [main] Starting Servlet engine: [Apache Tomcat/9.0.35]
+2021-04-12 19:43:48,517 INFO org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [main] Initializing Spring embedded WebApplicationContext
+2021-04-12 19:43:48,533 INFO org.springframework.web.context.ContextLoader [main] Root WebApplicationContext: initialization completed in 3071 ms
+2021-04-12 19:43:48,803 INFO org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-04-12 19:43:48,834 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Starting...
+2021-04-12 19:43:49,119 INFO com.zaxxer.hikari.HikariDataSource [main] HikariPool-1 - Start completed.
+2021-04-12 19:43:49,398 INFO org.hibernate.jpa.internal.util.LogHelper [task-1] HHH000204: Processing PersistenceUnitInfo [name: default]
+2021-04-12 19:43:49,504 INFO org.hibernate.Version [task-1] HHH000412: Hibernate ORM core version 5.4.15.Final
+2021-04-12 19:43:49,883 WARN org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$JpaWebConfiguration [main] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2021-04-12 19:43:49,883 INFO org.hibernate.annotations.common.Version [task-1] HCANN000001: Hibernate Commons Annotations {5.1.0.Final}
+2021-04-12 19:43:50,353 INFO org.hibernate.dialect.Dialect [task-1] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2021-04-12 19:43:52,346 INFO org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator [task-1] HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2021-04-12 19:43:52,346 INFO org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean [task-1] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2021-04-12 19:43:53,302 INFO org.apache.coyote.http11.Http11NioProtocol [main] Starting ProtocolHandler ["http-nio-8080"]
+2021-04-12 19:43:53,333 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat started on port(s): 8080 (http) with context path ''
+2021-04-12 19:43:53,333 INFO org.springframework.data.repository.config.DeferredRepositoryInitializationListener [main] Triggering deferred initialization of Spring Data repositories…
+2021-04-12 19:43:53,687 INFO org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] [http-nio-8080-exec-2] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-04-12 19:43:53,687 INFO org.springframework.web.servlet.DispatcherServlet [http-nio-8080-exec-2] Initializing Servlet 'dispatcherServlet'
+2021-04-12 19:43:53,703 INFO org.springframework.web.servlet.DispatcherServlet [http-nio-8080-exec-2] Completed initialization in 16 ms
+2021-04-12 19:43:54,448 INFO org.springframework.data.repository.config.DeferredRepositoryInitializationListener [main] Spring Data repositories initialized!
+2021-04-12 19:43:54,470 INFO com.shootingplace.shootingplace.ShootingplaceApplication [main] Started ShootingplaceApplication in 10.018 seconds (JVM running for 13.139)

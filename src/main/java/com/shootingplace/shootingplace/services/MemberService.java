@@ -9,6 +9,7 @@ import com.shootingplace.shootingplace.repositories.*;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ public class MemberService {
     private final HistoryRepository historyRepository;
     private final ContributionRepository contributionRepository;
     private final Logger LOG = LogManager.getLogger();
+    private final org.slf4j.Logger loggerslf = LoggerFactory.getLogger(MemberService.class);
 
 
     public MemberService(MemberRepository memberRepository,
@@ -619,6 +621,7 @@ public class MemberService {
                         list.add(e.getSecondName().concat(" " + e.getFirstName() + " leg. " + e.getLegitimationNumber())));
         list.sort(Comparator.comparing(String::new));
         LOG.info("Lista nazwisk z identyfikatorem");
+        loggerslf.info("log test z listy nazwisk slf4");
         return list;
     }
 
